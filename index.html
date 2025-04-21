@@ -28,12 +28,12 @@
 
 <div class="form-group">
 <label for="sts">Start Time</label>
-<input id="sts" name="sts" class="iemdtp">
+<input id="sts" name="sts" type="datetime-local" class="form-control">
 </div>
 
 <div class="form-group">
 <label for="ets">End Time</label>
-<input id="ets" name="ets" class="iemdtp">
+<input id="ets" name="ets" type="datetime-local" class="form-control">
 </div>
 </div><!-- ./col-md-6 -->
 </div><!-- ./row -->
@@ -60,15 +60,15 @@
   <div class="col-md-7" id="rightside">
 
   <div class="tab" role="tabpanel">
-    <ul class="nav nav-tabs" role="tablist">
-        <li class="active"><a href="#1a" data-toggle="tab">Help</a></li>
-        <li><a id="lsrtab" href="#2a" data-toggle="tab">Local Storm Reports</a></li>
-        <li><a href="#3a" data-toggle="tab">Storm Based Warnings</a></li>
+    <ul class="nav" role="tablist">
+        <li class="tab-item active" data-tab="1a">Help</li>
+        <li class="tab-item" data-tab="2a">Local Storm Reports</li>
+        <li class="tab-item" data-tab="3a">Storm Based Warnings</li>
     </ul>
 
-    <div class="tab-content tabs clearfix">
-        <div role="tabpanel" class="tab-pane active" id="1a">
-        <h3>Local Storm Report App Help</h3>
+    <div class="tab-content">
+        <div class="tab-pane active" data-tab-content="1a">
+            <h3>Local Storm Report App Help</h3>
 <br />
 <p>This application allows the quick viewing of National Weather Service (NWS)
 issued Local Storm Reports (LSR).  These LSRs are issued by local NWS forecast
@@ -118,7 +118,7 @@ are as follows:
 <ul>
 <br />
         </div>
-        <div role="tabpanel" class="tab-pane" id="2a">
+        <div class="tab-pane" data-tab-content="2a">
         <br />
 <p>
 <strong>Tools:</strong> &nbsp;
@@ -146,7 +146,7 @@ are as follows:
 </thead>
 </table>
         </div>
-        <div role="tabpanel" class="tab-pane" id="3a">
+        <div class="tab-pane" data-tab-content="3a">
         <br />
 <p>
 <strong>Tools:</strong> &nbsp;

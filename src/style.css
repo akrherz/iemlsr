@@ -28,6 +28,52 @@ a:focus {
     text-decoration: none;
 }
 
+.tab {
+    margin: 20px 0;
+}
+
+.tab .nav {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-bottom: 2px solid #ddd;
+}
+
+.tab .tab-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    margin-right: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.tab .tab-item.active {
+    background-color: #fff;
+    border-bottom: 2px solid #fff;
+    font-weight: bold;
+}
+
+.tab .tab-item:hover {
+    background-color: #e9e9e9;
+}
+
+.tab .tab-content {
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.tab .tab-pane {
+    display: none;
+}
+
+.tab .tab-pane.active {
+    display: block;
+}
+
 .tab .nav-tabs {
     border-bottom: 2px solid #e8e8e8;
 }

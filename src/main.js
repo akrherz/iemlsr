@@ -2,8 +2,9 @@ import './style.css';
 import 'ol/ol.css'; // Import OpenLayers CSS
 import 'ol-layerswitcher/src/ol-layerswitcher.css'; // Import OpenLayers LayerSwitcher CSS
 import 'bootstrap/dist/css/bootstrap.css'; // Import Bootstrap CSS
+import select2 from 'select2';
+import 'select2/dist/css/select2.css';
 
-import jQuery from "jquery";
 import $ from "jquery";
 
 import DataTable from "datatables.net";
@@ -23,6 +24,9 @@ import { transform } from 'ol/proj'; // Import OpenLayers projection transform
 import FullScreen from 'ol/control/FullScreen'; // Import OpenLayers FullScreen control
 import LayerSwitcher from 'ol-layerswitcher'; // Import OpenLayers LayerSwitcher
 import { iemdata } from './iemdata.js'; // Import iemdata
+import { initializeTimeSlider } from './timeslider.js';
+import { parseHref, updateURL, migrateHashToParams } from './urlHandler.js';
+import { initializeTabs } from './tabs.js';
 
 let olmap = null; // Openlayers map
 let lsrtable = null; // LSR DataTable
@@ -49,29 +53,6 @@ $.datetimepicker.setDateFormatter({
     }
 });
 
-/*
-// https://datatables.net/plug-ins/api/row().show()
-$.dataTables.Api.register('row().show()', function() { // need this to work
-    const page_info = this.table().page.info();
-    // Get row index
-    const new_row_index = this.index();
-    // Row position
-    const row_position = this.table()
-        .rows({ search: 'applied' })[0]
-        .indexOf(new_row_index);
-    // Already on right page ?
-    if ((row_position >= page_info.start && row_position < page_info.end) || row_position < 0) {
-        // Return row object
-        return this;
-    }
-    // Find page number
-    const page_to_display = Math.floor(row_position / this.table().page.len());
-    // Go to that page
-    this.table().page(page_to_display);
-    // Return row object
-    return this;
-});
-*/
 
 /**
  * Replace HTML special characters with their entity equivalents
@@ -86,56 +67,16 @@ function escapeHTML(val) {
               .replace(/'/g, '&#039;');
 }
 
-function parse_href() {
-    // Figure out how we were called
-    let sts = null;
-    let ets = null;
-    const tokens = window.location.href.split('#');
-    if (tokens.length !== 2) {
-        return;
-    }
-    const tokens2 = tokens[1].split("/");
-    if (tokens2.length < 2) {
-        return;
-    }
-    const ids = escapeHTML(tokens2[0]).split(",");
-    if (ids.length > 0){
-        if (ids[0].length === 3){
-            wfoSelect.val(ids).trigger("change");
-        } else {
-            stateSelect.val(ids).trigger("change");
-            $("#by_state").click();
-        }
-    }
-    if (tokens2.length > 2) {
-        sts = new Date(Date.UTC(...tokens2[1].match(/.{1,2}/g).map((v, i) => i === 1 ? parseInt(v) - 1 : parseInt(v))));
-        ets = new Date(Date.UTC(...tokens2[2].match(/.{1,2}/g).map((v, i) => i === 1 ? parseInt(v) - 1 : parseInt(v))));
-    }
-    else {
-        realtime = true;
-        $("#realtime").prop('checked', true);
-        // Offset timing
-        ets = new Date();
-        sts = new Date(ets.getTime() + parseInt(tokens2[1], 10) * 1000);
-    }
-    $("#sts").val(sts.toLocaleString());
-    $("#ets").val(ets.toLocaleString());
-    updateRADARTimes();
-    if (tokens2.length > 3) {
-        // We have settings
-        applySettings(tokens2[3]);
-    }
-    setTimeout(loadData, 0);
-}
- 
 function cronMinute() {
     if (!realtime) return;
     // Compute the delta
-    const sts = new Date($("#sts").val());
-    const ets = new Date($("#ets").val());
-    $("#ets").val(new Date().toLocaleString());
+    const stsElement = document.getElementById("sts");
+    const etsElement = document.getElementById("ets");
+    const sts = new Date(stsElement.value);
+    const ets = new Date(etsElement.value);
+    etsElement.value = new Date().toLocaleString();
     const seconds = (ets - sts) / 1000;  // seconds
-    $("#sts").val(new Date(Date.now() - seconds * 1000).toLocaleString());
+    stsElement.value = new Date(Date.now() - seconds * 1000).toLocaleString();
     setTimeout(loadData, 0);
 }
 function getRADARSource(dt) {
@@ -314,7 +255,7 @@ lsrLayer.getSource().on('change', () => {
         lsrtypefilter.append(`<option value="${d}">${d}</option`);
     });
 });
-lsrLayer.on('change:visible', updateURL);
+lsrLayer.on('change:visible', updateURLWrapper);
 
 const sbwLayer = new VectorLayer({
     title: "Storm Based Warnings",
@@ -332,7 +273,7 @@ const sbwLayer = new VectorLayer({
         return sbwStyle;
     }
 });
-sbwLayer.on('change:visible', updateURL);
+sbwLayer.on('change:visible', updateURLWrapper);
 sbwLayer.addEventListener(TABLE_FILTERED_EVENT, () => {
     // Turn all features back on
     sbwLayer.getSource().getFeatures().forEach((feat) => {
@@ -469,33 +410,17 @@ function copyToClipboard(ttext, msg) {
 function initUI() {
     // Generate UI components of the page
     const handle = $("#radartime");
-    /*
-    $("#timeslider").slider({
-        min: 0,
-        max: 100,
-        create() {
-            handle.text(new Date(nexradBaseTime).toLocaleString());
-        },
-        slide(_event, ui) {
-            const dt = new Date(nexradBaseTime);
-            dt.setUTCMinutes(dt.getUTCMinutes() + ui.value * 5);
-            handle.text(dt.toLocaleString());
-        },
-        change(_event, ui) {
-            const dt = new Date(nexradBaseTime);
-            dt.setUTCMinutes(dt.getUTCMinutes() + ui.value * 5);
-            n0q.setSource(getRADARSource(dt));
-            handle.text(dt.toLocaleString());
-        }
+    initializeTimeSlider('timeslider', (value) => {
+        const dt = new Date(nexradBaseTime);
+        dt.setUTCMinutes(dt.getUTCMinutes() + value * 5);
+        n0q.setSource(getRADARSource(dt));
     });
-    */
     n0q = new TileLayer({
         title: 'NEXRAD Base Reflectivity',
         visible: true,
         source: getRADARSource(nexradBaseTime)
     });
-    n0q.on('change:visible', updateURL);
-    /*
+    n0q.on('change:visible', updateURLWrapper);
     lsrtypefilter = $("#lsrtypefilter").select2({
         placeholder: "Filter LSRs by Event Type",
         width: 300,
@@ -526,14 +451,13 @@ function initUI() {
             return state.id;
         }
     });
-    */
     $.each(iemdata.wfos, (_idx, entry) => {
         const opt = new Option(`[${entry[0]}] ${entry[1]}`, entry[0], false, false);
-        //wfoSelect.append(opt);
+        wfoSelect.append(opt);
     });
     $.each(iemdata.states, (_idx, entry) => {
         const opt = new Option(`[${entry[0]}] ${entry[1]}`, entry[0], false, false);
-        //stateSelect.append(opt);
+        stateSelect.append(opt);
     });
 
     $(".iemdtp").datetimepicker({
@@ -545,11 +469,24 @@ function initUI() {
             setTimeout(loadData, 0);
         }
     });
-    const sts = new Date();
-    sts.setDate(sts.getDate() - 1);
-    const ets = new Date();
-    $("#sts").val(sts.toLocaleString());
-    $("#ets").val(ets.toLocaleString());
+    const stsInput = document.getElementById('sts');
+    const etsInput = document.getElementById('ets');
+
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+
+    stsInput.value = yesterday.toISOString().slice(0, 16);
+    etsInput.value = now.toISOString().slice(0, 16);
+
+    stsInput.addEventListener('change', () => {
+        setTimeout(loadData, 0);
+    });
+
+    etsInput.addEventListener('change', () => {
+        setTimeout(loadData, 0);
+    });
+
     updateRADARTimes();
 
     $("#load").click(() => {
@@ -569,7 +506,6 @@ function initUI() {
         const url = `https://mesonet.agron.iastate.edu/geojson/lsr.geojson?${$.param(opts)}`;
         copyToClipboard(url, "GeoJSON URL copied to clipboard");
     });
-    // =======
     $("#warnshapefile").click(() => {
         window.location.href = getShapefileLink("watchwarn");
     });
@@ -591,9 +527,9 @@ function initUI() {
         }
     });
     statesLayer = make_iem_tms('US States', 'usstates', true, '');
-    statesLayer.on('change:visible', updateURL);
+    statesLayer.on('change:visible', updateURLWrapper);
     countiesLayer = make_iem_tms('US Counties', 'uscounties', false, '');
-    countiesLayer.on('change:visible', updateURL);
+    countiesLayer.on('change:visible', updateURLWrapper);
 
     olmap = new Map({
         target: 'map',
@@ -812,7 +748,6 @@ function initUI() {
 }
 
 function genSettings() {
-    /* Generate URL options set on this page */
     let res = "";
     res += (n0q.isVisible() ? "1" : "0");
     res += (lsrLayer.isVisible() ? "1" : "0");
@@ -823,18 +758,10 @@ function genSettings() {
     return res;
 }
 
-function updateURL() {
-    const sts = new Date($("#sts").val()).toISOString().replace(/[-:]/g, '').slice(0, 12);
-    const ets = new Date($("#ets").val()).toISOString().replace(/[-:]/g, '').slice(0, 12);
-    const by = $("input[type=radio][name=by]:checked").val();
-    const wfos = $("#wfo").val();  // null for all or array
-    const states = $("#state").val();  // null for all or array
-    let wstr = "";
-    if (wfos !== null && by === "wfo") wstr = wfos.join(",");
-    else if (states !== null && by === "state") wstr = states.join(",");
-    window.location.href = `#${escapeHTML(wstr)}/${sts}/${ets}/${genSettings()}`;
-
+function updateURLWrapper() {
+    updateURL(wfoSelect, stateSelect, genSettings);
 }
+
 function applySettings(opts) {
     if (opts[0] !== undefined) { // Show RADAR
         n0q.setVisible(opts[0] === "1");
@@ -858,24 +785,23 @@ function applySettings(opts) {
 }
 function updateRADARTimes() {
     // Figure out what our time slider should look like
-    const sts = new Date($("#sts").val());
-    const ets = new Date($("#ets").val());
+    const stsElement = document.getElementById("sts");
+    const etsElement = document.getElementById("ets");
+    const sts = new Date(stsElement.value);
+    const ets = new Date(etsElement.value);
     sts.setUTCMinutes(sts.getUTCMinutes() - (sts.getUTCMinutes() % 5));
     ets.setUTCMinutes(ets.getUTCMinutes() + (5 - (ets.getUTCMinutes() % 5)));
     const times = (ets - sts) / (5 * 60 * 1000);  // 5 minute bins
     nexradBaseTime = sts;
-    /*
-    $("#timeslider")
-        .slider("option", "max", times - 1)
-        .slider("value", realtime ? times - 1 : 0);
-    */
 }
 function buildOpts() {
     const wfos = $("#wfo").val();  // null for all or array
     const states = $("#state").val();  // null for all or array
     const by = $("input[type=radio][name=by]:checked").val();
-    const sts = new Date($("#sts").val()).toISOString().replace(/[-:]/g, '').slice(0, 12);
-    const ets = new Date($("#ets").val()).toISOString().replace(/[-:]/g, '').slice(0, 12);
+    const stsElement = document.getElementById("sts");
+    const etsElement = document.getElementById("ets");
+    const sts = new Date(stsElement.value).toISOString().replace(/[-:]/g, '').slice(0, 12);
+    const ets = new Date(etsElement.value).toISOString().replace(/[-:]/g, '').slice(0, 12);
     const opts = {
         sts,
         ets
@@ -899,7 +825,7 @@ function loadData() {
     const opts = buildOpts();
     $.ajax({
         method: "GET",
-        url: `/geojson/lsr.geojson?${$.param(opts)}`,
+        url: `https://mesonet.agron.iastate.edu/geojson/lsr.geojson?${$.param(opts)}`,
         dataType: 'json',
         success(data) {
             if (data.features.length === 10000) {
@@ -913,7 +839,7 @@ function loadData() {
     });
     $.ajax({
         method: "GET",
-        url: `/geojson/sbw.geojson?${$.param(opts)}`,
+        url: `https://mesonet.agron.iastate.edu/geojson/sbw.geojson?${$.param(opts)}`,
         dataType: 'json',
         success(data) {
             sbwLayer.getSource().addFeatures(
@@ -922,7 +848,7 @@ function loadData() {
             );
         }
     });
-    updateURL();
+    updateURLWrapper();
 }
 
 function getShapefileLink(base) {
@@ -940,8 +866,10 @@ function getShapefileLink(base) {
             uri += `&state=${escapeHTML(states[i])}`;
         }
     }
-    const sts = new Date($("#sts").val());
-    const ets = new Date($("#ets").val());
+    const stsElement = document.getElementById("sts");
+    const etsElement = document.getElementById("ets");
+    const sts = new Date(stsElement.value);
+    const ets = new Date(etsElement.value);
     uri += `&year1=${sts.getUTCFullYear()}`;
     uri += `&month1=${sts.getUTCMonth() + 1}`;
     uri += `&day1=${sts.getUTCDate()}`;
@@ -955,9 +883,16 @@ function getShapefileLink(base) {
     return uri;
 }
 
-$().ready(() => {
-    initUI(); // static.js
-    parse_href();
+// Initialize the tabs after the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // First migrate any hash parameters to URL parameters
+    migrateHashToParams();
+    
+    initializeTabs('rightside');
+    // hook up select2 with jquery
+    select2($);
+    initUI();
+    parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADARTimes, applySettings);
     window.setInterval(cronMinute, 60000);
 });
 
