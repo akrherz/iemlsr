@@ -10,7 +10,6 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "bootstrap": "^5.3.6",
     "datatables.net-dt": "^2.2.2",
     "jquery-ui": "^1.14.1",
     "ol": "latest",

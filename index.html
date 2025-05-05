@@ -13,8 +13,8 @@
     <!-- Left Drawer Toggle -->
     <button class="drawer-toggle drawer-toggle-left" id="drawer-toggle-left">☰</button>
 
-    <!-- Right Drawer Toggle -->
-    <button class="drawer-toggle drawer-toggle-right" id="drawer-toggle-right">☰</button>
+    <!-- Reports Modal Toggle -->
+    <button class="modal-toggle view-table-button" id="reports-toggle">View Table</button>
 
     <!-- Left Drawer - Controls -->
     <div class="drawer drawer-left" id="controls-drawer">
@@ -23,20 +23,20 @@
         <h3>Controls</h3>
 
         <!-- Time Slider -->
-        <div class="form-group">
+        <div class="control-group">
           <label>RADAR Time: <span id="radartime"></span></label>
           <div id="timeslider"></div>
         </div>
 
-        <div class="form-group">
+        <div class="control-group">
           <label>Filter by:</label>
-          <div class="radio">
+          <div class="radio-group">
             <label>
               <input type="radio" name="by" value="wfo" checked>
               NWS Forecast Office
             </label>
           </div>
-          <div class="radio">
+          <div class="radio-group">
             <label>
               <input type="radio" name="by" value="state">
               State
@@ -44,100 +44,111 @@
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="control-group">
           <label for="wfo">WFO:</label>
-          <select id="wfo" multiple></select>
+          <select id="wfo" class="input-field" multiple></select>
         </div>
 
-        <div class="form-group">
+        <div class="control-group">
           <label for="state">State:</label>
-          <select id="state" multiple></select>
+          <select id="state" class="input-field" multiple></select>
         </div>
 
-        <div class="form-group">
+        <div class="control-group">
           <label for="sts">Start Time:</label>
-          <input type="datetime-local" class="form-control" id="sts">
+          <input type="datetime-local" class="input-field" id="sts">
         </div>
 
-        <div class="form-group">
+        <div class="control-group">
           <label for="ets">End Time:</label>
-          <input type="datetime-local" class="form-control" id="ets">
+          <input type="datetime-local" class="input-field" id="ets">
         </div>
 
-        <div class="form-group">
-          <div class="checkbox">
+        <div class="control-group">
+          <div class="checkbox-group">
             <label>
               <input type="checkbox" id="realtime"> Auto-Refresh
             </label>
           </div>
         </div>
 
-        <div class="form-group">
-          <button id="load" class="btn btn-primary">Load Data</button>
-        </div>
-
-        <div class="form-group">
-          <label>Type Filters:</label>
-          <select id="lsrtypefilter" multiple></select>
-          <select id="sbwtypefilter" multiple></select>
-        </div>
-
-        <div class="form-group">
-          <label>Download Options:</label>
-          <div class="btn-group-vertical w-100">
-            <button id="lsrshapefile" class="btn btn-default">LSR Shapefile</button>
-            <button id="lsrexcel" class="btn btn-default">LSR Excel</button>
-            <button id="lsrkml" class="btn btn-default">LSR KML</button>
-            <button id="lsrgeojson" class="btn btn-default">LSR GeoJSON</button>
-            <button id="warnshapefile" class="btn btn-default">Warning Shapefile</button>
-            <button id="warnexcel" class="btn btn-default">Warning Excel</button>
-            <button id="sbwshapefile" class="btn btn-default">SBW Shapefile</button>
-            <button id="sbwgeojson" class="btn btn-default">SBW GeoJSON</button>
-          </div>
+        <div class="control-group">
+          <button id="load" class="button primary">Load Data</button>
         </div>
       </div>
     </div>
 
-    <!-- Right Drawer - Tables -->
-    <div class="drawer drawer-right" id="tabs-drawer">
-      <button class="drawer-close" id="drawer-close-right">&times;</button>
-      <div class="drawer-content">
-        <div class="tab">
-          <ul class="nav nav-tabs">
-            <li class="active"><a href="#lsrs" data-toggle="tab">LSRs</a></li>
-            <li><a href="#sbw" data-toggle="tab">SBW</a></li>
-          </ul>
-          <div class="tab-content">
-            <div class="tab-pane active" id="lsrs">
-              <table id="lsrtable" class="table table-bordered table-striped">
-                <thead>
-                  <tr>
-                    <th>WFO</th>
-                    <th>Time</th>
-                    <th>County</th>
-                    <th>City</th>
-                    <th>State</th>
-                    <th>Type</th>
-                    <th>Magnitude</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
+    <!-- Reports Modal -->
+    <div class="modal" id="reports-modal">
+      <div class="modal-header">
+        <span>Reports & Warnings</span>
+        <div class="modal-controls">
+          <button class="modal-control-btn" id="minimize-modal" title="Minimize">_</button>
+          <button class="modal-control-btn" id="maximize-modal" title="Maximize">□</button>
+          <button class="modal-control-btn" id="close-modal" title="Close">×</button>
+        </div>
+      </div>
+      <div class="modal-content">
+        <div class="tabs">
+          <div class="tab-list" role="tablist">
+            <button class="tab-button active" role="tab" aria-selected="true" aria-controls="lsrs">LSRs</button>
+            <button class="tab-button" role="tab" aria-selected="false" aria-controls="sbw">SBW</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" id="lsrs" role="tabpanel">
+              <div class="filter-options">
+                <label for="lsrtypefilter">Filter LSRs by Type:</label>
+                <select id="lsrtypefilter" class="input-field" multiple></select>
+              </div>
+              <div class="action-buttons">
+                <button id="lsrexcel" class="button secondary">LSR Excel</button>
+                <button id="lsrkml" class="button secondary">LSR KML</button>
+                <button id="lsrshapefile" class="button secondary">LSR Shapefile</button>
+                <button id="lsrgeojson" class="button secondary">LSR GeoJSON</button>
+              </div>
+              <div class="table-container">
+                <table id="lsrtable" class="data-table">
+                  <thead>
+                    <tr>
+                      <th>WFO</th>
+                      <th>Time</th>
+                      <th>County</th>
+                      <th>City</th>
+                      <th>State</th>
+                      <th>Type</th>
+                      <th>Magnitude</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
             </div>
-            <div class="tab-pane" id="sbw">
-              <table id="sbwtable" class="table table-bordered table-striped">
-                <thead>
-                  <tr>
-                    <th>WFO</th>
-                    <th>Phenomena</th>
-                    <th>Significance</th>
-                    <th>Event ID</th>
-                    <th>Issue</th>
-                    <th>Expire</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
+            <div class="tab-panel" id="sbw" role="tabpanel">
+              <div class="filter-options">
+                <label for="sbwtypefilter">Filter SBWs by Type:</label>
+                <select id="sbwtypefilter" class="input-field" multiple></select>
+              </div>
+              <div class="action-buttons">
+                <button id="warnexcel" class="button secondary">Warning Excel</button>
+                <button id="warnshapefile" class="button secondary">Warning Shapefile</button>
+                <button id="sbwshapefile" class="button secondary">SBW Shapefile</button>
+                <button id="sbwgeojson" class="button secondary">SBW GeoJSON</button>
+              </div>
+              <div class="table-container">
+                <table id="sbwtable" class="data-table">
+                  <thead>
+                    <tr>
+                      <th>WFO</th>
+                      <th>Phenomena</th>
+                      <th>Significance</th>
+                      <th>Event ID</th>
+                      <th>Issue</th>
+                      <th>Expire</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

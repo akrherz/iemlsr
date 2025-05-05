@@ -1,34 +1,40 @@
 export function initializeTabs() {
-    const tabItems = document.querySelectorAll('.tab .tab-item');
-    const tabContents = document.querySelectorAll('.tab-content .tab-pane');
-    
-    // First deactivate all tabs and contents
-    tabItems.forEach(tab => tab.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
-    
-    tabItems.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Remove active class from all tabs
-            tabItems.forEach(t => t.classList.remove('active'));
+    const tabs = document.querySelectorAll('[role="tab"]');
+    const tabPanels = document.querySelectorAll('[role="tabpanel"]');
+
+    // Add click event handlers to tabs
+    tabs.forEach(tab => {
+        tab.addEventListener('click', e => {
+            e.preventDefault();
             
-            // Add active class to clicked tab
+            // Deactivate all tabs
+            tabs.forEach(t => {
+                t.setAttribute('aria-selected', 'false');
+                t.classList.remove('active');
+            });
+            
+            // Hide all tab panels
+            tabPanels.forEach(panel => {
+                panel.setAttribute('hidden', 'true');
+                panel.classList.remove('active');
+            });
+            
+            // Activate the selected tab
+            tab.setAttribute('aria-selected', 'true');
             tab.classList.add('active');
             
-            // Hide all tab content
-            tabContents.forEach(content => content.classList.remove('active'));
-            
-            // Show content for active tab
-            const contentId = tab.getAttribute('data-tab');
-            const content = document.querySelector(`[data-tab-content="${contentId}"]`);
-            if (content) {
-                content.classList.add('active');
+            // Show the associated panel
+            const panelId = tab.getAttribute('aria-controls');
+            const panel = document.getElementById(panelId);
+            if (panel) {
+                panel.removeAttribute('hidden');
+                panel.classList.add('active');
             }
         });
     });
-    
-    // Activate first tab and its content by default
-    const firstTab = tabItems[0];
-    if (firstTab) {
-        firstTab.click();
+
+    // Activate first tab by default
+    if (tabs.length > 0) {
+        tabs[0].click();
     }
 }

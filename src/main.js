@@ -1,7 +1,6 @@
 import './style.css';
 import 'ol/ol.css'; // Import OpenLayers CSS
 import 'ol-layerswitcher/src/ol-layerswitcher.css'; // Import OpenLayers LayerSwitcher CSS
-import 'bootstrap/dist/css/bootstrap.css'; // Import Bootstrap CSS
 import TomSelect from 'tom-select';
 import 'tom-select/dist/css/tom-select.css';
 
@@ -575,11 +574,6 @@ function initUI() {
     const leftDrawerClose = document.getElementById('drawer-close-left');
     const controlsDrawer = document.getElementById('controls-drawer');
 
-    // Right Drawer Controls
-    const rightDrawerToggle = document.getElementById('drawer-toggle-right');
-    const rightDrawerClose = document.getElementById('drawer-close-right');
-    const tabsDrawer = document.getElementById('tabs-drawer');
-
     function toggleDrawer(drawer) {
         drawer.classList.toggle('open');
         setTimeout(() => olmap.updateSize(), 300);
@@ -594,21 +588,12 @@ function initUI() {
     leftDrawerToggle.addEventListener('click', () => toggleDrawer(controlsDrawer));
     leftDrawerClose.addEventListener('click', () => closeDrawer(controlsDrawer));
 
-    // Right Drawer Event Listeners
-    rightDrawerToggle.addEventListener('click', () => toggleDrawer(tabsDrawer));
-    rightDrawerClose.addEventListener('click', () => closeDrawer(tabsDrawer));
-
-    // Handle outside clicks for both drawers
+    // Handle outside clicks for left drawer
     document.addEventListener('click', (event) => {
         if (!event.target.closest('#controls-drawer') && 
             !event.target.closest('#drawer-toggle-left') &&
             controlsDrawer.classList.contains('open')) {
             closeDrawer(controlsDrawer);
-        }
-        if (!event.target.closest('#tabs-drawer') && 
-            !event.target.closest('#drawer-toggle-right') &&
-            tabsDrawer.classList.contains('open')) {
-            closeDrawer(tabsDrawer);
         }
     });
 
@@ -630,6 +615,96 @@ function initUI() {
             document.getElementById(paneId).classList.add('active');
         });
     });
+
+    // Reports Modal Controls
+    const reportsToggle = document.getElementById('reports-toggle');
+    const reportsModal = document.getElementById('reports-modal');
+    const modalHeader = document.querySelector('.modal-header');
+    const minimizeBtn = document.getElementById('minimize-modal');
+    const maximizeBtn = document.getElementById('maximize-modal');
+    const closeBtn = document.getElementById('close-modal');
+
+    // Modal drag functionality
+    let isDragging = false;
+    let initialX;
+    let initialY;
+
+    function dragStart(e) {
+        if (reportsModal.classList.contains('minimized')) return;
+        isDragging = true;
+        initialX = e.clientX - reportsModal.offsetLeft;
+        initialY = e.clientY - reportsModal.offsetTop;
+    }
+
+    function drag(e) {
+        if (!isDragging || reportsModal.classList.contains('minimized')) return;
+        e.preventDefault();
+        
+        const x = e.clientX - initialX;
+        const y = e.clientY - initialY;
+        
+        reportsModal.style.left = `${x}px`;
+        reportsModal.style.top = `${y}px`;
+        reportsModal.style.transform = 'none';
+    }
+
+    function dragEnd() {
+        isDragging = false;
+    }
+
+    // Modal event listeners
+    reportsToggle.addEventListener('click', () => {
+        reportsModal.classList.add('open');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        updateMapSize();
+    });
+
+    closeBtn.addEventListener('click', () => {
+        reportsModal.classList.remove('open');
+        document.body.style.overflow = ''; // Restore scrolling
+        updateMapSize();
+    });
+
+    // Close modal if clicking outside
+    reportsModal.addEventListener('click', (e) => {
+        if (e.target === reportsModal) {
+            reportsModal.classList.remove('open');
+            document.body.style.overflow = '';
+            updateMapSize();
+        }
+    });
+
+    minimizeBtn.addEventListener('click', () => {
+        reportsModal.classList.toggle('minimized');
+        if (!reportsModal.classList.contains('minimized')) {
+            // Reset position when un-minimizing
+            reportsModal.style.left = '50%';
+            reportsModal.style.top = '50%';
+            reportsModal.style.transform = 'translate(-50%, -50%)';
+        }
+        updateMapSize();
+    });
+
+    maximizeBtn.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            reportsModal.style.transform = '';
+            xOffset = 0;
+            yOffset = 0;
+        }
+        updateMapSize();
+    });
+
+    modalHeader.addEventListener('mousedown', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
+    modalHeader.addEventListener('touchstart', dragStart);
+    document.addEventListener('touchmove', drag);
+    document.addEventListener('touchend', dragEnd);
+
+    // Helper function to update map size after modal changes
+    function updateMapSize() {
+        setTimeout(() => olmap.updateSize(), 300);
+    }
 }
 
 function genSettings() {
