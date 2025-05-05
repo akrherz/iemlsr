@@ -401,6 +401,7 @@ function initUI() {
     countiesLayer = make_iem_tms('US Counties', 'uscounties', false, '');
     countiesLayer.on('change:visible', updateURLWrapper);
 
+    // Initialize map first
     olmap = new Map({
         target: 'map',
         controls: [new FullScreen()],
@@ -444,6 +445,10 @@ function initUI() {
             countiesLayer
         ]
     });
+
+    // Ensure map is visible and sized correctly
+    olmap.updateSize();
+
     // Create layers using the new layer manager
     lsrLayer = createLSRLayer(updateURLWrapper, TABLE_FILTERED_EVENT, lsrtable, olmap);
     olmap.addLayer(lsrLayer);
@@ -507,6 +512,10 @@ function initUI() {
 
     const sbwtableEl = document.getElementById('sbwtable');
     sbwtable = new DataTable(sbwtableEl, {
+        select: {
+            style: 'single',
+            info: false
+        },
         columns: [
             {
                 "data": "issue",
@@ -559,6 +568,67 @@ function initUI() {
     });
     sbwtable.on("search.dt", () => {
         sbwLayer.dispatchEvent(TABLE_FILTERED_EVENT);
+    });
+
+    // Left Drawer Controls
+    const leftDrawerToggle = document.getElementById('drawer-toggle-left');
+    const leftDrawerClose = document.getElementById('drawer-close-left');
+    const controlsDrawer = document.getElementById('controls-drawer');
+
+    // Right Drawer Controls
+    const rightDrawerToggle = document.getElementById('drawer-toggle-right');
+    const rightDrawerClose = document.getElementById('drawer-close-right');
+    const tabsDrawer = document.getElementById('tabs-drawer');
+
+    function toggleDrawer(drawer) {
+        drawer.classList.toggle('open');
+        setTimeout(() => olmap.updateSize(), 300);
+    }
+
+    function closeDrawer(drawer) {
+        drawer.classList.remove('open');
+        setTimeout(() => olmap.updateSize(), 300);
+    }
+
+    // Left Drawer Event Listeners
+    leftDrawerToggle.addEventListener('click', () => toggleDrawer(controlsDrawer));
+    leftDrawerClose.addEventListener('click', () => closeDrawer(controlsDrawer));
+
+    // Right Drawer Event Listeners
+    rightDrawerToggle.addEventListener('click', () => toggleDrawer(tabsDrawer));
+    rightDrawerClose.addEventListener('click', () => closeDrawer(tabsDrawer));
+
+    // Handle outside clicks for both drawers
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('#controls-drawer') && 
+            !event.target.closest('#drawer-toggle-left') &&
+            controlsDrawer.classList.contains('open')) {
+            closeDrawer(controlsDrawer);
+        }
+        if (!event.target.closest('#tabs-drawer') && 
+            !event.target.closest('#drawer-toggle-right') &&
+            tabsDrawer.classList.contains('open')) {
+            closeDrawer(tabsDrawer);
+        }
+    });
+
+    // Initialize tabs
+    const tabLinks = document.querySelectorAll('.nav-tabs a');
+    const tabContents = document.querySelectorAll('.tab-pane');
+
+    tabLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Remove active class from all tabs and panes
+            tabLinks.forEach(l => l.parentElement.classList.remove('active'));
+            tabContents.forEach(p => p.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding pane
+            link.parentElement.classList.add('active');
+            const paneId = link.getAttribute('href').substring(1);
+            document.getElementById(paneId).classList.add('active');
+        });
     });
 }
 
@@ -634,7 +704,7 @@ function loadData() {
     // Load up the data please!
     const activeTab = document.querySelector(".tab .active > a");
     if (activeTab && activeTab.getAttribute("href") !== "#2a") {
-        document.getElementById("lsrtab").click();
+        document.getElementById("lsrs").click();
     }
     updateRADARTimes();
 
@@ -710,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // First migrate any hash parameters to URL parameters
     migrateHashToParams();
     
-    initializeTabs('rightside');
+    initializeTabs();
     initUI();
     parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADARTimes, applySettings);
     window.setInterval(cronMinute, 60000);

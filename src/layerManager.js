@@ -131,7 +131,10 @@ function setSelectedValues(selectElement, values) {
 export function createLSRTable() {
     const table = document.getElementById('lsrtable');
     return new DataTable(table, {
-        select: true,
+        select: {
+            style: 'single',
+            info: false
+        },
         rowId: 'id',
         columns: [
             {
