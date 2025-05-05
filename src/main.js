@@ -2,31 +2,24 @@ import './style.css';
 import 'ol/ol.css'; // Import OpenLayers CSS
 import 'ol-layerswitcher/src/ol-layerswitcher.css'; // Import OpenLayers LayerSwitcher CSS
 import 'bootstrap/dist/css/bootstrap.css'; // Import Bootstrap CSS
-import select2 from 'select2';
-import 'select2/dist/css/select2.css';
+import TomSelect from 'tom-select';
+import 'tom-select/dist/css/tom-select.css';
 
-import $ from "jquery";
-
-import DataTable from "datatables.net";
+import DataTable from 'datatables.net'; // Import DataTables
 import 'datatables.net-dt/css/dataTables.dataTables.css'; // Correct DataTables CSS import
-import 'jquery-datetimepicker'; // Correct import for datetimepicker
-import 'jquery-datetimepicker/jquery.datetimepicker.css'; // Import CSS for datetimepicker
+import GeoJSON from 'ol/format/GeoJSON';
 import Map from 'ol/Map'; // Import OpenLayers Map
 import View from 'ol/View'; // Import OpenLayers View
-import TileLayer from 'ol/layer/Tile'; // Import OpenLayers TileLayer
-import VectorLayer from 'ol/layer/Vector'; // Import OpenLayers VectorLayer
+import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ'; // Import OpenLayers XYZ source
-import VectorSource from 'ol/source/Vector'; // Import OpenLayers Vector source
-import GeoJSON from 'ol/format/GeoJSON'; // Import OpenLayers GeoJSON format
 import Overlay from 'ol/Overlay'; // Import OpenLayers Overlay
-import { Style, Stroke, Icon, Text, Fill } from 'ol/style'; // Import OpenLayers styles
 import { transform } from 'ol/proj'; // Import OpenLayers projection transform
 import FullScreen from 'ol/control/FullScreen'; // Import OpenLayers FullScreen control
-import LayerSwitcher from 'ol-layerswitcher'; // Import OpenLayers LayerSwitcher
 import { iemdata } from './iemdata.js'; // Import iemdata
 import { initializeTimeSlider } from './timeslider.js';
 import { parseHref, updateURL, migrateHashToParams } from './urlHandler.js';
 import { initializeTabs } from './tabs.js';
+import { createLSRLayer, createSBWLayer, initializeLayerSwitcher, make_iem_tms, createLSRTable } from './layerManager.js';
 
 let olmap = null; // Openlayers map
 let lsrtable = null; // LSR DataTable
@@ -34,24 +27,16 @@ let sbwtable = null; // SBW DataTable
 let n0q = null; // RADAR Layer
 let countiesLayer = null;
 let statesLayer = null;
+let lsrLayer = null;
+let sbwLayer = null;
 let wfoSelect = null;
 let stateSelect = null;
 let lsrtypefilter = null;
 let sbwtypefilter = null;
-const dateFormat1 = "YYYYMMDDHHmm";
 let realtime = false;
 const TABLE_FILTERED_EVENT = "tfe";
 let nexradBaseTime = new Date();
 nexradBaseTime.setUTCMinutes(nexradBaseTime.getUTCMinutes() - (nexradBaseTime.getUTCMinutes() % 5));
-
-// Use momentjs for formatting
-$.datetimepicker.setDateFormatter({
-    parseDate: (date, format) => new Date(date),
-    formatDate: (date, format) => {
-        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-        return new Intl.DateTimeFormat('en-US', options).format(date);
-    }
-});
 
 
 /**
@@ -67,16 +52,55 @@ function escapeHTML(val) {
               .replace(/'/g, '&#039;');
 }
 
+/**
+ * Updates the start and end time inputs based on realtime mode
+ */
+function updateTimeInputs() {
+    const stsInput = document.getElementById('sts');
+    const etsInput = document.getElementById('ets');
+    const now = new Date();
+    
+    if (realtime) {
+        // In realtime mode, end time is now and start time is relative
+        etsInput.value = now.toISOString().slice(0, 16);
+        const sts = new Date(now);
+        sts.setDate(sts.getDate() - 1); // Default to last 24 hours
+        stsInput.value = sts.toISOString().slice(0, 16);
+    } else if (!stsInput.value || !etsInput.value) {
+        // Initial load or reset - set default time range
+        etsInput.value = now.toISOString().slice(0, 16);
+        const sts = new Date(now);
+        sts.setDate(sts.getDate() - 1); // Default to last 24 hours
+        stsInput.value = sts.toISOString().slice(0, 16);
+    }
+    
+    // Ensure inputs stay within valid range
+    const minDate = '2003-01-01T00:00';
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 3);
+    const maxDateStr = maxDate.toISOString().slice(0, 16);
+    
+    stsInput.min = minDate;
+    stsInput.max = maxDateStr;
+    etsInput.min = minDate;
+    etsInput.max = maxDateStr;
+}
+
 function cronMinute() {
     if (!realtime) return;
-    // Compute the delta
-    const stsElement = document.getElementById("sts");
-    const etsElement = document.getElementById("ets");
-    const sts = new Date(stsElement.value);
-    const ets = new Date(etsElement.value);
-    etsElement.value = new Date().toLocaleString();
-    const seconds = (ets - sts) / 1000;  // seconds
-    stsElement.value = new Date(Date.now() - seconds * 1000).toLocaleString();
+    const stsInput = document.getElementById('sts');
+    const etsInput = document.getElementById('ets');
+    const now = new Date();
+    
+    // Update end time to now
+    etsInput.value = now.toISOString().slice(0, 16);
+    
+    // Maintain the same time difference for start time
+    const sts = new Date(stsInput.value);
+    const timeDiff = now - new Date(etsInput.value);
+    sts.setTime(sts.getTime() + timeDiff);
+    stsInput.value = sts.toISOString().slice(0, 16);
+    
     setTimeout(loadData, 0);
 }
 function getRADARSource(dt) {
@@ -85,226 +109,6 @@ function getRADARSource(dt) {
     return new XYZ({
         url: `https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/ridge::USCOMP-${prod}-${formattedDate}/{z}/{x}/{y}.png`
     });
-}
-
-function make_iem_tms(title, layername, visible, type) {
-    return new TileLayer({
-        title,
-        visible,
-        type,
-        source: new XYZ({
-            url: `https://mesonet.agron.iastate.edu/c/tile.py/1.0.0/${layername}/{z}/{x}/{y}.png`
-        })
-    })
-}
-
-const sbwLookup = {
-    "TO": 'red',
-    "MA": 'purple',
-    "FF": 'green',
-    "EW": 'green',
-    "FA": 'green',
-    "FL": 'green',
-    "SV": 'yellow',
-    "SQ": "#C71585",
-    "DS": "#FFE4C4"
-};
-
-// Lookup 'table' for styling
-const lsrLookup = {
-    "0": "icons/tropicalstorm.gif",
-    "1": "icons/flood.png",
-    "2": "icons/other.png",
-    "3": "icons/other.png",
-    "4": "icons/other.png",
-    "5": "icons/ice.png",
-    "6": "icons/cold.png",
-    "7": "icons/cold.png",
-    "8": "icons/fire.png",
-    "9": "icons/other.png",
-    "a": "icons/other.png",
-    "A": "icons/wind.png",
-    "B": "icons/downburst.png",
-    "C": "icons/funnelcloud.png",
-    "D": "icons/winddamage.png",
-    "E": "icons/flood.png",
-    "F": "icons/flood.png",
-    "v": "icons/flood.png",
-    "G": "icons/wind.png",
-    "h": "icons/hail.png",
-    "H": "icons/hail.png",
-    "I": "icons/hot.png",
-    "J": "icons/fog.png",
-    "K": "icons/lightning.gif",
-    "L": "icons/lightning.gif",
-    "M": "icons/wind.png",
-    "N": "icons/wind.png",
-    "O": "icons/wind.png",
-    "P": "icons/other.png",
-    "q": "icons/downburst.png",
-    "Q": "icons/tropicalstorm.gif",
-    "s": "icons/sleet.png",
-    "T": "icons/tornado.png",
-    "U": "icons/fire.png",
-    "V": "icons/avalanche.gif",
-    "W": "icons/waterspout.png",
-    "X": "icons/funnelcloud.png",
-    "x": "icons/debrisflow.png",
-    "Z": "icons/blizzard.png"
-};
-
-const sbwStyle = [new Style({
-    stroke: new Stroke({
-        color: '#000',
-        width: 4.5
-    })
-}), new Style({
-    stroke: new Stroke({
-        color: '#319FD3',
-        width: 3
-    })
-})
-];
-const lsrStyle = new Style({
-    image: new Icon({ src: lsrLookup['9'] })
-});
-
-const textStyle = new Style({
-    text: new Text({
-        font: 'bold 11px "Open Sans", "Arial Unicode MS", "sans-serif"',
-        fill: new Fill({
-            color: 'white'
-        }),
-        placement: 'point',
-        backgroundFill: new Fill({
-            color: "black"
-        }),
-        padding: [2, 2, 2, 2]
-    })
-});
-const lsrTextBackgroundColor = {
-    'S': 'purple',
-    'R': 'blue',
-    '5': 'pink'
-};
-
-// create vector layer
-const lsrLayer = new VectorLayer({
-    title: "Local Storm Reports",
-    source: new VectorSource({
-        format: new GeoJSON()
-    }),
-    style(feature) {
-        if (feature.hidden === true) {
-            return new Style();
-        }
-        const mag = feature.get('magnitude').toString();
-        const typ = feature.get('type');
-        if (mag !== "") {
-            textStyle.getText().setText(mag);
-            textStyle.getText().getBackgroundFill().setColor(
-                lsrTextBackgroundColor[typ] || 'black'
-            );
-            return textStyle;
-        }
-        const url = lsrLookup[typ];
-        if (url) {
-            const icon = new Icon({
-                src: url
-            });
-            lsrStyle.setImage(icon);
-        }
-        return lsrStyle;
-    }
-});
-lsrLayer.addEventListener(TABLE_FILTERED_EVENT, () => {
-    // Turn all features back on
-    lsrLayer.getSource().getFeatures().forEach((feat) => {
-        feat.hidden = false;
-    });
-    // Filter out the map too
-    lsrtable.rows({ "search": "removed" }).every(function () { // this
-        lsrLayer.getSource().getFeatureById(this.data().id).hidden = true;
-    });
-    lsrLayer.changed();
-});
-lsrLayer.getSource().on('change', () => {
-    lsrtable.rows().remove().draw();
-    if (lsrLayer.getSource().isEmpty()) {
-        return;
-    }
-    if (lsrLayer.getSource().getState() === 'ready') {
-        olmap.getView().fit(
-            lsrLayer.getSource().getExtent(),
-            {
-                size: olmap.getSize(),
-                padding: [50, 50, 50, 50]
-            }
-        );
-    }
-    const data = [];
-    lsrLayer.getSource().getFeatures().forEach((feat) => {
-        const props = feat.getProperties();
-        props.id = feat.getId();
-        data.push(props);
-    });
-    lsrtable.rows.add(data).draw();
-
-    // Build type filter
-    lsrtable.column(7).data().unique().sort().each((d) => {
-        lsrtypefilter.append(`<option value="${d}">${d}</option`);
-    });
-});
-lsrLayer.on('change:visible', updateURLWrapper);
-
-const sbwLayer = new VectorLayer({
-    title: "Storm Based Warnings",
-    source: new VectorSource({
-        format: new GeoJSON()
-    }),
-    visible: true,
-    style(feature) {
-        if (feature.hidden === true) {
-            return new Style();
-        }
-        const color = sbwLookup[feature.get('phenomena')];
-        if (color === undefined) return sbwStyle;
-        sbwStyle[1].getStroke().setColor(color);
-        return sbwStyle;
-    }
-});
-sbwLayer.on('change:visible', updateURLWrapper);
-sbwLayer.addEventListener(TABLE_FILTERED_EVENT, () => {
-    // Turn all features back on
-    sbwLayer.getSource().getFeatures().forEach((feat) => {
-        feat.hidden = false;
-    });
-    // Filter out the map too
-    sbwtable.rows({ "search": "removed" }).every(function() {  // this
-        sbwLayer.getSource().getFeatureById(this.data().id).hidden = true;
-    });
-    sbwLayer.changed();
-});
-sbwLayer.getSource().on('change', () => {
-    sbwtable.rows().remove();
-    const data = [];
-    sbwLayer.getSource().getFeatures().forEach((feat) => {
-        const props = feat.getProperties();
-        props.id = feat.getId();
-        data.push(props);
-    });
-    sbwtable.rows.add(data).draw();
-
-    // Build type filter
-    sbwtable.column(3).data().unique().sort().each((d) => {
-        sbwtypefilter.append(`<option value="${iemdata.vtec_phenomena[d]}">${iemdata.vtec_phenomena[d]}</option`);
-    });
-
-});
-
-function formatLSR(data) {
-    // Format what is presented
-    return `<div><strong>Source:</strong> ${data.source} &nbsp; <strong>UTC Valid:</strong> ${data.valid}<br /><strong>Remark:</strong> ${data.remark}</div>`;
 }
 
 function revisedRandId() {
@@ -398,136 +202,202 @@ function handleSBWClick(feature) {
     ).show().draw(false);
 
 }
-function copyToClipboard(ttext, msg) {
-    const $temp = $("<input>");
-    $("body").append($temp);
-    $temp.val(ttext).select();
-    document.execCommand("copy");
-    $temp.remove();
-    alert(msg);  // skipcq
+function copyToClipboard(text, msg) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert(msg);
+    });
 }
  
+// Helper function to initialize tom-select
+function initTomSelect(element, options) {
+    return new TomSelect(element, {
+        ...options,
+        allowEmptyOption: true,
+        plugins: {
+            clear_button: {
+                title: 'Remove all selected options'
+            }
+        }
+    });
+}
+
 function initUI() {
+    // Initialize the LSR DataTable first
+    lsrtable = createLSRTable();
+    lsrtable.on("search.dt", () => {
+        lsrLayer.dispatchEvent(TABLE_FILTERED_EVENT);
+    });
+    
+    // Add event listener for opening and closing details
+    document.querySelector('#lsrtable tbody').addEventListener('click', (event) => {
+        const td = event.target.closest('td.details-control');
+        if (!td) return;
+        
+        const tr = td.closest('tr');
+        const row = lsrtable.row(tr);
+
+        if (row.child.isShown()) {
+            row.child.hide();
+            tr.classList.remove('shown');
+        } else {
+            row.child(formatLSR(row.data())).show();
+            tr.classList.add('shown');
+        }
+    });
+
     // Generate UI components of the page
-    const handle = $("#radartime");
+    const radarTimeEl = document.getElementById('radartime');
     initializeTimeSlider('timeslider', (value) => {
         const dt = new Date(nexradBaseTime);
         dt.setUTCMinutes(dt.getUTCMinutes() + value * 5);
         n0q.setSource(getRADARSource(dt));
     });
+
     n0q = new TileLayer({
         title: 'NEXRAD Base Reflectivity',
         visible: true,
         source: getRADARSource(nexradBaseTime)
     });
     n0q.on('change:visible', updateURLWrapper);
-    lsrtypefilter = $("#lsrtypefilter").select2({
+
+    // Initialize tom-select dropdowns
+    const lsrTypeFilterEl = document.getElementById('lsrtypefilter');
+    lsrtypefilter = initTomSelect(lsrTypeFilterEl, {
         placeholder: "Filter LSRs by Event Type",
-        width: 300,
-        multiple: true
+        maxItems: null, // Allow multiple selections
     });
-    lsrtypefilter.on("change", function() { // this
-        const vals = $(this).val();
-        const val = vals ? vals.join("|") : null;
+    lsrtypefilter.on('change', () => {
+        const vals = lsrtypefilter.getValue();
+        const val = vals.length ? vals.join("|") : null;
         lsrtable.column(7).search(val ? `^${val}$` : '', true, false).draw();
     });
-    sbwtypefilter = $("#sbwtypefilter").select2({
+
+    const sbwTypeFilterEl = document.getElementById('sbwtypefilter');
+    sbwtypefilter = initTomSelect(sbwTypeFilterEl, {
         placeholder: "Filter SBWs by Event Type",
-        width: 300,
-        multiple: true
+        maxItems: null, // Allow multiple selections
     });
-    sbwtypefilter.on("change", function() { // this
-        const vals = $(this).val();
-        const val = vals ? vals.join("|") : null;
+    sbwtypefilter.on('change', () => {
+        const vals = sbwtypefilter.getValue();
+        const val = vals.length ? vals.join("|") : null;
         sbwtable.column(3).search(val ? `^${val}$` : '', true, false).draw();
     });
-    wfoSelect = $("#wfo").select2({
-        templateSelection(state) {
-            return state.id;
+
+    const wfoEl = document.getElementById('wfo');
+    wfoSelect = initTomSelect(wfoEl, {
+        maxItems: null,
+        render: {
+            item: (data) => `<div>[${data.value}] ${data.text}</div>`,
+            option: (data) => `<div>[${data.value}] ${data.text}</div>`
         }
-    });
-    stateSelect = $("#state").select2({
-        templateSelection(state) {
-            return state.id;
-        }
-    });
-    $.each(iemdata.wfos, (_idx, entry) => {
-        const opt = new Option(`[${entry[0]}] ${entry[1]}`, entry[0], false, false);
-        wfoSelect.append(opt);
-    });
-    $.each(iemdata.states, (_idx, entry) => {
-        const opt = new Option(`[${entry[0]}] ${entry[1]}`, entry[0], false, false);
-        stateSelect.append(opt);
     });
 
-    $(".iemdtp").datetimepicker({
-        format: "m/d/Y H:i", // Correct datetimepicker format
-        step: 1,
-        maxDate: '+1970/01/03',
-        minDate: '2003/01/01',
-        onClose() {
+    const stateEl = document.getElementById('state');
+    stateSelect = initTomSelect(stateEl, {
+        maxItems: null,
+        render: {
+            item: (data) => `<div>[${data.value}] ${data.text}</div>`,
+            option: (data) => `<div>[${data.value}] ${data.text}</div>`
+        }
+    });
+
+    // Populate select options
+    iemdata.wfos.forEach(entry => {
+        wfoSelect.addOption({
+            value: entry[0],
+            text: entry[1]
+        });
+    });
+
+    iemdata.states.forEach(entry => {
+        stateSelect.addOption({
+            value: entry[0],
+            text: entry[1]
+        });
+    });
+
+    const stsInput = document.getElementById('sts');
+    const etsInput = document.getElementById('ets');
+    
+    // Initialize time inputs
+    updateTimeInputs();
+    
+    // Add change event listeners
+    stsInput.addEventListener('change', (event) => {
+        // Ensure end time is not before start time
+        if (new Date(etsInput.value) < new Date(event.target.value)) {
+            etsInput.value = event.target.value;
+        }
+        if (!realtime) {
             setTimeout(loadData, 0);
         }
     });
-    const stsInput = document.getElementById('sts');
-    const etsInput = document.getElementById('ets');
-
-    const now = new Date();
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-
-    stsInput.value = yesterday.toISOString().slice(0, 16);
-    etsInput.value = now.toISOString().slice(0, 16);
-
-    stsInput.addEventListener('change', () => {
-        setTimeout(loadData, 0);
+    
+    etsInput.addEventListener('change', (event) => {
+        // Ensure start time is not after end time
+        if (new Date(stsInput.value) > new Date(event.target.value)) {
+            stsInput.value = event.target.value;
+        }
+        if (!realtime) {
+            setTimeout(loadData, 0);
+        }
     });
-
-    etsInput.addEventListener('change', () => {
-        setTimeout(loadData, 0);
+    
+    // Handle realtime toggle
+    document.getElementById('realtime').addEventListener('change', function() {
+        realtime = this.checked;
+        if (realtime) {
+            updateTimeInputs();
+            setTimeout(loadData, 0);
+        }
     });
 
     updateRADARTimes();
 
-    $("#load").click(() => {
+    document.getElementById('load').addEventListener('click', () => {
         setTimeout(loadData, 0);
     });
-    $("#lsrshapefile").click(() => {
+
+    document.getElementById('lsrshapefile').addEventListener('click', () => {
         window.location.href = getShapefileLink("lsr");
     });
-    $("#lsrexcel").click(() => {
+
+    document.getElementById('lsrexcel').addEventListener('click', () => {
         window.location.href = `${getShapefileLink("lsr")}&fmt=excel`;
     });
-    $("#lsrkml").click(() => {
+
+    document.getElementById('lsrkml').addEventListener('click', () => {
         window.location.href = `${getShapefileLink("lsr")}&fmt=kml`;
     });
-    $("#lsrgeojson").click(() => {
+
+    document.getElementById('lsrgeojson').addEventListener('click', () => {
         const opts = buildOpts();
-        const url = `https://mesonet.agron.iastate.edu/geojson/lsr.geojson?${$.param(opts)}`;
+        const params = new URLSearchParams(opts);
+        const url = `https://mesonet.agron.iastate.edu/geojson/lsr.geojson?${params}`;
         copyToClipboard(url, "GeoJSON URL copied to clipboard");
     });
-    $("#warnshapefile").click(() => {
+
+    document.getElementById('warnshapefile').addEventListener('click', () => {
         window.location.href = getShapefileLink("watchwarn");
     });
-    $("#warnexcel").click(() => {
+
+    document.getElementById('warnexcel').addEventListener('click', () => {
         window.location.href = `${getShapefileLink("watchwarn")}&accept=excel`;
     });
-    $("#sbwshapefile").click(() => {
+
+    document.getElementById('sbwshapefile').addEventListener('click', () => {
         window.location.href = `${getShapefileLink("watchwarn")}&limit1=yes`;
     });
-    $("#sbwgeojson").click(() => {
+
+    document.getElementById('sbwgeojson').addEventListener('click', () => {
         const opts = buildOpts();
-        const url = `https://mesonet.agron.iastate.edu/geojson/sbw.geojson?${$.param(opts)}`;
+        const params = new URLSearchParams(opts);
+        const url = `https://mesonet.agron.iastate.edu/geojson/sbw.geojson?${params}`;
         copyToClipboard(url, "GeoJSON URL copied to clipboard");
-    });
-    $("#realtime").click(function() {
-        realtime = this.checked;
-        if (realtime) {
-            setTimeout(loadData, 0);
-        }
     });
     statesLayer = make_iem_tms('US States', 'usstates', true, '');
     statesLayer.on('change:visible', updateURLWrapper);
+
     countiesLayer = make_iem_tms('US Counties', 'uscounties', false, '');
     countiesLayer.on('change:visible', updateURLWrapper);
 
@@ -571,13 +441,15 @@ function initUI() {
             }),
             n0q,
             statesLayer,
-            countiesLayer,
-            sbwLayer,
-            lsrLayer
+            countiesLayer
         ]
     });
-    const ls = new LayerSwitcher();
-    olmap.addControl(ls);
+    // Create layers using the new layer manager
+    lsrLayer = createLSRLayer(updateURLWrapper, TABLE_FILTERED_EVENT, lsrtable, olmap);
+    olmap.addLayer(lsrLayer);
+    sbwLayer = createSBWLayer(updateURLWrapper, TABLE_FILTERED_EVENT, sbwtable);
+    olmap.addLayer(sbwLayer);
+    initializeLayerSwitcher(olmap);
 
     olmap.on('click', (evt) => {
         const feature = olmap.forEachFeatureAtPixel(evt.pixel,
@@ -633,65 +505,8 @@ function initUI() {
 
     });
 
-    lsrtable = $("#lsrtable").DataTable({
-        select: true,
-        rowId: 'id',
-        columns: [
-            {
-                "data": "valid",
-                "visible": false
-            }, {
-                "className": 'details-control',
-                "orderable": false,
-                "data": null,
-                "defaultContent": ''
-            }, {
-                "data": "wfo"
-            }, {
-                "data": "valid",
-                "type": "datetime",
-                "orderData": [0]
-            }, {
-                "data": "county"
-            }, {
-                "data": "city"
-            }, {
-                "data": "st"
-            }, {
-                "data": "typetext"
-            }, {
-                "data": "magnitude"
-            }
-        ],
-        columnDefs: [
-            {
-                targets: 3,
-                render(data) {
-                    return new Date(data).toLocaleString();
-                }
-            }
-        ]
-    });
-    lsrtable.on("search.dt", () => {
-        lsrLayer.dispatchEvent(TABLE_FILTERED_EVENT);
-    });
-    // Add event listener for opening and closing details
-    $('#lsrtable tbody').on('click', 'td.details-control', function() { // this
-        const tr = $(this).closest('tr');
-        const row = lsrtable.row(tr);
-
-        if (row.child.isShown()) {
-            // This row is already open - close it
-            row.child.hide();
-            tr.removeClass('shown');
-        }
-        else {
-            // Open this row
-            row.child(formatLSR(row.data())).show();
-            tr.addClass('shown');
-        }
-    });
-    sbwtable = $("#sbwtable").DataTable({
+    const sbwtableEl = document.getElementById('sbwtable');
+    sbwtable = new DataTable(sbwtableEl, {
         columns: [
             {
                 "data": "issue",
@@ -774,7 +589,7 @@ function applySettings(opts) {
     }
     if (opts[3] === "1") { // Realtime
         realtime = true;
-        $("#realtime").prop('checked', true);
+        document.getElementById("realtime").checked = true;
     }
     if (opts[4] !== undefined) {
         statesLayer.setVisible(opts[4] === "1");
@@ -795,92 +610,99 @@ function updateRADARTimes() {
     nexradBaseTime = sts;
 }
 function buildOpts() {
-    const wfos = $("#wfo").val();  // null for all or array
-    const states = $("#state").val();  // null for all or array
-    const by = $("input[type=radio][name=by]:checked").val();
-    const stsElement = document.getElementById("sts");
-    const etsElement = document.getElementById("ets");
-    const sts = new Date(stsElement.value).toISOString().replace(/[-:]/g, '').slice(0, 12);
-    const ets = new Date(etsElement.value).toISOString().replace(/[-:]/g, '').slice(0, 12);
-    const opts = {
-        sts,
-        ets
-    };
-    if (by === "state"){
-        opts.states = (states === null) ? "" : escapeHTML(states.join(","));
+    const wfoEl = document.getElementById('wfo');
+    const stateEl = document.getElementById('state');
+    const byStateRadio = document.querySelector('input[type=radio][name=by][value=state]');
+    const wfos = Array.from(wfoEl.selectedOptions).map(opt => opt.value);
+    const states = Array.from(stateEl.selectedOptions).map(opt => opt.value);
+    const by = byStateRadio.checked ? 'state' : 'wfo';
+    
+    const stsInput = document.getElementById("sts");
+    const etsInput = document.getElementById("ets");
+    const sts = new Date(stsInput.value).toISOString();
+    const ets = new Date(etsInput.value).toISOString();
+    
+    const opts = { sts, ets };
+    if (by === "state") {
+        opts.states = states.length ? escapeHTML(states.join(",")) : "";
     } else {
-        opts.wfos = (wfos === null) ? "" : escapeHTML(wfos.join(","));
+        opts.wfos = wfos.length ? escapeHTML(wfos.join(",")) : "";
     }
     return opts;
 }
 function loadData() {
     // Load up the data please!
-    if ($(".tab .active > a").attr("href") !== "#2a") {
-        $("#lsrtab").click();
+    const activeTab = document.querySelector(".tab .active > a");
+    if (activeTab && activeTab.getAttribute("href") !== "#2a") {
+        document.getElementById("lsrtab").click();
     }
     updateRADARTimes();
 
     lsrLayer.getSource().clear(true);
     sbwLayer.getSource().clear(true);
     const opts = buildOpts();
-    $.ajax({
-        method: "GET",
-        url: `https://mesonet.agron.iastate.edu/geojson/lsr.geojson?${$.param(opts)}`,
-        dataType: 'json',
-        success(data) {
+    const params = new URLSearchParams(opts);
+
+    // Load LSR data
+    fetch(`https://mesonet.agron.iastate.edu/geojson/lsr.geojson?${params}`)
+        .then(response => response.json())
+        .then(data => {
             if (data.features.length === 10000) {
-                alert("App limit of 10,000 LSRs reached.");  // skipcq
+                alert("App limit of 10,000 LSRs reached.");
             }
             lsrLayer.getSource().addFeatures(
-                (new GeoJSON({ featureProjection: 'EPSG:3857' })
-                ).readFeatures(data)
+                (new GeoJSON({ featureProjection: 'EPSG:3857' }))
+                .readFeatures(data)
             );
-        }
-    });
-    $.ajax({
-        method: "GET",
-        url: `https://mesonet.agron.iastate.edu/geojson/sbw.geojson?${$.param(opts)}`,
-        dataType: 'json',
-        success(data) {
+        });
+
+    // Load SBW data
+    fetch(`https://mesonet.agron.iastate.edu/geojson/sbw.geojson?${params}`)
+        .then(response => response.json())
+        .then(data => {
             sbwLayer.getSource().addFeatures(
-                (new GeoJSON({ featureProjection: 'EPSG:3857' })
-                ).readFeatures(data)
+                (new GeoJSON({ featureProjection: 'EPSG:3857' }))
+                .readFeatures(data)
             );
-        }
-    });
+        });
+
     updateURLWrapper();
 }
 
 function getShapefileLink(base) {
-    let uri = `/cgi-bin/request/gis/${base}.py?`;
-    const by = $("input[type=radio][name=by]:checked").val();
-    const wfos = $("#wfo").val();
-    if (wfos && by === "wfo") {
-        for (let i = 0; i < wfos.length; i++) {
-            uri += `&wfo=${escapeHTML(wfos[i])}`;
-        }
+    const params = new URLSearchParams();
+    const byStateRadio = document.querySelector('input[type=radio][name=by][value=state]');
+    const by = byStateRadio.checked ? 'state' : 'wfo';
+    const wfoEl = document.getElementById('wfo');
+    const stateEl = document.getElementById('state');
+
+    if (by === 'wfo') {
+        Array.from(wfoEl.selectedOptions).forEach(opt => {
+            params.append('wfo', escapeHTML(opt.value));
+        });
+    } else {
+        Array.from(stateEl.selectedOptions).forEach(opt => {
+            params.append('state', escapeHTML(opt.value));
+        });
     }
-    const states = $("#state").val();
-    if (states && by === "state") {
-        for (let i = 0; i < states.length; i++) {
-            uri += `&state=${escapeHTML(states[i])}`;
-        }
-    }
+
     const stsElement = document.getElementById("sts");
     const etsElement = document.getElementById("ets");
     const sts = new Date(stsElement.value);
     const ets = new Date(etsElement.value);
-    uri += `&year1=${sts.getUTCFullYear()}`;
-    uri += `&month1=${sts.getUTCMonth() + 1}`;
-    uri += `&day1=${sts.getUTCDate()}`;
-    uri += `&hour1=${sts.getUTCHours()}`;
-    uri += `&minute1=${sts.getUTCMinutes()}`;
-    uri += `&year2=${ets.getUTCFullYear()}`;
-    uri += `&month2=${ets.getUTCMonth() + 1}`;
-    uri += `&day2=${ets.getUTCDate()}`;
-    uri += `&hour2=${ets.getUTCHours()}`;
-    uri += `&minute2=${ets.getUTCMinutes()}`;
-    return uri;
+
+    params.append('year1', sts.getUTCFullYear());
+    params.append('month1', sts.getUTCMonth() + 1);
+    params.append('day1', sts.getUTCDate());
+    params.append('hour1', sts.getUTCHours());
+    params.append('minute1', sts.getUTCMinutes());
+    params.append('year2', ets.getUTCFullYear());
+    params.append('month2', ets.getUTCMonth() + 1);
+    params.append('day2', ets.getUTCDate());
+    params.append('hour2', ets.getUTCHours());
+    params.append('minute2', ets.getUTCMinutes());
+
+    return `/cgi-bin/request/gis/${base}.py?${params}`;
 }
 
 // Initialize the tabs after the DOM is fully loaded
@@ -889,8 +711,6 @@ document.addEventListener('DOMContentLoaded', () => {
     migrateHashToParams();
     
     initializeTabs('rightside');
-    // hook up select2 with jquery
-    select2($);
     initUI();
     parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADARTimes, applySettings);
     window.setInterval(cronMinute, 60000);
