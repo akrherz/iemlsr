@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.6",
-    "datatables.net-dt": "^2.2.2",
+    "datatables.net-dt": "^2.3.0",
     "jquery-datetimepicker": "^2.5.21",
     "jquery-ui": "^1.14.1",
     "moment": "^2.30.1",
