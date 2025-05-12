@@ -1,4 +1,29 @@
-import $ from 'jquery';
+
+/**
+ * Helper function to get selected values from a select element
+ * @param {HTMLSelectElement} selectElement 
+ * @returns {string[]} Array of selected values
+ */
+function getSelectedValues(selectElement) {
+    return Array.from(selectElement.selectedOptions).map(option => option.value);
+}
+
+/**
+ * Helper function to set selected values on a select element
+ * @param {HTMLSelectElement} selectElement 
+ * @param {string[]} values 
+ */
+function setSelectedValues(selectElement, values) {
+    // Clear current selections
+    selectElement.querySelectorAll('option').forEach(option => option.selected = false);
+    // Set new selections
+    values.forEach(value => {
+        const option = selectElement.querySelector(`option[value="${value}"]`);
+        if (option) option.selected = true;
+    });
+    // Dispatch change event
+    selectElement.dispatchEvent(new Event('change'));
+}
 
 /**
  * Migrates the app from hash-based URLs to parameter-based URLs.
@@ -58,6 +83,15 @@ export function migrateHashToParams() {
     window.history.replaceState({}, "", newUrl);
 }
 
+/**
+ * Format a Date object for use in a datetime-local input field
+ * @param {Date} date - The date to format
+ * @returns {string} - Date string in format YYYY-MM-DDTHH:MM
+ */
+function formatDateTimeForInput(date) {
+    return date.toLocaleString('sv').replace(' ', 'T');
+}
+
 export function parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADARTimes, applySettings) {
     let sts = null;
     let ets = null;
@@ -73,14 +107,14 @@ export function parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADA
         const wfoParam = params.get("wfo");
         if (wfoParam) {
             ids = wfoParam.split(",");
-            wfoSelect.val(ids).trigger("change");
+            setSelectedValues(wfoSelect, ids);
         }
     } else if (by === "state") {
         const stateParam = params.get("state");
         if (stateParam) {
             ids = stateParam.split(",");
-            stateSelect.val(ids).trigger("change");
-            $("#by_state").click();
+            setSelectedValues(stateSelect, ids);
+            document.getElementById("by_state").click();
         }
     }
     
@@ -155,17 +189,17 @@ export function updateURL(wfoSelect, stateSelect, genSettings) {
                etsDate.getUTCMinutes().toString().padStart(2, '0');
     
     const by = document.querySelector("input[type=radio][name=by]:checked").value;
-    const wfos = wfoSelect.val();
-    const states = stateSelect.val();
+    const wfos = getSelectedValues(document.getElementById('wfo'));
+    const states = getSelectedValues(document.getElementById('state'));
     
     // Create URLSearchParams object
     const params = new URLSearchParams();
     
     // Add selection parameters
     params.set("by", by);
-    if (by === "wfo" && wfos !== null && wfos.length > 0) {
+    if (by === "wfo" && wfos.length > 0) {
         params.set("wfo", wfos.join(","));
-    } else if (by === "state" && states !== null && states.length > 0) {
+    } else if (by === "state" && states.length > 0) {
         params.set("state", states.join(","));
     }
     
@@ -182,20 +216,4 @@ export function updateURL(wfoSelect, stateSelect, genSettings) {
     // Update URL without reloading the page
     const newUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
     window.history.pushState({}, "", newUrl);
-}
-
-/**
- * Format a Date object for use in a datetime-local input field
- * @param {Date} date - The date to format
- * @returns {string} - Date string in format YYYY-MM-DDTHH:MM
- */
-function formatDateTimeForInput(date) {
-    // Format as YYYY-MM-DDTHH:MM which is required by datetime-local inputs
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
 }

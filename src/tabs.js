@@ -1,21 +1,40 @@
-export function initializeTabs(tabContainerId) {
-    const container = document.getElementById(tabContainerId);
-    const tabs = container.querySelectorAll('.tab-item');
-    const tabContents = container.querySelectorAll('.tab-pane');
+export function initializeTabs() {
+    const tabs = document.querySelectorAll('[role="tab"]');
+    const tabPanels = document.querySelectorAll('[role="tabpanel"]');
 
+    // Add click event handlers to tabs
     tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Deactivate all tabs and contents
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
-
-            // Activate the clicked tab and corresponding content
+        tab.addEventListener('click', e => {
+            e.preventDefault();
+            
+            // Deactivate all tabs
+            tabs.forEach(t => {
+                t.setAttribute('aria-selected', 'false');
+                t.classList.remove('active');
+            });
+            
+            // Hide all tab panels
+            tabPanels.forEach(panel => {
+                panel.setAttribute('hidden', 'true');
+                panel.classList.remove('active');
+            });
+            
+            // Activate the selected tab
+            tab.setAttribute('aria-selected', 'true');
             tab.classList.add('active');
-            const contentId = tab.getAttribute('data-tab');
-            const content = container.querySelector(`[data-tab-content="${contentId}"]`);
-            if (content) {
-                content.classList.add('active');
+            
+            // Show the associated panel
+            const panelId = tab.getAttribute('aria-controls');
+            const panel = document.getElementById(panelId);
+            if (panel) {
+                panel.removeAttribute('hidden');
+                panel.classList.add('active');
             }
         });
     });
+
+    // Activate first tab by default
+    if (tabs.length > 0) {
+        tabs[0].click();
+    }
 }

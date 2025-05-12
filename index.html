@@ -2,181 +2,159 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="https://openlayers.org/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Using OpenLayers with Vite</title>
+    <link rel="icon" type="image/x-icon" href="https://mesonet.agron.iastate.edu/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IEM LSR App</title>
   </head>
   <body>
-  <div class="row">
-  <div class="col-md-5" id="leftside">
-  <div class="row">
-<div class="col-md-6">
-<div class="form-group">
-<input type="radio" name="by" id="by_wfo" value="wfo" checked="checked">
-<label for="by_wfo">Select by WFO: (default ALL)</label>
-<select name="wfo" id="wfo" class="form-control" multiple="multiple"></select>
-
-<br /><input type="radio" name="by" id="by_state" value="state">
-<label for="by_state">Select by State: (default ALL)</label>
-<select name="state" id="state" class="form-control" multiple="multiple"></select>
-
-<br /><input type="checkbox" id="realtime" name="rt">
-  <label for="realtime"> Auto Refresh/Realtime</label>
-</div>
-</div><!-- ./col-md-6 -->
-<div class="col-md-6">
-
-<div class="form-group">
-<label for="sts">Start Time</label>
-<input id="sts" name="sts" type="datetime-local" class="form-control">
-</div>
-
-<div class="form-group">
-<label for="ets">End Time</label>
-<input id="ets" name="ets" type="datetime-local" class="form-control">
-</div>
-</div><!-- ./col-md-6 -->
-</div><!-- ./row -->
-
-<div class="row">
-<div class="col-md-10">
-
-<div class="form-group">
-<label for="timeslider">RADAR Time: <span id="radartime"></span></label>
-<div id="timeslider" class="form-control">
-<div id="custom-handle" class="ui-slider-handle"></div>
-</div>
-</div>
-
-</div>
-<div class="col-md-2">
-
-<button id="load" type="button" class="btn btn-primary">Load</button>
-
-</div><!-- ./col-md-2 -->
-</div><!-- ./row -->
+    <!-- Map Container -->
     <div id="map"></div>
-  </div><!-- ./col-md-5 -->
-  <div class="col-md-7" id="rightside">
 
-  <div class="tab" role="tabpanel">
-    <ul class="nav" role="tablist">
-        <li class="tab-item active" data-tab="1a">Help</li>
-        <li class="tab-item" data-tab="2a">Local Storm Reports</li>
-        <li class="tab-item" data-tab="3a">Storm Based Warnings</li>
-    </ul>
+    <!-- Left Drawer Toggle -->
+    <button class="drawer-toggle drawer-toggle-left" id="drawer-toggle-left">☰</button>
 
-    <div class="tab-content">
-        <div class="tab-pane active" data-tab-content="1a">
-            <h3>Local Storm Report App Help</h3>
-<br />
-<p>This application allows the quick viewing of National Weather Service (NWS)
-issued Local Storm Reports (LSR).  These LSRs are issued by local NWS forecast
-offices for their area of responsibility.</p>
-<br />
-<p>To use this application, select the NWS forecast office(s) of choice and
-then a time duration you are interested in.  Times presented on this 
-application are in the timezone of your local computer.</p>
-<br />
-<p>After selecting a time period and office(s), this application will 
-automatically generate a listing of any available LSR reports and also
-generate a listing of Storm Based Warnings (SBW)s valid for some portion
-of the period of interest.  You can switch between these data listings
-by click on the tabs found just above this text.</p>
-<br />
-<p>The map interface on the left hand side visually presents these LSRs
-and SBWs.  Clicking on the icon or polygon, highlights the corresponding
-data in the two tables.</p>
-<br />
-<p>You also have the ability to overlay NEXRAD base reflectivity information
-for any 5 minute interval during the time period of your choice.</p>
-<br />
-<h3>Linking to this Application</h3>
-<p>This application uses stable URLs allowing you to bookmark and easily
-generate links to it.  Currently, there are two calling modes:</p>
-<br />
-<p><i>/lsr/#WFO,WFO2/YYYYMMDDHHII/YYYYMMDDHHII</i> : where you can list
-  none or any number of Weather Forecast Office IDs.  Then there are two
-  timestamps in UTC time zone (beginning and end time).</p>
-<br />
-<p><i>/lsr/#WFO,WFO2/-SECONDS</i> : again, you can list none or multiple
-  WFO IDs.  You can then specify a number of seconds from now into the
-  past.  For example, <i>/lsr/#LWX/-86400</i> would produce LSRs from
-  LWX for the past day (86400 seconds).</p>
+    <!-- Reports Modal Toggle -->
+    <button class="modal-toggle view-table-button" id="reports-toggle">View Table</button>
 
-<p>An additional URI parameter can be appended onto the end, which cryptically
-controls settings on the page.  So in the form above <code>/lsr/#WFO/YYYYMMDDHHII/YYYYMMDDHHII/??????</code>
-, where the <code>?</code> are sequential boolean flags (1=ON,0=OFF).  These values
-are as follows:
-<ul>
-<li>Show RADAR on Map</li>
-<li>Show LSRs on Map/li>
-<li>Show Warnings on Map</li>
-<li>Run in Realtime Mode</li>
-<li>Show States on Map</li>
-<li>Show Counties on Map</li>
-<ul>
-<br />
-        </div>
-        <div class="tab-pane" data-tab-content="2a">
-        <br />
-<p>
-<strong>Tools:</strong> &nbsp;
-<button id="lsrexcel" class="btn btn-primary" role="button"><i class="fa fa-download"></i> Excel</button>
-<button id="lsrgeojson" class="btn btn-primary" role="button"><i class="fa fa-clone"></i> GeoJSON</button>
-<button id="lsrkml" class="btn btn-primary" role="button"><i class="fa fa-download"></i> KML</button>
-<button id="lsrshapefile" class="btn btn-primary" role="button"><i class="fa fa-download"></i> Shapefile</button>
-<select name="lt" id="lsrtypefilter" class="form-control"></select>
-</p>
+    <!-- Left Drawer - Controls -->
+    <div class="drawer drawer-left" id="controls-drawer">
+      <button class="drawer-close" id="drawer-close-left">&times;</button>
+      <div class="drawer-content">
+        <h3>Controls</h3>
 
-<br />
-<table id="lsrtable">
-<thead>
-<tr>
-  <td></td>
-  <td></td>
-  <th>WFO</th>
-  <th>Report Time</th>
-  <th>County</th>
-  <th>Location</th>
-  <th>State</th>
-  <th>Event Type</th>
-  <th>Magnitude</th>
-</tr>
-</thead>
-</table>
-        </div>
-        <div class="tab-pane" data-tab-content="3a">
-        <br />
-<p>
-<strong>Tools:</strong> &nbsp;
-<button id="warnexcel" class="btn btn-primary" role="button"><i class="fa fa-download"></i> Excel</button>
-<button id="sbwgeojson" class="btn btn-primary" role="button"><i class="fa fa-clone"></i> SBW GeoJSON</button>
-<button id="sbwshapefile" class="btn btn-primary" role="button"><i class="fa fa-download"></i> SBW Shapefile</button>
-<button id="warnshapefile" class="btn btn-primary" role="button"><i class="fa fa-download"></i> Shapefile</button>
-<select name="lt" id="sbwtypefilter" class="form-control"></select>
-</p>
-
-<table id="sbwtable">
-<thead>
-<tr>
-  <td></td><td></td>
-  <th>WFO</th>
-  <th>Phenomena</th>
-  <th>Significance</th>
-  <th>Event ID</th>
-  <th>Issues</th>
-  <th>Expires</th>
-</tr>
-</thead>
-</table>
+        <!-- Time Slider -->
+        <div class="control-group">
+          <label>RADAR Time: <span id="radartime"></span></label>
+          <div id="timeslider"></div>
         </div>
 
+        <div class="control-group">
+          <label>Filter by:</label>
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="by" value="wfo" checked>
+              NWS Forecast Office
+            </label>
+          </div>
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="by" value="state">
+              State
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="wfo">WFO:</label>
+          <select id="wfo" class="input-field" multiple></select>
+        </div>
+
+        <div class="control-group">
+          <label for="state">State:</label>
+          <select id="state" class="input-field" multiple></select>
+        </div>
+
+        <div class="control-group">
+          <label for="sts">Start Time:</label>
+          <input type="datetime-local" class="input-field" id="sts">
+        </div>
+
+        <div class="control-group">
+          <label for="ets">End Time:</label>
+          <input type="datetime-local" class="input-field" id="ets">
+        </div>
+
+        <div class="control-group">
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" id="realtime"> Auto-Refresh
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <button id="load" class="button primary">Load Data</button>
+        </div>
+      </div>
     </div>
-  </div><!-- ./tabs -->
-  </div><!-- ./col-md-7 -->
-</div><!-- ./row -->
 
-    <script type="module" src="./src/main.js"></script>
+    <!-- Reports Modal -->
+    <div class="modal" id="reports-modal">
+      <div class="modal-header">
+        <span>Reports & Warnings</span>
+        <div class="modal-controls">
+          <button class="modal-control-btn" id="minimize-modal" title="Minimize">_</button>
+          <button class="modal-control-btn" id="maximize-modal" title="Maximize">□</button>
+          <button class="modal-control-btn" id="close-modal" title="Close">×</button>
+        </div>
+      </div>
+      <div class="modal-content">
+        <div class="tabs">
+          <div class="tab-list" role="tablist">
+            <button class="tab-button active" role="tab" aria-selected="true" aria-controls="lsrs">LSRs</button>
+            <button class="tab-button" role="tab" aria-selected="false" aria-controls="sbw">SBW</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" id="lsrs" role="tabpanel">
+              <div class="filter-options">
+                <label for="lsrtypefilter">Filter LSRs by Type:</label>
+                <select id="lsrtypefilter" class="input-field" multiple></select>
+              </div>
+              <div class="action-buttons">
+                <button id="lsrexcel" class="button secondary">LSR Excel</button>
+                <button id="lsrkml" class="button secondary">LSR KML</button>
+                <button id="lsrshapefile" class="button secondary">LSR Shapefile</button>
+                <button id="lsrgeojson" class="button secondary">LSR GeoJSON</button>
+              </div>
+              <div class="table-container">
+                <table id="lsrtable" class="data-table">
+                  <thead>
+                    <tr>
+                      <th>WFO</th>
+                      <th>Time</th>
+                      <th>County</th>
+                      <th>City</th>
+                      <th>State</th>
+                      <th>Type</th>
+                      <th>Magnitude</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="tab-panel" id="sbw" role="tabpanel">
+              <div class="filter-options">
+                <label for="sbwtypefilter">Filter SBWs by Type:</label>
+                <select id="sbwtypefilter" class="input-field" multiple></select>
+              </div>
+              <div class="action-buttons">
+                <button id="warnexcel" class="button secondary">Warning Excel</button>
+                <button id="warnshapefile" class="button secondary">Warning Shapefile</button>
+                <button id="sbwshapefile" class="button secondary">SBW Shapefile</button>
+                <button id="sbwgeojson" class="button secondary">SBW GeoJSON</button>
+              </div>
+              <div class="table-container">
+                <table id="sbwtable" class="data-table">
+                  <thead>
+                    <tr>
+                      <th>WFO</th>
+                      <th>Phenomena</th>
+                      <th>Significance</th>
+                      <th>Event ID</th>
+                      <th>Issue</th>
+                      <th>Expire</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
