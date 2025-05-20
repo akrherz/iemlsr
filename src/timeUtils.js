@@ -44,28 +44,7 @@ export function getFormattedDate(dt) {
     return dt.toISOString().replace(/[-:T]/g, '').slice(0, 12);
 }
 
-/**
- * Handles the cron job that runs every minute to update time inputs in realtime mode
- * @param {boolean} realtime - Whether realtime mode is active
- * @param {HTMLInputElement} stsInput - Start time input element
- * @param {HTMLInputElement} etsInput - End time input element
- * @param {Function} loadData - Callback to reload data after time update
- */
-export function cronMinute(realtime, stsInput, etsInput, loadData) {
-    if (!realtime) return;
-    const now = new Date();
-    
-    // Update end time to now
-    etsInput.value = now.toISOString().slice(0, 16);
-    
-    // Maintain the same time difference for start time
-    const sts = new Date(stsInput.value);
-    const timeDiff = now - new Date(etsInput.value);
-    sts.setTime(sts.getTime() + timeDiff);
-    stsInput.value = sts.toISOString().slice(0, 16);
-    
-    setTimeout(loadData, 0);
-}
+
 
 /**
  * Builds date parameters for shapefile requests

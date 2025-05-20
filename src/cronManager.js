@@ -1,21 +1,27 @@
+import { getState, StateKeys, setState } from './state.js';
 import { loadData } from './dataManager.js';
 
 /**
- * Update the user interface when realtime mode is active
- * @param {Function} updateTimeInputs Function to update the time input fields
- * @param {Function} loadData Function to load new data
+ * Handles the cron job that runs every minute to update time inputs in realtime mode
  */
-export function cronMinute(updateTimeInputs) {
-    if (document.getElementById('realtime').checked) {
-        updateTimeInputs();
-        loadData();
-    }
+export function cronMinute() {
+    const realtime = getState(StateKeys.REALTIME);
+    if (!realtime) return;
+    
+    const now = new Date();
+    const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+    
+    // Update state with new times
+    setState(StateKeys.ETS, now);
+    setState(StateKeys.STS, fourHoursAgo);
+    
+    // Load data with new time window
+    setTimeout(loadData, 0);
 }
 
 /**
  * Start periodic tasks
- * @param {Object} options Configuration object
  */
-export function startCronTasks({ updateTimeInputs }) {
-    window.setInterval(() => cronMinute(updateTimeInputs, loadData), 60000);
+export function startCronTasks() {
+    window.setInterval(() => cronMinute(), 60000);
 }

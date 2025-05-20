@@ -4,7 +4,7 @@ import { initializeDrawerControls } from './drawerManager.js';
 import { initializeModals } from './modalManager.js';
 import { n0q } from './mapManager.js';
 import { loadData } from './dataManager.js';
-import { getState, StateKeys, setRealtime, subscribeToState } from './state.js';
+import { getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
 import { setupTimeEventHandlers, updateTimeInputs } from './timeUtils.js';
 
 /**
@@ -51,10 +51,14 @@ export function initializeUI() {
     document.getElementById('realtime').addEventListener('change', (event) => {
         const realtime = event.target.checked;
         setRealtime(realtime);
-        // Update time inputs when realtime mode changes
-        updateTimeInputs(stsInput, etsInput, realtime);
+        
         if (realtime) {
-            // Immediately load new data when enabling realtime
+            // Set the initial 4-hour window when enabling realtime
+            const now = new Date();
+            const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+            setState(StateKeys.ETS, now);
+            setState(StateKeys.STS, fourHoursAgo);
+            // Immediately load new data
             loadData();
         }
     });

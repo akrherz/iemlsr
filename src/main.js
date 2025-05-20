@@ -13,6 +13,7 @@ import { initializeExportHandlers } from './exportManager.js';
 import { setFilters } from './state.js';
 import { loadData } from './dataManager.js';
 import { initializeLayerControls } from './layerControlManager.js';
+import { startCronTasks } from './cronManager.js';
 
 function initializeApplication() {
     // First migrate any hash parameters to URL parameters
@@ -42,6 +43,9 @@ function initializeApplication() {
     olmap.addLayer(createSBWLayer("tfe"));
 
     initializeLayerControls(olmap);
+
+    // Start the realtime cron tasks
+    startCronTasks();
 
     // Finally, load the data
     loadData();
