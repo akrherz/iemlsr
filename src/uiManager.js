@@ -4,28 +4,51 @@ import { initializeDrawerControls } from './drawerManager.js';
 import { initializeTabs } from './tabs.js';
 import { initializeReportsModal } from './modalManager.js';
 import { n0q } from './mapManager.js';
-import { updateRADARTimes } from './timeUtils.js';
+import { loadData } from './dataManager.js';
+import { getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
+import { setupTimeEventHandlers, updateTimeInputs } from './timeUtils.js';
 
 /**
  * Initialize all UI components
- * @param {Object} options Configuration object containing all required dependencies
- * @returns {Object} Object containing initialized UI components
  */
 export function initializeUI() {
+    // Initialize time inputs
+    const stsInput = document.getElementById('sts');
+    const etsInput = document.getElementById('ets');
+
+    // Subscribe to state changes for start and end times
+    subscribeToState(StateKeys.STS, (newTime) => {
+        stsInput.value = newTime.toISOString().slice(0, 16);
+    });
+
+    subscribeToState(StateKeys.ETS, (newTime) => {
+        etsInput.value = newTime.toISOString().slice(0, 16);
+    });
+
+    // Set up event handlers for time inputs
+    setupTimeEventHandlers(stsInput, etsInput, getState(StateKeys.REALTIME), loadData);
+
     // Initialize time slider
     initializeTimeSlider('timeslider', (value) => {
+        const nexradBaseTime = getState(StateKeys.NEXRAD_BASE_TIME);
         const dt = new Date(nexradBaseTime);
         dt.setUTCMinutes(dt.getUTCMinutes() + value * 5);
         n0q.setSource(getRADARSource(dt));
     });
 
     // Handle realtime toggle
-    document.getElementById('realtime').addEventListener('change', function() {
-        setRealtime(this.checked);
+    document.getElementById('realtime').addEventListener('change', (event) => {
+        const realtime = event.target.checked;
+        setRealtime(realtime);
+        // Update time inputs when realtime mode changes
+        updateTimeInputs(stsInput, etsInput, realtime);
+        if (realtime) {
+            // Immediately load new data when enabling realtime
+            loadData();
+        }
     });
 
-    updateRADARTimes();
-
+    // Handle load button click
     document.getElementById('load').addEventListener('click', () => {
         setTimeout(loadData, 0);
     });

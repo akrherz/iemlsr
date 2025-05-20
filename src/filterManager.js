@@ -1,7 +1,7 @@
 import TomSelect from 'tom-select';
 import { iemdata } from './iemdata.js';
 import { lsrtable, sbwtable } from './tableManager.js';
-import { setState, StateKeys, saveState } from './state.js';
+import { setState, StateKeys} from './state.js';
 
 /**
  * Common configuration for tom-select instances
@@ -33,7 +33,6 @@ export function initializeLSRTypeFilter(element, lsrtable) {
         const val = vals.length ? vals.join("|") : null;
         lsrtable.column(7).search(val ? `^${val}$` : '', true, false).draw();
         setState(StateKeys.LSR_TYPES, vals);
-        saveState();
     });
 
     return filter;
@@ -57,7 +56,6 @@ export function initializeSBWTypeFilter(element, sbwtable) {
         const val = vals.length ? vals.join("|") : null;
         sbwtable.column(3).search(val ? `^${val}$` : '', true, false).draw();
         setState(StateKeys.SBW_TYPES, vals);
-        saveState();
     });
 
     return filter;
@@ -91,7 +89,6 @@ export function initializeLocationSelect(element, data, filterType) {
             filterType === 'wfo' ? StateKeys.WFO_FILTER : StateKeys.STATE_FILTER,
             vals
         );
-        saveState();
     });
 
     return select;
@@ -106,7 +103,6 @@ function initializeFilterTypeHandlers() {
         radio.addEventListener('change', (e) => {
             const isByState = e.target.value === 'state';
             setState(StateKeys.BY_STATE, isByState);
-            saveState();
         });
     });
 }

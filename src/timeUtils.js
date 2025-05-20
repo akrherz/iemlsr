@@ -45,23 +45,6 @@ export function getFormattedDate(dt) {
 }
 
 /**
- * Updates RADAR times based on the start and end time inputs
- * @param {HTMLInputElement} stsInput - Start time input element
- * @param {HTMLInputElement} etsInput - End time input element
- * @param {Date} nexradBaseTime - Base time for NEXRAD
- * @returns {Date} Updated NEXRAD base time
- */
-export function updateRADARTimes() {
-    return;
-    const sts = new Date(stsInput.value);
-    const ets = new Date(etsInput.value);
-    sts.setUTCMinutes(sts.getUTCMinutes() - (sts.getUTCMinutes() % 5));
-    ets.setUTCMinutes(ets.getUTCMinutes() + (5 - (ets.getUTCMinutes() % 5)));
-    const times = (ets - sts) / (5 * 60 * 1000);  // 5 minute bins
-    return sts;
-}
-
-/**
  * Handles the cron job that runs every minute to update time inputs in realtime mode
  * @param {boolean} realtime - Whether realtime mode is active
  * @param {HTMLInputElement} stsInput - Start time input element

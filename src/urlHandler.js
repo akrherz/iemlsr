@@ -1,7 +1,5 @@
 import { getState, setState, StateKeys } from './state.js';
-import { loadData } from './dataManager.js';
-import { updateRADARTimes } from './timeUtils.js';
-import { applySettings } from './settingsManager.js';
+import { applySettings, generateSettings } from './settingsManager.js';
 
 /**
  * Helper function to get selected values from a select element
@@ -93,13 +91,13 @@ export function migrateHashToParams() {
  * @returns {string} - Date string in format YYYY-MM-DDTHH:MM
  */
 function formatDateTimeForInput(date) {
-    return date.toLocaleString('sv').replace(' ', 'T');
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
+/**
+ * Parse URL parameters and initialize state
+ */
 export function parseHref() {
-    let sts = null;
-    let ets = null;
-    
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
     
@@ -141,9 +139,12 @@ export function parseHref() {
     const etsParam = params.get("ets");
     const secondsParam = params.get("seconds");
     
+    let stsTime;
+    let etsTime;
+    
     if (stsParam && etsParam) {
         // Parse full date/time in YYYYmmddHH24MI format (UTC)
-        sts = new Date(Date.UTC(
+        stsTime = new Date(Date.UTC(
             parseInt(stsParam.slice(0, 4), 10),
             parseInt(stsParam.slice(4, 6), 10) - 1,
             parseInt(stsParam.slice(6, 8), 10),
@@ -151,7 +152,7 @@ export function parseHref() {
             parseInt(stsParam.slice(10, 12), 10)
         ));
         
-        ets = new Date(Date.UTC(
+        etsTime = new Date(Date.UTC(
             parseInt(etsParam.slice(0, 4), 10),
             parseInt(etsParam.slice(4, 6), 10) - 1,
             parseInt(etsParam.slice(6, 8), 10),
@@ -160,31 +161,34 @@ export function parseHref() {
         ));
     } else if (secondsParam) {
         // Parse relative time
-        realtime = true;
+        setState(StateKeys.REALTIME, true);
         document.getElementById("realtime").checked = true;
-        ets = new Date();
-        sts = new Date(ets.getTime() - Math.abs(parseInt(secondsParam, 10)) * 1000);
+        etsTime = new Date();
+        stsTime = new Date(etsTime.getTime() - Math.abs(parseInt(secondsParam, 10)) * 1000);
     } else {
-        // No parameters provided, don't load anything
-        return;
+        // No parameters provided, use defaults
+        etsTime = new Date();
+        stsTime = new Date(etsTime.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
     }
     
+    // Update state
+    setState(StateKeys.STS, stsTime);
+    setState(StateKeys.ETS, etsTime);
+    
     // Set the form values in local timezone
-    document.getElementById("sts").value = formatDateTimeForInput(sts);
-    document.getElementById("ets").value = formatDateTimeForInput(ets);
+    document.getElementById("sts").value = formatDateTimeForInput(stsTime);
+    document.getElementById("ets").value = formatDateTimeForInput(etsTime);
     
-    updateRADARTimes();
-    
+
     // Apply settings if available
     const settingsParam = params.get("settings");
     if (settingsParam) {
         applySettings(settingsParam);
     }
-    
-    setTimeout(loadData, 0);
+
 }
 
-export function updateURL(genSettings) {
+export function updateURL() {
     // Get date objects from the form inputs (these will be in local timezone)
     const stsElement = document.getElementById("sts");
     const etsElement = document.getElementById("ets");
@@ -238,7 +242,7 @@ export function updateURL(genSettings) {
     params.set("ets", ets);
     
     // Add settings
-    const settings = genSettings();
+    const settings = generateSettings();
     if (settings) {
         params.set("settings", settings);
     }

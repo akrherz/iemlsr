@@ -1,4 +1,5 @@
 import { getTimeRange } from './timeUtils.js';
+import { getFilters } from './state.js';
 
 /**
  * Build options for data requests based on current filters and time range
@@ -7,7 +8,8 @@ import { getTimeRange } from './timeUtils.js';
  * @param {Function} filters.stateSelect.getValue Get selected states
  * @returns {object} Request options
  */
-export function buildRequestOptions(filters) {
+export function buildRequestOptions() {
+    const filters = getFilters();
     if (!filters) {
         return;
     }

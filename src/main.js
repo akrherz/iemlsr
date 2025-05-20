@@ -5,15 +5,17 @@ import 'tom-select/dist/css/tom-select.css';
 
 import { initializeMap } from './mapManager.js';
 import { parseHref, migrateHashToParams } from './urlHandler.js';
-import { createLSRLayer, createSBWLayer } from './layerManager.js';
+import { createLSRLayer, createSBWLayer, initializeLayerSwitcher } from './layerManager.js';
 import { initializeUI } from './uiManager.js';
 import { initializeLSRTable, initializeSBWTable } from './tableManager.js';
 import { initializeFilters } from './filterManager.js';
 import { initializeExportHandlers } from './exportManager.js';
 import { setFilters } from './state.js';
+import { loadData } from './dataManager.js';
 
 function initializeApplication() {
     // First migrate any hash parameters to URL parameters
+    // This modifies no state, just prepares the URL for the rest of the app
     migrateHashToParams();
 
     // Initialize UI components that don't depend on layers
@@ -27,6 +29,7 @@ function initializeApplication() {
     initializeExportHandlers(filters);
 
     const olmap = initializeMap();
+    initializeLayerSwitcher(olmap);
 
     // Initialize data tables
     initializeLSRTable(document.getElementById('lsrtable'));
@@ -38,6 +41,9 @@ function initializeApplication() {
 
     // Initialize URL parameters and data
     parseHref();
+
+    // Finally, load the data
+    loadData();
 }
 
 // Initialize the application when the DOM is fully loaded

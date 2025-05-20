@@ -1,5 +1,3 @@
-const STATE_KEY = 'iemlsr_state';
-
 export const StateKeys = {
     FILTERS: 'filters',
     REALTIME: 'realtime',
@@ -8,7 +6,9 @@ export const StateKeys = {
     WFO_FILTER: 'wfoFilter',
     STATE_FILTER: 'stateFilter',
     BY_STATE: 'byState',
-    LAYER_SETTINGS: 'layerSettings'
+    LAYER_SETTINGS: 'layerSettings',
+    STS: 'sts',
+    ETS: 'ets'
 };
 
 const state = {
@@ -19,7 +19,9 @@ const state = {
     [StateKeys.WFO_FILTER]: [],
     [StateKeys.STATE_FILTER]: [],
     [StateKeys.BY_STATE]: false,
-    [StateKeys.LAYER_SETTINGS]: ''
+    [StateKeys.LAYER_SETTINGS]: '',
+    [StateKeys.STS]: new Date(Date.now() - 24 * 60 * 60 * 1000), // 24 hours ago
+    [StateKeys.ETS]: new Date() // Current time
 };
 
 const subscribers = {};
@@ -75,41 +77,18 @@ export function setLayerSettings(settings) {
     setState(StateKeys.LAYER_SETTINGS, settings);
 }
 
-export function saveState() {
-    const stateToSave = {
-        realtime: getRealtime(),
-        layerSettings: getLayerSettings(),
-        filters: {
-            lsrTypes: getState(StateKeys.LSR_TYPES),
-            sbwTypes: getState(StateKeys.SBW_TYPES),
-            wfoFilter: getState(StateKeys.WFO_FILTER),
-            stateFilter: getState(StateKeys.STATE_FILTER),
-            byState: getState(StateKeys.BY_STATE)
-        }
-    };
-    localStorage.setItem(STATE_KEY, JSON.stringify(stateToSave));
+export function getSts() {
+    return getState(StateKeys.STS);
 }
 
-export function loadState() {
-    const savedState = localStorage.getItem(STATE_KEY);
-    if (savedState) {
-        try {
-            const parsedState = JSON.parse(savedState);
-            if (parsedState.realtime !== undefined) {
-                setRealtime(parsedState.realtime);
-            }
-            if (parsedState.layerSettings) {
-                setLayerSettings(parsedState.layerSettings);
-            }
-            if (parsedState.filters) {
-                setState(StateKeys.LSR_TYPES, parsedState.filters.lsrTypes || []);
-                setState(StateKeys.SBW_TYPES, parsedState.filters.sbwTypes || []);
-                setState(StateKeys.WFO_FILTER, parsedState.filters.wfoFilter || []);
-                setState(StateKeys.STATE_FILTER, parsedState.filters.stateFilter || []);
-                setState(StateKeys.BY_STATE, parsedState.filters.byState || false);
-            }
-        } catch (e) {
-            console.error('Failed to parse saved state:', e);
-        }
-    }
+export function setSts(date) {
+    setState(StateKeys.STS, date instanceof Date ? date : new Date(date));
+}
+
+export function getEts() {
+    return getState(StateKeys.ETS);
+}
+
+export function setEts(date) {
+    setState(StateKeys.ETS, date instanceof Date ? date : new Date(date));
 }
