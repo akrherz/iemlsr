@@ -1,11 +1,10 @@
 import { initializeTimeSlider } from './timeslider.js';
 import { getRADARSource } from './mapManager.js';
 import { initializeDrawerControls } from './drawerManager.js';
-import { initializeTabs } from './tabs.js';
-import { initializeReportsModal } from './modalManager.js';
+import { initializeModals } from './modalManager.js';
 import { n0q } from './mapManager.js';
 import { loadData } from './dataManager.js';
-import { getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
+import { getState, StateKeys, setRealtime, subscribeToState } from './state.js';
 import { setupTimeEventHandlers, updateTimeInputs } from './timeUtils.js';
 
 /**
@@ -62,7 +61,6 @@ export function initializeUI() {
     );
 
     // Initialize tabs and modals
-    initializeTabs();
-    initializeReportsModal();
+    initializeModals();
 
 }

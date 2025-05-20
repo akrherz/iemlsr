@@ -1,81 +1,149 @@
-// Modal manager for reports modal
-export function initializeReportsModal() {
-    const reportsToggle = document.getElementById('reports-toggle');
-    const reportsModal = document.getElementById('reports-modal');
-    const modalHeader = document.querySelector('.modal-header');
-    const minimizeBtn = document.getElementById('minimize-modal');
-    const maximizeBtn = document.getElementById('maximize-modal');
-    const closeBtn = document.getElementById('close-modal');
+// Modal manager for LSR and SBW modals
+function initializeModal(modalId, toggleId, minimizeId, maximizeId, closeId) {
+    const toggle = document.getElementById(toggleId);
+    const modal = document.getElementById(modalId);
+    const modalHeader = modal.querySelector('.modal-header');
+    const minimizeBtn = document.getElementById(minimizeId);
+    const maximizeBtn = document.getElementById(maximizeId);
+    const closeBtn = document.getElementById(closeId);
 
-    // Modal drag functionality
-    let isDragging = false;
-    let initialX;
-    let initialY;
+    function setupModal() {
+        let isDragging = false;
+        let initialX;
+        let initialY;
 
-    function dragStart(e) {
-        if (reportsModal.classList.contains('minimized')) return;
-        isDragging = true;
-        initialX = e.clientX - reportsModal.offsetLeft;
-        initialY = e.clientY - reportsModal.offsetTop;
-    }
+        function dragStart(e) {
+            if (modal.classList.contains('minimized')) return;
+            if (e.type === "mousedown") {
+                isDragging = true;
+                initialX = e.clientX - modal.offsetLeft;
+                initialY = e.clientY - modal.offsetTop;
+            } else if (e.type === "touchstart") {
+                isDragging = true;
+                initialX = e.touches[0].clientX - modal.offsetLeft;
+                initialY = e.touches[0].clientY - modal.offsetTop;
+            }
+        }
 
-    function drag(e) {
-        if (!isDragging || reportsModal.classList.contains('minimized')) return;
-        e.preventDefault();
-        
-        const x = e.clientX - initialX;
-        const y = e.clientY - initialY;
-        
-        reportsModal.style.left = `${x}px`;
-        reportsModal.style.top = `${y}px`;
-        reportsModal.style.transform = 'none';
-    }
+        function drag(e) {
+            if (!isDragging || modal.classList.contains('minimized')) return;
+            e.preventDefault();
+            
+            let currentX, currentY;
+            if (e.type === "mousemove") {
+                currentX = e.clientX;
+                currentY = e.clientY;
+            } else if (e.type === "touchmove") {
+                currentX = e.touches[0].clientX;
+                currentY = e.touches[0].clientY;
+            }
+            
+            const x = currentX - initialX;
+            const y = currentY - initialY;
+            
+            modal.style.left = `${x}px`;
+            modal.style.top = `${y}px`;
+            modal.style.transform = 'none';
+        }
 
-    function dragEnd() {
-        isDragging = false;
-    }
+        function dragEnd() {
+            isDragging = false;
+        }
 
-    // Modal event listeners
-    reportsToggle.addEventListener('click', () => {
-        reportsModal.classList.add('open');
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
-    });
+        // Toggle button opens the modal
+        toggle.addEventListener('click', () => {
+            // Reset modal state when opening
+            modal.style.display = '';
+            modal.classList.remove('minimized', 'maximized');
+            modal.style.transform = 'translate(-50%, -50%)';
+            modal.style.left = '50%';
+            modal.style.top = '50%';
+            modal.style.width = '';
+            modal.style.height = '';
+            modal.style.maxWidth = '';
+            modal.style.maxHeight = '';
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
 
-    closeBtn.addEventListener('click', () => {
-        reportsModal.classList.remove('open');
-        document.body.style.overflow = ''; // Restore scrolling
-    });
-
-    // Close modal if clicking outside
-    reportsModal.addEventListener('click', (e) => {
-        if (e.target === reportsModal) {
-            reportsModal.classList.remove('open');
+        // Close button closes the modal
+        closeBtn.addEventListener('click', () => {
+            // Reset modal state when closing
+            modal.classList.remove('open', 'minimized', 'maximized');
+            modal.style.transform = 'translate(-50%, -50%)';
+            modal.style.left = '50%';
+            modal.style.top = '50%';
+            modal.style.width = '';
+            modal.style.height = '';
+            modal.style.maxWidth = '';
+            modal.style.maxHeight = '';
             document.body.style.overflow = '';
-        }
-    });
+        });
 
-    minimizeBtn.addEventListener('click', () => {
-        reportsModal.classList.toggle('minimized');
-        if (!reportsModal.classList.contains('minimized')) {
-            // Reset position when un-minimizing
-            reportsModal.style.left = '50%';
-            reportsModal.style.top = '50%';
-            reportsModal.style.transform = 'translate(-50%, -50%)';
-        }
-    });
+        // Clicking outside the modal content closes it
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                // Reset modal state when closing
+                modal.classList.remove('open', 'minimized', 'maximized');
+                modal.style.transform = 'translate(-50%, -50%)';
+                modal.style.left = '50%';
+                modal.style.top = '50%';
+                modal.style.width = '';
+                modal.style.height = '';
+                modal.style.maxWidth = '';
+                modal.style.maxHeight = '';
+                document.body.style.overflow = '';
+            }
+        });
 
-    maximizeBtn.addEventListener('click', () => {
-        if (window.innerWidth <= 768) {
-            reportsModal.style.transform = '';
-            reportsModal.style.left = '0';
-            reportsModal.style.top = '0';
-        }
-    });
+        // Minimize button toggles the minimized state
+        minimizeBtn.addEventListener('click', () => {
+            modal.classList.toggle('minimized');
+            if (!modal.classList.contains('minimized')) {
+                modal.style.left = '50%';
+                modal.style.top = '50%';
+                modal.style.transform = 'translate(-50%, -50%)';
+            }
+        });
 
-    modalHeader.addEventListener('mousedown', dragStart);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', dragEnd);
-    modalHeader.addEventListener('touchstart', dragStart);
-    document.addEventListener('touchmove', drag);
-    document.addEventListener('touchend', dragEnd);
+        // Maximize button expands the modal on mobile
+        maximizeBtn.addEventListener('click', () => {
+            modal.classList.toggle('maximized');
+            if (modal.classList.contains('maximized')) {
+                modal.style.transform = 'none';
+                modal.style.left = '0';
+                modal.style.top = '0';
+                modal.style.width = '100vw';
+                modal.style.height = '100vh';
+                modal.style.maxWidth = '100vw';
+                modal.style.maxHeight = '100vh';
+            } else {
+                modal.style.left = '50%';
+                modal.style.top = '50%';
+                modal.style.transform = 'translate(-50%, -50%)';
+                modal.style.width = '';
+                modal.style.height = '';
+                modal.style.maxWidth = '';
+                modal.style.maxHeight = '';
+            }
+        });
+
+        // Modal dragging functionality
+        modalHeader.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+        modalHeader.addEventListener('touchstart', dragStart);
+        document.addEventListener('touchmove', drag);
+        document.addEventListener('touchend', dragEnd);
+    }
+
+    setupModal();
+}
+
+export function initializeModals() {
+    // Initialize LSR Modal
+    initializeModal('lsr-modal', 'lsr-toggle', 'minimize-lsr', 'maximize-lsr', 'close-lsr');
+    
+    // Initialize SBW Modal
+    initializeModal('sbw-modal', 'sbw-toggle', 'minimize-sbw', 'maximize-sbw', 'close-sbw');
 }

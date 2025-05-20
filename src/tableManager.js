@@ -11,16 +11,26 @@ export { lsrtable, sbwtable };
 /**
  * Initialize the LSR DataTable
  * @param {HTMLElement} lsrtableEl - The table element 
- * @param {Function} onSearch - Callback for search events
- * @param {Function} onRowClick - Callback for row click events
  * @returns {DataTable} Initialized DataTable instance
  */
 export function initializeLSRTable(lsrtableEl) {
+    // Destroy existing table if it exists
+    if (lsrtable) {
+        lsrtable.destroy();
+    }
+    
     lsrtable = new DataTable(lsrtableEl, {
+        destroy: true,
         select: {
             style: 'single',
             info: false
         },
+        scrollX: true,
+        scrollY: true,
+        searching: true,
+        ordering: true,
+        paging: false,
+        dom: 'ift',
         columns: [
             {
                 "className": 'details-control',
@@ -28,23 +38,22 @@ export function initializeLSRTable(lsrtableEl) {
                 "data": null,
                 "defaultContent": ''
             },
-            { "data": "valid", "visible": false },
             { "data": "wfo" },
+            {
+                "data": "valid",
+                "orderData": [1]
+            },
             { "data": "city" },
             { "data": "county" },
             { "data": "st" },
             { "data": "magnitude" },
             { "data": "typetext" },
             { "data": "source" },
-            {
-                "data": "valid",
-                "orderData": [1]
-            }
         ],
         order: [[1, 'asc']],
         columnDefs: [
             {
-                targets: [9],
+                targets: [2],
                 render(data) {
                     return new Date(data).toLocaleString();
                 }
@@ -76,11 +85,23 @@ export function initializeLSRTable(lsrtableEl) {
  * @returns {DataTable} Initialized DataTable instance
  */
 export function initializeSBWTable(sbwtableEl) {
+    // Destroy existing table if it exists
+    if (sbwtable) {
+        sbwtable.destroy();
+    }
+    
     sbwtable = new DataTable(sbwtableEl, {
+        destroy: true,
         select: {
             style: 'single',
             info: false
         },
+        scrollX: false,
+        scrollY: true,
+        searching: true,
+        ordering: true,
+        paging: false,
+        dom: 'ift',
         columns: [
             {
                 "data": "issue",

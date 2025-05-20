@@ -15,7 +15,6 @@
     "datatables.net-select-dt": "^3.0.0",
     "jquery-ui": "^1.14.1",
     "ol": "latest",
-    "ol-layerswitcher": "^4.1.2",
     "select2": "^4.1.0-rc.0",
     "tom-select": "^2.4.3"
   }

@@ -1,5 +1,5 @@
 import { n0q, getStatesLayer, getCountiesLayer } from "./mapManager";
-import { getLSRLayer, getSBWLayer } from "./layerManager";
+import { getLSRLayer, getSBWLayer, setLSRIconMode } from "./layerManager";
 /**
  * Generate settings string based on layer visibility
  * @param {object} layers Object containing layer references
@@ -14,6 +14,7 @@ export function generateSettings(realtime) {
     res += (realtime ? "1" : "0");
     res += (getStatesLayer().getVisible() ? "1" : "0");
     res += (getCountiesLayer().getVisible() ? "1" : "0");
+    res += (document.getElementById("lsr-label-mode").checked ? "1" : "0");
     return res;
 }
 
@@ -42,5 +43,10 @@ export function applySettings(opts, setRealtime) {
     }
     if (opts[5] !== undefined) {
         getCountiesLayer().setVisible(opts[5] === "1");
+    }
+    if (opts[6] !== undefined) { // LSR Label Mode
+        const useLSRIcons = opts[6] === "1";
+        document.getElementById("lsr-label-mode").checked = useLSRIcons;
+        setLSRIconMode(useLSRIcons);
     }
 }
