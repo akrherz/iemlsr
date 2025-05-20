@@ -4,6 +4,7 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import { lsrtable, sbwtable } from './tableManager.js';
 import { updateURL } from './urlHandler.js';
+import { iemdata } from './iemdata.js';
 // Lookup tables for styling
 const sbwLookup = {
     "TO": '#FF0000',
@@ -212,11 +213,34 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
             );
         }
         const data = [];
+        const types = new Set();
         lsrLayer.getSource().getFeatures().forEach((feat) => {
             const props = feat.getProperties();
             props.id = feat.getId();
+            if (props.typetext) {
+                types.add(props.typetext);
+            }
             data.push(props);
         });
+        
+        // Update LSR type filter
+        const lsrTypeFilter = document.getElementById('lsrtypefilter');
+        if (lsrTypeFilter && lsrTypeFilter.tomselect) {
+            const currentSelection = lsrTypeFilter.tomselect.getValue();
+            lsrTypeFilter.tomselect.clear();
+            lsrTypeFilter.tomselect.clearOptions();
+            Array.from(types).sort().forEach(type => {
+                lsrTypeFilter.tomselect.addOption({ value: type, text: type });
+            });
+            // Restore previous selection if options still exist
+            if (currentSelection.length) {
+                const validSelections = currentSelection.filter(value => types.has(value));
+                if (validSelections.length) {
+                    lsrTypeFilter.tomselect.setValue(validSelections);
+                }
+            }
+        }
+        
         lsrtable.rows.add(data).draw();
     });
 
@@ -248,11 +272,35 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
             return;
         }
         const data = [];
+        const types = new Set();
         sbwLayer.getSource().getFeatures().forEach((feat) => {
             const props = feat.getProperties();
             props.id = feat.getId();
+            if (props.phenomena) {
+                const phenText = iemdata.vtec_phenomena[props.phenomena] || props.phenomena;
+                types.add(phenText);
+            }
             data.push(props);
         });
+        
+        // Update SBW type filter
+        const sbwTypeFilter = document.getElementById('sbwtypefilter');
+        if (sbwTypeFilter && sbwTypeFilter.tomselect) {
+            const currentSelection = sbwTypeFilter.tomselect.getValue();
+            sbwTypeFilter.tomselect.clear();
+            sbwTypeFilter.tomselect.clearOptions();
+            Array.from(types).sort().forEach(type => {
+                sbwTypeFilter.tomselect.addOption({ value: type, text: type });
+            });
+            // Restore previous selection if options still exist
+            if (currentSelection.length) {
+                const validSelections = currentSelection.filter(value => types.has(value));
+                if (validSelections.length) {
+                    sbwTypeFilter.tomselect.setValue(validSelections);
+                }
+            }
+        }
+        
         sbwtable.rows.add(data).draw();
     });
 

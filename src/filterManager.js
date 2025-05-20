@@ -31,7 +31,7 @@ export function initializeLSRTypeFilter(element, lsrtable) {
     filter.on('change', () => {
         const vals = filter.getValue();
         const val = vals.length ? vals.join("|") : null;
-        lsrtable.column(7).search(val ? `^${val}$` : '', true, false).draw();
+        lsrtable.column(4).search(val ? `^${val}$` : '', true, false).draw();
         setState(StateKeys.LSR_TYPES, vals);
     });
 

@@ -22,18 +22,17 @@ function initializeApplication() {
     // Initialize UI components that don't depend on layers
     initializeUI();
 
-    // Initialize filters first (creates UI components)
-    const filters = initializeFilters();
-    setFilters(filters);
-
-    // Initialize export handlers
-    initializeExportHandlers(filters);
-
     const olmap = initializeMap();
 
     // Initialize data tables
-    initializeLSRTable(document.getElementById('lsrtable'));
-    initializeSBWTable(document.getElementById('sbwtable'));
+    initializeLSRTable("tfe", document.getElementById('lsrtable'));
+    initializeSBWTable("tfe", document.getElementById('sbwtable'));
+
+    // Initialize filters first (creates UI components)
+    const filters = initializeFilters();
+    setFilters(filters);
+    // Initialize export handlers
+    initializeExportHandlers(filters);
 
     // Create LSR and SBW layers
     olmap.addLayer(createLSRLayer("tfe", olmap));

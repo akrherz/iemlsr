@@ -34,14 +34,23 @@ html, body {
 }
 
 #map {
-  position: absolute;
+  position: fixed;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 1;
+}
+
+/* Ensure the root element and body take full viewport height */
+html, body {
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 .ui-datepicker {
@@ -319,7 +328,8 @@ a:focus {
 /* Tables */
 .data-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   margin: 0;
 }
 
@@ -432,6 +442,7 @@ a:focus {
     max-width: 1200px;
     max-height: 800px;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .modal.open {
@@ -464,114 +475,100 @@ a:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.modal-title {
-    margin: 0;
-    font-size: 1.25rem;
-}
-
-.modal-controls {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.modal-control {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem;
-    color: #6c757d;
-}
-
-.modal-control:hover {
-    color: #343a40;
-}
-
-.modal-body {
-    padding: 1rem;
-    max-height: calc(90vh - 130px);
-    overflow-y: auto;
+    background: #f8f9fa;
 }
 
 .modal-content {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    padding: 15px;
-}
-
-.tabs {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-}
-
-.tab-list {
-    position: sticky;
-    top: 0;
-    background: white;
-    z-index: 2;
-    border-bottom: 2px solid #ddd;
-    margin-bottom: 15px;
-}
-
-.tab-panels {
     flex: 1;
-}
-
-.tab-panel {
-    display: none;
-}
-
-.tab-panel.active {
-    display: block;
-}
-
-.panel-content {
-    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    padding: 15px;
+    overflow: hidden;
+    height: calc(100% - 60px); /* Subtract modal header height */
 }
 
-.filter-options,
+.filter-options {
+    flex: 0 0 auto;
+    margin-bottom: 10px;
+}
+
 .action-buttons {
     flex: 0 0 auto;
+    margin-bottom: 10px;
 }
 
 .table-container {
-    margin: 0;
+    flex: 1;
     border: 1px solid #ddd;
     border-radius: 4px;
+    overflow: auto;
+    position: relative;
+}
+
+/* DataTables Wrapper */
+.dataTables_wrapper {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.dataTables_scroll {
+    max-height: calc(100% - 100px); /* Leave space for controls */
+    overflow: auto;
+}
+
+.dataTables_scrollHead {
+    position: sticky;
+    top: 0;
     background: white;
+    z-index: 1;
+}
+
+.dataTables_scrollBody {
+    overflow: auto;
+}
+
+.dataTables_scrollBody .data-table {
+    margin: 0 !important;
+}
+
+.dataTables_info,
+.dataTables_filter,
+.dataTables_length,
+.dataTables_paginate {
+    flex: 0 0 auto;
+    padding: 8px;
 }
 
 /* Desktop modal default position and size */
 @media (min-width: 768px) {
-  .modal {
-    width: 600px;
-    height: 500px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
+    .modal {
+        width: 90vw;
+        height: 90vh;
+    }
 }
 
 /* Mobile full screen modal */
 @media (max-width: 767px) {
-  .modal {
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
-    top: 0;
-    left: 0;
-    transform: none;
-  }
-  
-  .modal.open {
-    transform: none;
-  }
+    .modal {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        top: 0;
+        left: 0;
+        transform: none;
+        border-radius: 0;
+    }
+
+    .modal.open {
+        transform: none;
+    }
+
+    .dataTables_wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 /* Mobile Optimizations */
@@ -630,7 +627,10 @@ a:focus {
   
   #map {
     width: 100%;
-    height: 50vh;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
   }
   
   .drawer {
@@ -788,4 +788,23 @@ a:focus {
     display: flex;
     flex-direction: column;
     gap: 15px;
+}
+
+/* Clipboard Notification */
+.clipboard-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 2000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.clipboard-notification.show {
+    opacity: 1;
 }

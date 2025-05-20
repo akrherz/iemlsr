@@ -1,7 +1,10 @@
 import DataTable from 'datatables.net';
+import 'datatables.net-dt/css/dataTables.dataTables.css';
 import 'datatables.net-select-dt';
 import 'datatables.net-scroller-dt';
 import { iemdata } from './iemdata.js';
+import { formatLSR } from "./featureManager.js";
+import { getLSRLayer, getSBWLayer } from './layerManager.js';
 
 let lsrtable = null;
 let sbwtable = null;
@@ -13,25 +16,23 @@ export { lsrtable, sbwtable };
  * @param {HTMLElement} lsrtableEl - The table element 
  * @returns {DataTable} Initialized DataTable instance
  */
-export function initializeLSRTable(lsrtableEl) {
+export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl) {
     // Destroy existing table if it exists
     if (lsrtable) {
         lsrtable.destroy();
     }
     
     lsrtable = new DataTable(lsrtableEl, {
-        destroy: true,
         select: {
             style: 'single',
             info: false
         },
-        scrollX: true,
-        scrollY: true,
-        searching: true,
-        ordering: true,
-        paging: false,
-        dom: 'ift',
+        rowId: 'id',
         columns: [
+            {
+                "data": "valid",
+                "visible": false
+            },
             {
                 "className": 'details-control',
                 "orderable": false,
@@ -41,38 +42,45 @@ export function initializeLSRTable(lsrtableEl) {
             { "data": "wfo" },
             {
                 "data": "valid",
+                "type": "datetime",
                 "orderData": [1]
             },
+            { "data": "typetext" },
+            { "data": "magnitude" },
             { "data": "city" },
             { "data": "county" },
             { "data": "st" },
-            { "data": "magnitude" },
-            { "data": "typetext" },
-            { "data": "source" },
         ],
         order: [[1, 'asc']],
         columnDefs: [
             {
-                targets: [2],
+                targets: 3,
                 render(data) {
                     return new Date(data).toLocaleString();
                 }
             }
         ]
     });
-    const onSearch = null;
-    const onRowClick = null;
-    if (onSearch) {
-        lsrtable.on("search.dt", onSearch);
-    }
 
-    if (onRowClick && lsrtableEl) {
+    lsrtable.on("search.dt", () => {
+        getLSRLayer().dispatchEvent(TABLE_FILTERED_EVENT)
+    });
+
+    if (lsrtableEl) {
         const tbody = lsrtableEl.querySelector('tbody');
         if (tbody) {
             tbody.addEventListener('click', (event) => {
                 const td = event.target.closest('td.details-control');
                 if (!td) return;
-                onRowClick(td.closest('tr'), lsrtable);
+                const tr = td.closest('tr');
+                const row = lsrtable.row(tr);
+                if (row.child.isShown()) {
+                    // This row is already open - close it
+                    row.child.hide();
+                } else {
+                    // Open this row
+                    row.child(formatLSR(row.data())).show();
+                }
             });
         }
     }
@@ -84,24 +92,17 @@ export function initializeLSRTable(lsrtableEl) {
  * @param {Function} onSearch - Callback for search events
  * @returns {DataTable} Initialized DataTable instance
  */
-export function initializeSBWTable(sbwtableEl) {
+export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl) {
     // Destroy existing table if it exists
     if (sbwtable) {
         sbwtable.destroy();
     }
     
     sbwtable = new DataTable(sbwtableEl, {
-        destroy: true,
         select: {
             style: 'single',
             info: false
         },
-        scrollX: false,
-        scrollY: true,
-        searching: true,
-        ordering: true,
-        paging: false,
-        dom: 'ift',
         columns: [
             {
                 "data": "issue",
@@ -152,8 +153,7 @@ export function initializeSBWTable(sbwtableEl) {
             }
         ]
     });
-    const onSearch = null;
-    if (onSearch) {
-        sbwtable.on("search.dt", onSearch);
-    }
+    sbwtable.on("search.dt", () => {
+        getSBWLayer().dispatchEvent(TABLE_FILTERED_EVENT)
+    });
 }
