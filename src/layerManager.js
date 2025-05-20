@@ -1,11 +1,10 @@
-import DataTable from "datatables.net";
 import { Style, Icon, Text, Fill, Stroke } from 'ol/style';
 import GeoJSON from 'ol/format/GeoJSON';
 import LayerSwitcher from 'ol-layerswitcher';
-import TileLayer from 'ol/layer/Tile';
-import XYZ from 'ol/source/XYZ';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
+import { lsrtable, sbwtable } from './tableManager.js';
+import { updateURL } from './urlHandler.js';
 // Lookup tables for styling
 const sbwLookup = {
     "TO": '#FF0000',
@@ -97,6 +96,24 @@ const lsrTextBackgroundColor = {
     'R': 'blue',
     '5': 'pink'
 };
+let lsrLayer = null;
+let sbwLayer = null;
+
+/**
+ * Get the LSR layer instance
+ * @returns {VectorLayer} The LSR layer
+ */
+export function getLSRLayer() {
+    return lsrLayer;
+}
+
+/**
+ * Get the SBW layer instance
+ * @returns {VectorLayer} The SBW layer
+ */
+export function getSBWLayer() {
+    return sbwLayer;
+}
 
 /**
  * Helper function to get selected values from a select element
@@ -124,64 +141,8 @@ function setSelectedValues(selectElement, values) {
     selectElement.dispatchEvent(new Event('change'));
 }
 
-/**
- * Creates and initializes the Local Storm Reports DataTable
- * @returns {DataTable} The initialized DataTable instance
- */
-export function createLSRTable() {
-    const table = document.getElementById('lsrtable');
-    return new DataTable(table, {
-        select: {
-            style: 'single',
-            info: false
-        },
-        rowId: 'id',
-        columns: [
-            {
-                "data": "valid",
-                "visible": false
-            }, {
-                "className": 'details-control',
-                "orderable": false,
-                "data": null,
-                "defaultContent": ''
-            }, {
-                "data": "wfo"
-            }, {
-                "data": "valid",
-                "type": "datetime",
-                "orderData": [0]
-            }, {
-                "data": "county"
-            }, {
-                "data": "city"
-            }, {
-                "data": "st"
-            }, {
-                "data": "typetext"
-            }, {
-                "data": "magnitude"
-            }
-        ],
-        columnDefs: [
-            {
-                targets: 3,
-                render(data) {
-                    const date = new Date(data);
-                    const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
-                    const day = date.getUTCDate().toString().padStart(2, '0');
-                    const year = date.getUTCFullYear().toString().slice(2);
-                    const hours = date.getUTCHours().toString().padStart(2, '0');
-                    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-                    return `${month}/${day}/${year} ${hours}:${minutes}`;
-                }
-            }
-        ]
-    });
-}
-
-export function createLSRLayer(updateURLWrapper, TABLE_FILTERED_EVENT, lsrtable, olmap) {
-    const lsrLayer = new VectorLayer({
+export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
+    lsrLayer = new VectorLayer({
         title: "Local Storm Reports",
         source: new VectorSource({
             format: new GeoJSON()
@@ -246,13 +207,12 @@ export function createLSRLayer(updateURLWrapper, TABLE_FILTERED_EVENT, lsrtable,
         lsrtable.rows.add(data).draw();
     });
 
-    lsrLayer.on('change:visible', updateURLWrapper);
-
+    lsrLayer.on('change:visible', updateURL);
     return lsrLayer;
 }
 
-export function createSBWLayer(updateURLWrapper, TABLE_FILTERED_EVENT, sbwtable) {
-    const sbwLayer = new VectorLayer({
+export function createSBWLayer(TABLE_FILTERED_EVENT) {
+    sbwLayer = new VectorLayer({
         title: "Storm Based Warnings",
         source: new VectorSource({
             format: new GeoJSON()
@@ -270,7 +230,7 @@ export function createSBWLayer(updateURLWrapper, TABLE_FILTERED_EVENT, sbwtable)
     });
 
     // Add event listeners
-    sbwLayer.on('change:visible', updateURLWrapper);
+    sbwLayer.on('change:visible', updateURL);
     sbwLayer.addEventListener(TABLE_FILTERED_EVENT, () => {
         // Turn all features back on
         sbwLayer.getSource().getFeatures().forEach((feat) => {
@@ -282,19 +242,7 @@ export function createSBWLayer(updateURLWrapper, TABLE_FILTERED_EVENT, sbwtable)
         });
         sbwLayer.changed();
     });
-
     return sbwLayer;
-}
-
-export function make_iem_tms(title, layername, visible, type) {
-    return new TileLayer({
-        title,
-        visible,
-        type,
-        source: new XYZ({
-            url: `https://mesonet.agron.iastate.edu/c/tile.py/1.0.0/${layername}/{z}/{x}/{y}.png`
-        })
-    });
 }
 
 export function initializeLayerSwitcher(map) {

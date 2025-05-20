@@ -1,3 +1,7 @@
+import { getState, setState, StateKeys } from './state.js';
+import { loadData } from './dataManager.js';
+import { updateRADARTimes } from './timeUtils.js';
+import { applySettings } from './settingsManager.js';
 
 /**
  * Helper function to get selected values from a select element
@@ -92,7 +96,7 @@ function formatDateTimeForInput(date) {
     return date.toLocaleString('sv').replace(' ', 'T');
 }
 
-export function parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADARTimes, applySettings) {
+export function parseHref() {
     let sts = null;
     let ets = null;
     
@@ -108,14 +112,28 @@ export function parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADA
         if (wfoParam) {
             ids = wfoParam.split(",");
             setSelectedValues(wfoSelect, ids);
+            setState(StateKeys.WFO_FILTER, ids);
         }
     } else if (by === "state") {
         const stateParam = params.get("state");
         if (stateParam) {
             ids = stateParam.split(",");
             setSelectedValues(stateSelect, ids);
+            setState(StateKeys.STATE_FILTER, ids);
+            setState(StateKeys.BY_STATE, true);
             document.getElementById("by_state").click();
         }
+    }
+
+    // Handle LSR and SBW type parameters
+    const lsrTypes = params.get("lsrTypes");
+    if (lsrTypes) {
+        setState(StateKeys.LSR_TYPES, lsrTypes.split(","));
+    }
+    
+    const sbwTypes = params.get("sbwTypes");
+    if (sbwTypes) {
+        setState(StateKeys.SBW_TYPES, sbwTypes.split(","));
     }
     
     // Handle time parameters
@@ -166,7 +184,7 @@ export function parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADA
     setTimeout(loadData, 0);
 }
 
-export function updateURL(wfoSelect, stateSelect, genSettings) {
+export function updateURL(genSettings) {
     // Get date objects from the form inputs (these will be in local timezone)
     const stsElement = document.getElementById("sts");
     const etsElement = document.getElementById("ets");
@@ -194,6 +212,18 @@ export function updateURL(wfoSelect, stateSelect, genSettings) {
     
     // Create URLSearchParams object
     const params = new URLSearchParams();
+    
+    // Add type filter parameters
+    const lsrTypes = getState(StateKeys.LSR_TYPES);
+    const sbwTypes = getState(StateKeys.SBW_TYPES);
+    
+    if (lsrTypes && lsrTypes.length > 0) {
+        params.set("lsrTypes", lsrTypes.join(","));
+    }
+    
+    if (sbwTypes && sbwTypes.length > 0) {
+        params.set("sbwTypes", sbwTypes.join(","));
+    }
     
     // Add selection parameters
     params.set("by", by);
