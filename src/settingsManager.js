@@ -1,12 +1,14 @@
 import { n0q, getStatesLayer, getCountiesLayer } from "./mapManager";
 import { getLSRLayer, getSBWLayer, setLSRIconMode } from "./layerManager";
+import { getState, StateKeys } from "./state";
 /**
  * Generate settings string based on layer visibility
  * @param {object} layers Object containing layer references
  * @param {boolean} realtime Realtime mode state
  * @returns {string} Settings string
  */
-export function generateSettings(realtime) {
+export function generateSettings() {
+    const realtime = getState(StateKeys.REALTIME);
     let res = "";
     res += (n0q.getVisible() ? "1" : "0");
     res += (getLSRLayer().getVisible() ? "1" : "0");

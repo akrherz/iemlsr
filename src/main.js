@@ -13,27 +13,30 @@ import { initializeExportHandlers } from './exportManager.js';
 import { setFilters } from './state.js';
 import { loadData } from './dataManager.js';
 import { initializeLayerControls } from './layerControlManager.js';
+import { startCronTasks } from './cronManager.js';
 
 function initializeApplication() {
     // First migrate any hash parameters to URL parameters
     // This modifies no state, just prepares the URL for the rest of the app
     migrateHashToParams();
 
+    // First parse URL parameters to set initial state
+    parseHref();
+
     // Initialize UI components that don't depend on layers
     initializeUI();
-
-    // Initialize filters first (creates UI components)
-    const filters = initializeFilters();
-    setFilters(filters);
-
-    // Initialize export handlers
-    initializeExportHandlers(filters);
 
     const olmap = initializeMap();
 
     // Initialize data tables
-    initializeLSRTable(document.getElementById('lsrtable'));
-    initializeSBWTable(document.getElementById('sbwtable'));
+    initializeLSRTable("tfe", document.getElementById('lsrtable'));
+    initializeSBWTable("tfe", document.getElementById('sbwtable'));
+
+    // Initialize filters with state from URL parameters
+    const filters = initializeFilters();
+    setFilters(filters);
+    // Initialize export handlers
+    initializeExportHandlers(filters);
 
     // Create LSR and SBW layers
     olmap.addLayer(createLSRLayer("tfe", olmap));
@@ -41,9 +44,8 @@ function initializeApplication() {
 
     initializeLayerControls(olmap);
 
-
-    // Initialize URL parameters and data
-    parseHref();
+    // Start the realtime cron tasks
+    startCronTasks();
 
     // Finally, load the data
     loadData();

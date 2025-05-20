@@ -1,4 +1,6 @@
 import * as timeUtils from './timeUtils.js';
+import { buildRequestOptions } from './optionsManager.js';
+
 
 /**
  * Get shapefile download link with parameters
@@ -42,12 +44,11 @@ function getShapefileLink(base, filters) {
     params.append('hour2', etsParams.hour);
     params.append('minute2', etsParams.minute);
 
-    return `/cgi-bin/request/gis/${base}.py?${params}`;
+    return `https://mesonet.agron.iastate.edu/cgi-bin/request/gis/${base}.py?${params}`;
 }
 
 /**
  * Initialize export button handlers
- * @param {Function} buildOpts - Function to build options for GeoJSON URLs
  * @param {object} filters - Filter selections
  */
 export function initializeExportHandlers(filters) {
@@ -63,10 +64,44 @@ export function initializeExportHandlers(filters) {
         window.location.href = `${getShapefileLink("lsr", filters)}&fmt=kml`;
     });
 
+    const showClipboardNotification = () => {
+        // Create or get notification element
+        let notification = document.querySelector('.clipboard-notification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.className = 'clipboard-notification';
+            document.body.appendChild(notification);
+        }
+        
+        // Set message and show
+        notification.textContent = 'URL copied to clipboard!';
+        notification.classList.add('show');
+        
+        // Hide after 2 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 2000);
+    };
+
     document.getElementById('lsrgeojson').addEventListener('click', () => {
-        const opts = buildOpts();
-        const params = new URLSearchParams(opts);
+        const params = new URLSearchParams(buildRequestOptions());
         const url = `https://mesonet.agron.iastate.edu/geojson/lsr.geojson?${params}`;
+        // Copy the URL to the clipboard
+        navigator.clipboard.writeText(url)
+            .then(showClipboardNotification)
+            .catch(err => {
+                console.error('Failed to copy URL: ', err);
+                // Show error notification
+                const notification = document.querySelector('.clipboard-notification') || document.createElement('div');
+                notification.className = 'clipboard-notification';
+                notification.style.backgroundColor = '#dc3545'; // Error red color
+                notification.textContent = 'Failed to copy URL to clipboard';
+                document.body.appendChild(notification);
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            });
     });
 
     document.getElementById('warnshapefile').addEventListener('click', () => {
@@ -82,8 +117,23 @@ export function initializeExportHandlers(filters) {
     });
 
     document.getElementById('sbwgeojson').addEventListener('click', () => {
-        const opts = buildOpts();
-        const params = new URLSearchParams(opts);
+        const params = new URLSearchParams(buildRequestOptions());
         const url = `https://mesonet.agron.iastate.edu/geojson/sbw.geojson?${params}`;
+        // Copy the URL to the clipboard
+        navigator.clipboard.writeText(url)
+            .then(showClipboardNotification)
+            .catch(err => {
+                console.error('Failed to copy URL: ', err);
+                // Show error notification
+                const notification = document.querySelector('.clipboard-notification') || document.createElement('div');
+                notification.className = 'clipboard-notification';
+                notification.style.backgroundColor = '#dc3545';
+                notification.textContent = 'Failed to copy URL to clipboard';
+                document.body.appendChild(notification);
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            });
     });
 }

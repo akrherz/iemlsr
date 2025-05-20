@@ -34,14 +34,23 @@ html, body {
 }
 
 #map {
-  position: absolute;
+  position: fixed;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 1;
+}
+
+/* Ensure the root element and body take full viewport height */
+html, body {
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 .ui-datepicker {
@@ -154,6 +163,38 @@ a:focus {
   max-width: 230px;
 }
 
+/* Input Loading States */
+.input-field-loading {
+  transition: all 0.3s ease;
+}
+
+.input-changed {
+  border-color: #007bff;
+  box-shadow: 0 0 0 1px #007bff;
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Load Data Button - Primary Action */
+#load.load-needed {
+  animation: pulse 1.5s infinite;
+  background-color: #28a745;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+}
+
 .close {
   color: #FFF !important;
   opacity: 1 !important;
@@ -169,7 +210,6 @@ a:focus {
   z-index: 1001;
   transition: transform 0.3s ease;
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  overflow: hidden;
 }
 
 .drawer-left {
@@ -181,95 +221,33 @@ a:focus {
   transform: translateX(0);
 }
 
-/* Drawer Toggle */
-.drawer-toggle {
-  position: fixed;
-  z-index: 1002;
-  border: none;
-  background: white;
-  padding: 10px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  cursor: pointer;
-}
-
-.drawer-toggle:hover {
-  background: #f0f0f0;
-}
-
-.drawer-toggle-left {
-  left: 10px;
-  top: 10px;
-}
-
-.drawer-close {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-
 .drawer-content {
-  padding: 20px;
-  padding-top: 40px;
-  max-height: calc(100vh - 60px);
+  height: 100%;
   overflow-y: auto;
+  padding: 20px;
+  padding-top: 40px; /* Space for close button */
 }
 
-/* DataTables */
-.dataTables_wrapper {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+.data-controls-section {
+  margin: -20px -20px 20px -20px;
+  padding: 20px;
+  background: white;
+  border-bottom: 1px solid #ddd;
 }
 
-.dataTables_info,
-.dataTables_filter {
-    flex: 0 0 auto;
-    margin: 5px 0;
+.map-controls-section {
+  margin-bottom: 20px;
 }
 
-.dataTables_scrollBody {
-    flex: 1;
-    overflow-y: auto !important;
+/* Improve select dropdowns */
+.input-field[multiple] {
+  min-height: 100px;
 }
 
-.dataTables_scrollHeadInner,
-.dataTable {
-    width: 100% !important;
-}
-
-/* Map adjustments */
-.map-shift-left {
-  margin-left: 300px;
-  width: calc(100% - 300px);
-}
-
-/* Form Controls */
-.control-group {
-  margin-bottom: 15px;
-}
-
-.input-field {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.input-field:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-}
-
-.radio-group, .checkbox-group {
-  margin: 8px 0;
+/* Remove any position:sticky elements */
+.drawer-content h3,
+.data-controls-section {
+  position: static;
 }
 
 /* Buttons */
@@ -319,7 +297,8 @@ a:focus {
 /* Tables */
 .data-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   margin: 0;
 }
 
@@ -432,6 +411,7 @@ a:focus {
     max-width: 1200px;
     max-height: 800px;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .modal.open {
@@ -464,114 +444,100 @@ a:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.modal-title {
-    margin: 0;
-    font-size: 1.25rem;
-}
-
-.modal-controls {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.modal-control {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem;
-    color: #6c757d;
-}
-
-.modal-control:hover {
-    color: #343a40;
-}
-
-.modal-body {
-    padding: 1rem;
-    max-height: calc(90vh - 130px);
-    overflow-y: auto;
+    background: #f8f9fa;
 }
 
 .modal-content {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    padding: 15px;
-}
-
-.tabs {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-}
-
-.tab-list {
-    position: sticky;
-    top: 0;
-    background: white;
-    z-index: 2;
-    border-bottom: 2px solid #ddd;
-    margin-bottom: 15px;
-}
-
-.tab-panels {
     flex: 1;
-}
-
-.tab-panel {
-    display: none;
-}
-
-.tab-panel.active {
-    display: block;
-}
-
-.panel-content {
-    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    padding: 15px;
+    overflow: hidden;
+    height: calc(100% - 60px); /* Subtract modal header height */
 }
 
-.filter-options,
+.filter-options {
+    flex: 0 0 auto;
+    margin-bottom: 10px;
+}
+
 .action-buttons {
     flex: 0 0 auto;
+    margin-bottom: 10px;
 }
 
 .table-container {
-    margin: 0;
+    flex: 1;
     border: 1px solid #ddd;
     border-radius: 4px;
+    overflow: auto;
+    position: relative;
+}
+
+/* DataTables Wrapper */
+.dataTables_wrapper {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.dataTables_scroll {
+    max-height: calc(100% - 100px); /* Leave space for controls */
+    overflow: auto;
+}
+
+.dataTables_scrollHead {
+    position: sticky;
+    top: 0;
     background: white;
+    z-index: 1;
+}
+
+.dataTables_scrollBody {
+    overflow: auto;
+}
+
+.dataTables_scrollBody .data-table {
+    margin: 0 !important;
+}
+
+.dataTables_info,
+.dataTables_filter,
+.dataTables_length,
+.dataTables_paginate {
+    flex: 0 0 auto;
+    padding: 8px;
 }
 
 /* Desktop modal default position and size */
 @media (min-width: 768px) {
-  .modal {
-    width: 600px;
-    height: 500px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
+    .modal {
+        width: 90vw;
+        height: 90vh;
+    }
 }
 
 /* Mobile full screen modal */
 @media (max-width: 767px) {
-  .modal {
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
-    top: 0;
-    left: 0;
-    transform: none;
-  }
-  
-  .modal.open {
-    transform: none;
-  }
+    .modal {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        top: 0;
+        left: 0;
+        transform: none;
+        border-radius: 0;
+    }
+
+    .modal.open {
+        transform: none;
+    }
+
+    .dataTables_wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 /* Mobile Optimizations */
@@ -630,7 +596,10 @@ a:focus {
   
   #map {
     width: 100%;
-    height: 50vh;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
   }
   
   .drawer {
@@ -788,4 +757,111 @@ a:focus {
     display: flex;
     flex-direction: column;
     gap: 15px;
+}
+
+/* Clipboard Notification */
+.clipboard-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 2000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.clipboard-notification.show {
+    opacity: 1;
+}
+
+.load-button-container {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.load-button {
+  width: 100%;
+  font-size: 1.1em;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.load-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.load-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Time Controls Section */
+.time-controls-section {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 1rem;
+  margin: -1rem -1rem 1rem -1rem;
+  border-bottom: 1px solid #ddd;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.time-controls-section .control-group {
+  margin-bottom: 1rem;
+}
+
+.time-controls-section .control-group:last-child {
+  margin-bottom: 0;
+}
+
+.time-controls-section .load-button-container {
+  padding: 0;
+  border-bottom: none;
+  margin-top: 1rem;
+}
+
+/* Update drawer content padding to account for sticky header */
+.drawer-content {
+  padding-top: 20px;
+}
+
+/* Z-index hierarchy */
+:root {
+  --z-map: 1;
+  --z-drawer: 1001;
+  --z-toggle: 1010;
+  --z-modal: 1020;
+  --z-notification: 2000;
+}
+
+#map { z-index: var(--z-map); }
+.drawer { z-index: var(--z-drawer); }
+.drawer-toggle { z-index: var(--z-toggle); }
+.modal { z-index: var(--z-modal); }
+.clipboard-notification { z-index: var(--z-notification); }
+
+/* Ensure drawer toggle is always visible */
+.drawer-toggle {
+  position: fixed;
+  border: none;
+  background: white;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  cursor: pointer;
+  display: block;
 }

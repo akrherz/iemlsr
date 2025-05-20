@@ -1,31 +1,5 @@
 import { getState, setState, StateKeys } from './state.js';
-import { applySettings, generateSettings } from './settingsManager.js';
-
-/**
- * Helper function to get selected values from a select element
- * @param {HTMLSelectElement} selectElement 
- * @returns {string[]} Array of selected values
- */
-function getSelectedValues(selectElement) {
-    return Array.from(selectElement.selectedOptions).map(option => option.value);
-}
-
-/**
- * Helper function to set selected values on a select element
- * @param {HTMLSelectElement} selectElement 
- * @param {string[]} values 
- */
-function setSelectedValues(selectElement, values) {
-    // Clear current selections
-    selectElement.querySelectorAll('option').forEach(option => option.selected = false);
-    // Set new selections
-    values.forEach(value => {
-        const option = selectElement.querySelector(`option[value="${value}"]`);
-        if (option) option.selected = true;
-    });
-    // Dispatch change event
-    selectElement.dispatchEvent(new Event('change'));
-}
+import { generateSettings } from './settingsManager.js';
 
 /**
  * Migrates the app from hash-based URLs to parameter-based URLs.
@@ -85,14 +59,6 @@ export function migrateHashToParams() {
     window.history.replaceState({}, "", newUrl);
 }
 
-/**
- * Format a Date object for use in a datetime-local input field
- * @param {Date} date - The date to format
- * @returns {string} - Date string in format YYYY-MM-DDTHH:MM
- */
-function formatDateTimeForInput(date) {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-}
 
 /**
  * Parse URL parameters and initialize state
@@ -103,37 +69,24 @@ export function parseHref() {
     
     // Check for selection type and IDs
     const by = params.get("by") || "wfo";
-    let ids = [];
     
-    if (by === "wfo") {
-        const wfoParam = params.get("wfo");
-        if (wfoParam) {
-            ids = wfoParam.split(",");
-            setSelectedValues(wfoSelect, ids);
-            setState(StateKeys.WFO_FILTER, ids);
-        }
-    } else if (by === "state") {
-        const stateParam = params.get("state");
-        if (stateParam) {
-            ids = stateParam.split(",");
-            setSelectedValues(stateSelect, ids);
-            setState(StateKeys.STATE_FILTER, ids);
-            setState(StateKeys.BY_STATE, true);
-            document.getElementById("by_state").click();
-        }
+    // Store the selection type in state for WFO/state selector initialization
+    setState(StateKeys.BY_STATE, by === "state");
+    
+    // Handle WFO filter
+    const wfoParam = params.get("wfo");
+    if (wfoParam) {
+        const wfoIds = wfoParam.split(",");
+        setState(StateKeys.WFO_FILTER, wfoIds);
+    }
+    
+    // Handle state filter
+    const stateParam = params.get("state");
+    if (stateParam) {
+        const stateIds = stateParam.split(",");
+        setState(StateKeys.STATE_FILTER, stateIds);
     }
 
-    // Handle LSR and SBW type parameters
-    const lsrTypes = params.get("lsrTypes");
-    if (lsrTypes) {
-        setState(StateKeys.LSR_TYPES, lsrTypes.split(","));
-    }
-    
-    const sbwTypes = params.get("sbwTypes");
-    if (sbwTypes) {
-        setState(StateKeys.SBW_TYPES, sbwTypes.split(","));
-    }
-    
     // Handle time parameters
     const stsParam = params.get("sts");
     const etsParam = params.get("ets");
@@ -162,7 +115,6 @@ export function parseHref() {
     } else if (secondsParam) {
         // Parse relative time
         setState(StateKeys.REALTIME, true);
-        document.getElementById("realtime").checked = true;
         etsTime = new Date();
         stsTime = new Date(etsTime.getTime() - Math.abs(parseInt(secondsParam, 10)) * 1000);
     } else {
@@ -170,32 +122,25 @@ export function parseHref() {
         etsTime = new Date();
         stsTime = new Date(etsTime.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
     }
-    
-    // Update state
-    setState(StateKeys.STS, stsTime);
-    setState(StateKeys.ETS, etsTime);
-    
-    // Set the form values in local timezone
-    document.getElementById("sts").value = formatDateTimeForInput(stsTime);
-    document.getElementById("ets").value = formatDateTimeForInput(etsTime);
-    
+    // check that stsTime and etsTime are valid dates
+    if (stsTime instanceof Date && !isNaN(stsTime) &&
+        etsTime instanceof Date && !isNaN(etsTime)) {
+        setState(StateKeys.STS, stsTime);
+        setState(StateKeys.ETS, etsTime);
+    }
 
-    // Apply settings if available
+    // Handle settings parameter
     const settingsParam = params.get("settings");
     if (settingsParam) {
-        applySettings(settingsParam);
+        setState(StateKeys.LAYER_SETTINGS, settingsParam);
     }
 
 }
 
 export function updateURL() {
-    // Get date objects from the form inputs (these will be in local timezone)
-    const stsElement = document.getElementById("sts");
-    const etsElement = document.getElementById("ets");
-    
-    // Convert to UTC for the URL parameters
-    const stsDate = new Date(stsElement.value);
-    const etsDate = new Date(etsElement.value);
+    // Get dates directly from state
+    const stsDate = getState(StateKeys.STS);
+    const etsDate = getState(StateKeys.ETS);
     
     // Format dates in YYYYmmddHH24MI format (UTC)
     const sts = stsDate.getUTCFullYear().toString().padStart(4, '0') +
@@ -210,31 +155,20 @@ export function updateURL() {
                etsDate.getUTCHours().toString().padStart(2, '0') +
                etsDate.getUTCMinutes().toString().padStart(2, '0');
     
-    const by = document.querySelector("input[type=radio][name=by]:checked").value;
-    const wfos = getSelectedValues(document.getElementById('wfo'));
-    const states = getSelectedValues(document.getElementById('state'));
+    // Get selection type and filters from state
+    const by = getState(StateKeys.BY_STATE) ? "state" : "wfo";
+    const wfoFilter = getState(StateKeys.WFO_FILTER) || [];
+    const stateFilter = getState(StateKeys.STATE_FILTER) || [];
     
     // Create URLSearchParams object
     const params = new URLSearchParams();
     
-    // Add type filter parameters
-    const lsrTypes = getState(StateKeys.LSR_TYPES);
-    const sbwTypes = getState(StateKeys.SBW_TYPES);
-    
-    if (lsrTypes && lsrTypes.length > 0) {
-        params.set("lsrTypes", lsrTypes.join(","));
-    }
-    
-    if (sbwTypes && sbwTypes.length > 0) {
-        params.set("sbwTypes", sbwTypes.join(","));
-    }
-    
     // Add selection parameters
     params.set("by", by);
-    if (by === "wfo" && wfos.length > 0) {
-        params.set("wfo", wfos.join(","));
-    } else if (by === "state" && states.length > 0) {
-        params.set("state", states.join(","));
+    if (by === "wfo" && wfoFilter.length > 0) {
+        params.set("wfo", wfoFilter.join(","));
+    } else if (by === "state" && stateFilter.length > 0) {
+        params.set("state", stateFilter.join(","));
     }
     
     // Add time parameters in YYYYmmddHH24MI format

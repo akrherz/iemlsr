@@ -1,7 +1,7 @@
 import TomSelect from 'tom-select';
 import { iemdata } from './iemdata.js';
 import { lsrtable, sbwtable } from './tableManager.js';
-import { setState, StateKeys} from './state.js';
+import { setState, getState, StateKeys} from './state.js';
 
 /**
  * Common configuration for tom-select instances
@@ -31,7 +31,7 @@ export function initializeLSRTypeFilter(element, lsrtable) {
     filter.on('change', () => {
         const vals = filter.getValue();
         const val = vals.length ? vals.join("|") : null;
-        lsrtable.column(7).search(val ? `^${val}$` : '', true, false).draw();
+        lsrtable.column(4).search(val ? `^${val}$` : '', true, false).draw();
         setState(StateKeys.LSR_TYPES, vals);
     });
 
@@ -85,10 +85,8 @@ export function initializeLocationSelect(element, data, filterType) {
 
     select.on('change', () => {
         const vals = select.getValue();
-        setState(
-            filterType === 'wfo' ? StateKeys.WFO_FILTER : StateKeys.STATE_FILTER,
-            vals
-        );
+        const stateKey = filterType === 'wfo' ? StateKeys.WFO_FILTER : StateKeys.STATE_FILTER;
+        setState(stateKey, vals);
     });
 
     return select;
@@ -99,10 +97,24 @@ export function initializeLocationSelect(element, data, filterType) {
  */
 function initializeFilterTypeHandlers() {
     const radioButtons = document.querySelectorAll('input[type=radio][name=by]');
+    const byState = getState(StateKeys.BY_STATE);
+
+    // Set initial radio button state
+    radioButtons.forEach(radio => {
+        radio.checked = (radio.value === 'state') === byState;
+    });
+    
+    // Add change event handlers
     radioButtons.forEach(radio => {
         radio.addEventListener('change', (e) => {
             const isByState = e.target.value === 'state';
             setState(StateKeys.BY_STATE, isByState);
+            
+            // Update active filter when selection type changes
+            const activeFilter = isByState ? 
+                getState(StateKeys.STATE_FILTER) : 
+                getState(StateKeys.WFO_FILTER);
+            setState(StateKeys.ACTIVE_FILTER, activeFilter || []);
         });
     });
 }
@@ -112,6 +124,7 @@ function initializeFilterTypeHandlers() {
  * @returns {object} Object containing all initialized filters
  */
 export function initializeFilters() {
+    // Initialize LSR and SBW type filters
     const lsrtypefilter = initializeLSRTypeFilter(
         document.getElementById('lsrtypefilter'),
         lsrtable
@@ -122,6 +135,7 @@ export function initializeFilters() {
         sbwtable
     );
 
+    // Initialize location selectors
     const wfoSelect = initializeLocationSelect(
         document.getElementById('wfo'),
         iemdata.wfos,
@@ -133,6 +147,30 @@ export function initializeFilters() {
         iemdata.states,
         'state'
     );
+
+    // Set initial values from state
+    const byState = getState(StateKeys.BY_STATE);
+    const wfoFilter = getState(StateKeys.WFO_FILTER) || [];
+    const stateFilter = getState(StateKeys.STATE_FILTER) || [];
+
+    // Set initial radio button state
+    const stateRadio = document.querySelector('input[type=radio][name=by][value=state]');
+    const wfoRadio = document.querySelector('input[type=radio][name=by][value=wfo]');
+    if (byState) {
+        stateRadio.checked = true;
+        wfoRadio.checked = false;
+    } else {
+        wfoRadio.checked = true;
+        stateRadio.checked = false;
+    }
+
+    // Set initial selections
+    if (wfoFilter.length > 0) {
+        wfoSelect.setValue(wfoFilter);
+    }
+    if (stateFilter.length > 0) {
+        stateSelect.setValue(stateFilter);
+    }
 
     initializeFilterTypeHandlers();
 

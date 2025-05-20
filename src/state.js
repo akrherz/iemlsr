@@ -32,7 +32,6 @@ export function getState(key) {
 
 export function setState(key, value) {
     if (!key) return;
-    const oldValue = state[key];
     state[key] = value;
     notifySubscribers(key);
 }
