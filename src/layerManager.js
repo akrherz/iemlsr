@@ -18,45 +18,45 @@ const sbwLookup = {
 };
 
 const lsrLookup = {
-    "0": "icons/tropicalstorm.gif",
-    "1": "icons/flood.png",
-    "2": "icons/other.png",
-    "3": "icons/other.png",
-    "4": "icons/other.png",
-    "5": "icons/ice.png",
-    "6": "icons/cold.png",
-    "7": "icons/cold.png",
-    "8": "icons/fire.png",
-    "9": "icons/other.png",
-    "a": "icons/other.png",
-    "A": "icons/wind.png",
-    "B": "icons/downburst.png",
-    "C": "icons/funnelcloud.png",
-    "D": "icons/winddamage.png",
-    "E": "icons/flood.png",
-    "F": "icons/flood.png",
-    "v": "icons/flood.png",
-    "G": "icons/wind.png",
-    "h": "icons/hail.png",
-    "H": "icons/hail.png",
-    "I": "icons/hot.png",
-    "J": "icons/fog.png",
-    "K": "icons/lightning.gif",
-    "L": "icons/lightning.gif",
-    "M": "icons/wind.png",
-    "N": "icons/wind.png",
-    "O": "icons/wind.png",
-    "P": "icons/other.png",
-    "q": "icons/downburst.png",
-    "Q": "icons/tropicalstorm.gif",
-    "s": "icons/sleet.png",
-    "T": "icons/tornado.png",
-    "U": "icons/fire.png",
-    "V": "icons/avalanche.gif",
-    "W": "icons/waterspout.png",
-    "X": "icons/funnelcloud.png",
-    "x": "icons/debrisflow.png",
-    "Z": "icons/blizzard.png"
+    "0": "/lsr/icons/tropicalstorm.gif",
+    "1": "/lsr/icons/flood.png",
+    "2": "/lsr/icons/other.png",
+    "3": "/lsr/icons/other.png",
+    "4": "/lsr/icons/other.png",
+    "5": "/lsr/icons/ice.png",
+    "6": "/lsr/icons/cold.png",
+    "7": "/lsr/icons/cold.png",
+    "8": "/lsr/icons/fire.png",
+    "9": "/lsr/icons/other.png",
+    "a": "/lsr/icons/other.png",
+    "A": "/lsr/icons/wind.png",
+    "B": "/lsr/icons/downburst.png",
+    "C": "/lsr/icons/funnelcloud.png",
+    "D": "/lsr/icons/winddamage.png",
+    "E": "/lsr/icons/flood.png",
+    "F": "/lsr/icons/flood.png",
+    "v": "/lsr/icons/flood.png",
+    "G": "/lsr/icons/wind.png",
+    "h": "/lsr/icons/hail.png",
+    "H": "/lsr/icons/hail.png",
+    "I": "/lsr/icons/hot.png",
+    "J": "/lsr/icons/fog.png",
+    "K": "/lsr/icons/lightning.gif",
+    "L": "/lsr/icons/lightning.gif",
+    "M": "/lsr/icons/wind.png",
+    "N": "/lsr/icons/wind.png",
+    "O": "/lsr/icons/wind.png",
+    "P": "/lsr/icons/other.png",
+    "q": "/lsr/icons/downburst.png",
+    "Q": "/lsr/icons/tropicalstorm.gif",
+    "s": "/lsr/icons/sleet.png",
+    "T": "/lsr/icons/tornado.png",
+    "U": "/lsr/icons/fire.png",
+    "V": "/lsr/icons/avalanche.gif",
+    "W": "/lsr/icons/waterspout.png",
+    "X": "/lsr/icons/funnelcloud.png",
+    "x": "/lsr/icons/debrisflow.png",
+    "Z": "/lsr/icons/blizzard.png"
 };
 
 // Default styles
@@ -140,6 +140,16 @@ function setSelectedValues(selectElement, values) {
     selectElement.dispatchEvent(new Event('change'));
 }
 
+// Track if we should use icons instead of magnitude for LSR labels
+let useLSRIcons = false;
+
+export function setLSRIconMode(useIcons) {
+    useLSRIcons = useIcons;
+    if (lsrLayer) {
+        lsrLayer.changed(); // Trigger style refresh
+    }
+}
+
 export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
     lsrLayer = new VectorLayer({
         title: "Local Storm Reports",
@@ -152,13 +162,17 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
             }
             const mag = feature.get('magnitude').toString();
             const typ = feature.get('type');
-            if (mag !== "") {
+            
+            // If we want to use magnitude and it's available (unless icons are forced)
+            if (!useLSRIcons && mag !== "") {
                 textStyle.getText().setText(mag);
                 textStyle.getText().getBackgroundFill().setColor(
                     lsrTextBackgroundColor[typ] || 'black'
                 );
                 return textStyle;
             }
+            
+            // Use icons for everything else
             const url = lsrLookup[typ];
             if (url) {
                 const icon = new Icon({

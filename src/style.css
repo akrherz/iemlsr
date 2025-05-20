@@ -621,3 +621,56 @@ a:focus {
   font-size: 1rem;
   color: #333;
 }
+
+/* Layer option indentation */
+.layer-option {
+  margin-left: 20px;
+  margin-top: 4px;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  display: none;
+}
+
+.toggle-slider {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 20px;
+  transition: all 0.2s;
+  margin-right: 8px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #007bff;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(16px);
+}
+
+.toggle-label {
+  font-size: 0.9em;
+  color: #666;
+}
