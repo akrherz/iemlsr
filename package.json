@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "datatables.net-dt": "^2.2.2",
+    "datatables.net-scroller-dt": "^2.4.3",
+    "datatables.net-select-dt": "^3.0.0",
     "jquery-ui": "^1.14.1",
     "ol": "latest",
     "ol-layerswitcher": "^4.1.2",

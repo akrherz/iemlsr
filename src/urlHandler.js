@@ -1,3 +1,5 @@
+import { getState, setState, StateKeys } from './state.js';
+import { applySettings, generateSettings } from './settingsManager.js';
 
 /**
  * Helper function to get selected values from a select element
@@ -89,13 +91,13 @@ export function migrateHashToParams() {
  * @returns {string} - Date string in format YYYY-MM-DDTHH:MM
  */
 function formatDateTimeForInput(date) {
-    return date.toLocaleString('sv').replace(' ', 'T');
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
-export function parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADARTimes, applySettings) {
-    let sts = null;
-    let ets = null;
-    
+/**
+ * Parse URL parameters and initialize state
+ */
+export function parseHref() {
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
     
@@ -108,14 +110,28 @@ export function parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADA
         if (wfoParam) {
             ids = wfoParam.split(",");
             setSelectedValues(wfoSelect, ids);
+            setState(StateKeys.WFO_FILTER, ids);
         }
     } else if (by === "state") {
         const stateParam = params.get("state");
         if (stateParam) {
             ids = stateParam.split(",");
             setSelectedValues(stateSelect, ids);
+            setState(StateKeys.STATE_FILTER, ids);
+            setState(StateKeys.BY_STATE, true);
             document.getElementById("by_state").click();
         }
+    }
+
+    // Handle LSR and SBW type parameters
+    const lsrTypes = params.get("lsrTypes");
+    if (lsrTypes) {
+        setState(StateKeys.LSR_TYPES, lsrTypes.split(","));
+    }
+    
+    const sbwTypes = params.get("sbwTypes");
+    if (sbwTypes) {
+        setState(StateKeys.SBW_TYPES, sbwTypes.split(","));
     }
     
     // Handle time parameters
@@ -123,9 +139,12 @@ export function parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADA
     const etsParam = params.get("ets");
     const secondsParam = params.get("seconds");
     
+    let stsTime;
+    let etsTime;
+    
     if (stsParam && etsParam) {
         // Parse full date/time in YYYYmmddHH24MI format (UTC)
-        sts = new Date(Date.UTC(
+        stsTime = new Date(Date.UTC(
             parseInt(stsParam.slice(0, 4), 10),
             parseInt(stsParam.slice(4, 6), 10) - 1,
             parseInt(stsParam.slice(6, 8), 10),
@@ -133,7 +152,7 @@ export function parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADA
             parseInt(stsParam.slice(10, 12), 10)
         ));
         
-        ets = new Date(Date.UTC(
+        etsTime = new Date(Date.UTC(
             parseInt(etsParam.slice(0, 4), 10),
             parseInt(etsParam.slice(4, 6), 10) - 1,
             parseInt(etsParam.slice(6, 8), 10),
@@ -142,31 +161,34 @@ export function parseHref(wfoSelect, stateSelect, realtime, loadData, updateRADA
         ));
     } else if (secondsParam) {
         // Parse relative time
-        realtime = true;
+        setState(StateKeys.REALTIME, true);
         document.getElementById("realtime").checked = true;
-        ets = new Date();
-        sts = new Date(ets.getTime() - Math.abs(parseInt(secondsParam, 10)) * 1000);
+        etsTime = new Date();
+        stsTime = new Date(etsTime.getTime() - Math.abs(parseInt(secondsParam, 10)) * 1000);
     } else {
-        // No parameters provided, don't load anything
-        return;
+        // No parameters provided, use defaults
+        etsTime = new Date();
+        stsTime = new Date(etsTime.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
     }
     
+    // Update state
+    setState(StateKeys.STS, stsTime);
+    setState(StateKeys.ETS, etsTime);
+    
     // Set the form values in local timezone
-    document.getElementById("sts").value = formatDateTimeForInput(sts);
-    document.getElementById("ets").value = formatDateTimeForInput(ets);
+    document.getElementById("sts").value = formatDateTimeForInput(stsTime);
+    document.getElementById("ets").value = formatDateTimeForInput(etsTime);
     
-    updateRADARTimes();
-    
+
     // Apply settings if available
     const settingsParam = params.get("settings");
     if (settingsParam) {
         applySettings(settingsParam);
     }
-    
-    setTimeout(loadData, 0);
+
 }
 
-export function updateURL(wfoSelect, stateSelect, genSettings) {
+export function updateURL() {
     // Get date objects from the form inputs (these will be in local timezone)
     const stsElement = document.getElementById("sts");
     const etsElement = document.getElementById("ets");
@@ -195,6 +217,18 @@ export function updateURL(wfoSelect, stateSelect, genSettings) {
     // Create URLSearchParams object
     const params = new URLSearchParams();
     
+    // Add type filter parameters
+    const lsrTypes = getState(StateKeys.LSR_TYPES);
+    const sbwTypes = getState(StateKeys.SBW_TYPES);
+    
+    if (lsrTypes && lsrTypes.length > 0) {
+        params.set("lsrTypes", lsrTypes.join(","));
+    }
+    
+    if (sbwTypes && sbwTypes.length > 0) {
+        params.set("sbwTypes", sbwTypes.join(","));
+    }
+    
     // Add selection parameters
     params.set("by", by);
     if (by === "wfo" && wfos.length > 0) {
@@ -208,7 +242,7 @@ export function updateURL(wfoSelect, stateSelect, genSettings) {
     params.set("ets", ets);
     
     // Add settings
-    const settings = genSettings();
+    const settings = generateSettings();
     if (settings) {
         params.set("settings", settings);
     }
