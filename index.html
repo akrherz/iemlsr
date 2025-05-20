@@ -22,6 +22,67 @@
       <div class="drawer-content">
         <h3>Controls</h3>
 
+        <!-- Layer Controls -->
+        <div class="control-group">
+          <h4>Layers</h4>
+          <!-- Base Maps -->
+          <div class="layer-group">
+            <label>Base Map:</label>
+            <select id="baseLayer" class="input-field">
+              <option value="osm">OpenStreetMap</option>
+              <option value="toner">MapTiler Toner</option>
+              <option value="pastel">MapTiler Pastel</option>
+            </select>
+          </div>
+          
+          <!-- Overlay Layers -->
+          <div class="layer-group">
+            <label>Overlays:</label>
+            <div class="checkbox-group">
+              <label>
+                <input type="checkbox" id="layer-nexrad" checked> NEXRAD Reflectivity
+              </label>
+            </div>
+            <div class="checkbox-group">
+              <label>
+                <input type="checkbox" id="layer-states" checked> US States
+              </label>
+            </div>
+            <div class="checkbox-group">
+              <label>
+                <input type="checkbox" id="layer-counties"> US Counties
+              </label>
+            </div>
+            <div class="checkbox-group">
+              <label>
+                <input type="checkbox" id="layer-lsr" checked> Local Storm Reports
+              </label>
+            </div>
+            <div class="checkbox-group">
+              <label>
+                <input type="checkbox" id="layer-sbw" checked> Storm Based Warnings
+              </label>
+            </div>
+          </div>
+
+          <!-- Layer Opacity Controls -->
+          <div class="layer-group">
+            <label>Layer Opacity:</label>
+            <div class="opacity-control">
+              <label for="nexrad-opacity">NEXRAD:</label>
+              <input type="range" id="nexrad-opacity" min="0" max="100" value="100">
+            </div>
+            <div class="opacity-control">
+              <label for="lsr-opacity">Storm Reports:</label>
+              <input type="range" id="lsr-opacity" min="0" max="100" value="100">
+            </div>
+            <div class="opacity-control">
+              <label for="sbw-opacity">Warnings:</label>
+              <input type="range" id="sbw-opacity" min="0" max="100" value="100">
+            </div>
+          </div>
+        </div>
+
         <!-- Time Slider -->
         <div class="control-group">
           <label>RADAR Time: <span id="radartime"></span></label>

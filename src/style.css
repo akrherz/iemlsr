@@ -138,7 +138,7 @@ a:focus {
   z-index: 1001;
   transition: transform 0.3s ease;
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .drawer-left {
@@ -184,6 +184,8 @@ a:focus {
 .drawer-content {
   padding: 20px;
   padding-top: 40px;
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
 }
 
 /* DataTables */
@@ -575,4 +577,47 @@ a:focus {
     left: 0;
     right: auto;
   }
+}
+
+/* Layer Controls */
+.layer-group {
+  margin-bottom: 1rem;
+}
+
+.layer-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.layer-group .checkbox-group {
+  margin-bottom: 0.5rem;
+}
+
+.layer-group .checkbox-group label {
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.opacity-control {
+  margin: 0.5rem 0;
+}
+
+.opacity-control label {
+  display: inline-block;
+  width: 100px;
+  font-weight: normal;
+}
+
+.opacity-control input[type="range"] {
+  width: calc(100% - 110px);
+  vertical-align: middle;
+}
+
+.control-group h4 {
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+  color: #333;
 }

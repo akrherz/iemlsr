@@ -1,18 +1,18 @@
 import './style.css';
 import './styles/popups.css';
 import 'ol/ol.css';
-import 'ol-layerswitcher/src/ol-layerswitcher.css';
 import 'tom-select/dist/css/tom-select.css';
 
 import { initializeMap } from './mapManager.js';
 import { parseHref, migrateHashToParams } from './urlHandler.js';
-import { createLSRLayer, createSBWLayer, initializeLayerSwitcher } from './layerManager.js';
+import { createLSRLayer, createSBWLayer } from './layerManager.js';
 import { initializeUI } from './uiManager.js';
 import { initializeLSRTable, initializeSBWTable } from './tableManager.js';
 import { initializeFilters } from './filterManager.js';
 import { initializeExportHandlers } from './exportManager.js';
 import { setFilters } from './state.js';
 import { loadData } from './dataManager.js';
+import { initializeLayerControls } from './layerControlManager.js';
 
 function initializeApplication() {
     // First migrate any hash parameters to URL parameters
@@ -30,7 +30,6 @@ function initializeApplication() {
     initializeExportHandlers(filters);
 
     const olmap = initializeMap();
-    initializeLayerSwitcher(olmap);
 
     // Initialize data tables
     initializeLSRTable(document.getElementById('lsrtable'));
@@ -39,6 +38,9 @@ function initializeApplication() {
     // Create LSR and SBW layers
     olmap.addLayer(createLSRLayer("tfe", olmap));
     olmap.addLayer(createSBWLayer("tfe"));
+
+    initializeLayerControls(olmap);
+
 
     // Initialize URL parameters and data
     parseHref();

@@ -1,6 +1,5 @@
 import { Style, Icon, Text, Fill, Stroke } from 'ol/style';
 import GeoJSON from 'ol/format/GeoJSON';
-import LayerSwitcher from 'ol-layerswitcher';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import { lsrtable, sbwtable } from './tableManager.js';
@@ -243,10 +242,4 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
         sbwLayer.changed();
     });
     return sbwLayer;
-}
-
-export function initializeLayerSwitcher(map) {
-    const ls = new LayerSwitcher();
-    map.addControl(ls);
-    return ls;
 }
