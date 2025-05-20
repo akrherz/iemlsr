@@ -24,10 +24,61 @@
       <button class="drawer-close" id="drawer-close-left">&times;</button>
       <div class="drawer-content">
         <h3>Controls</h3>
+        
+        <!-- Data Controls Section -->
+        <div class="data-controls-section">
+          <div class="control-group">
+            <label>Filter by:</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="by" value="wfo" checked>
+                NWS Forecast Office
+              </label>
+            </div>
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="by" value="state">
+                State
+              </label>
+            </div>
+          </div>
 
-        <!-- Layer Controls -->
-        <div class="control-group">
-          <h4>Layers</h4>
+          <div class="control-group">
+            <label for="wfo">WFO:</label>
+            <select id="wfo" class="input-field" multiple></select>
+          </div>
+
+          <div class="control-group">
+            <label for="state">State:</label>
+            <select id="state" class="input-field" multiple></select>
+          </div>
+
+          <div class="control-group">
+            <label for="sts">Start Time:</label>
+            <input type="datetime-local" class="input-field" id="sts">
+          </div>
+
+          <div class="control-group">
+            <label for="ets">End Time:</label>
+            <input type="datetime-local" class="input-field" id="ets">
+          </div>
+
+          <div class="control-group">
+            <div class="checkbox-group">
+              <label>
+                <input type="checkbox" id="realtime"> Auto-Refresh
+              </label>
+            </div>
+          </div>
+
+          <div class="control-group load-button-container">
+            <button id="load" class="button primary load-button">Load Data</button>
+          </div>
+        </div>
+
+        <!-- Map Controls -->
+        <div class="map-controls-section">
+          <h4>Map Settings</h4>
           <!-- Base Maps -->
           <div class="layer-group">
             <label>Base Map:</label>
@@ -97,54 +148,6 @@
         <div class="control-group">
           <label>RADAR Time: <span id="radartime"></span></label>
           <div id="timeslider"></div>
-        </div>
-
-        <div class="control-group">
-          <label>Filter by:</label>
-          <div class="radio-group">
-            <label>
-              <input type="radio" name="by" value="wfo" checked>
-              NWS Forecast Office
-            </label>
-          </div>
-          <div class="radio-group">
-            <label>
-              <input type="radio" name="by" value="state">
-              State
-            </label>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label for="wfo">WFO:</label>
-          <select id="wfo" class="input-field" multiple></select>
-        </div>
-
-        <div class="control-group">
-          <label for="state">State:</label>
-          <select id="state" class="input-field" multiple></select>
-        </div>
-
-        <div class="control-group">
-          <label for="sts">Start Time:</label>
-          <input type="datetime-local" class="input-field" id="sts">
-        </div>
-
-        <div class="control-group">
-          <label for="ets">End Time:</label>
-          <input type="datetime-local" class="input-field" id="ets">
-        </div>
-
-        <div class="control-group">
-          <div class="checkbox-group">
-            <label>
-              <input type="checkbox" id="realtime"> Auto-Refresh
-            </label>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <button id="load" class="button primary">Load Data</button>
         </div>
       </div>
     </div>

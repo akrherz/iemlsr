@@ -102,15 +102,18 @@ export function getTimeRange(stsInput, etsInput) {
  * @param {boolean} realtime - Whether realtime mode is enabled
  * @param {Function} loadData - Function to call when times change
  */
-export function setupTimeEventHandlers(stsInput, etsInput, realtime, loadData) {
+export function setupTimeEventHandlers(stsInput, etsInput, realtime) {
+    // Apply loading indicator classes to input fields
+    const inputs = [stsInput, etsInput];
+    inputs.forEach(input => input.classList.add('input-field-loading'));
+
     stsInput.addEventListener('change', (event) => {
         // Ensure end time is not before start time
         if (new Date(etsInput.value) < new Date(event.target.value)) {
             etsInput.value = event.target.value;
         }
-        if (!realtime) {
-            setTimeout(loadData, 0);
-        }
+        // Highlight inputs to indicate changes need to be loaded
+        inputs.forEach(input => input.classList.add('input-changed'));
     });
     
     etsInput.addEventListener('change', (event) => {
@@ -118,8 +121,7 @@ export function setupTimeEventHandlers(stsInput, etsInput, realtime, loadData) {
         if (new Date(stsInput.value) > new Date(event.target.value)) {
             stsInput.value = event.target.value;
         }
-        if (!realtime) {
-            setTimeout(loadData, 0);
-        }
+        // Highlight inputs to indicate changes need to be loaded
+        inputs.forEach(input => input.classList.add('input-changed'));
     });
 }

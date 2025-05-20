@@ -48,8 +48,21 @@ export function initializeUI() {
     });
 
     // Handle load button click
-    document.getElementById('load').addEventListener('click', () => {
+    const loadButton = document.getElementById('load');
+    loadButton.addEventListener('click', () => {
+        // Clear input-changed class from all inputs with that class
+        document.querySelectorAll('.input-changed').forEach(input => {
+            input.classList.remove('input-changed');
+        });
+        loadButton.classList.remove('load-needed');
         setTimeout(loadData, 0);
+    });
+
+    // Add change event listener to any input that should trigger load button highlight
+    document.querySelectorAll('.input-field').forEach(input => {
+        input.addEventListener('change', () => {
+            loadButton.classList.add('load-needed');
+        });
     });
 
 
