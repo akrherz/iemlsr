@@ -19,6 +19,9 @@ function initializeApplication() {
     // This modifies no state, just prepares the URL for the rest of the app
     migrateHashToParams();
 
+    // First parse URL parameters to set initial state
+    parseHref();
+
     // Initialize UI components that don't depend on layers
     initializeUI();
 
@@ -28,7 +31,7 @@ function initializeApplication() {
     initializeLSRTable("tfe", document.getElementById('lsrtable'));
     initializeSBWTable("tfe", document.getElementById('sbwtable'));
 
-    // Initialize filters first (creates UI components)
+    // Initialize filters with state from URL parameters
     const filters = initializeFilters();
     setFilters(filters);
     // Initialize export handlers
@@ -39,10 +42,6 @@ function initializeApplication() {
     olmap.addLayer(createSBWLayer("tfe"));
 
     initializeLayerControls(olmap);
-
-
-    // Initialize URL parameters and data
-    parseHref();
 
     // Finally, load the data
     loadData();

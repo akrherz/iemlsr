@@ -14,14 +14,26 @@ export function initializeUI() {
     // Initialize time inputs
     const stsInput = document.getElementById('sts');
     const etsInput = document.getElementById('ets');
+    const realtimeCheckbox = document.getElementById('realtime');
 
-    // Subscribe to state changes for start and end times
+    // Subscribe to state changes for UI elements
     subscribeToState(StateKeys.STS, (newTime) => {
         stsInput.value = newTime.toISOString().slice(0, 16);
     });
 
     subscribeToState(StateKeys.ETS, (newTime) => {
         etsInput.value = newTime.toISOString().slice(0, 16);
+    });
+
+    subscribeToState(StateKeys.REALTIME, (isRealtime) => {
+        realtimeCheckbox.checked = isRealtime;
+        updateTimeInputs(stsInput, etsInput, isRealtime);
+    });
+
+    subscribeToState(StateKeys.LAYER_SETTINGS, (settings) => {
+        if (settings) {
+            applySettings(settings);
+        }
     });
 
     // Set up event handlers for time inputs

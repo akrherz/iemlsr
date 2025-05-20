@@ -83,19 +83,6 @@ export function getShapefileDateParams(date) {
 }
 
 /**
- * Gets a time range in ISO format
- * @param {HTMLElement} stsInput - Start time input element
- * @param {HTMLElement} etsInput - End time input element
- * @returns {{ sts: string, ets: string }} ISO formatted time range
- */
-export function getTimeRange(stsInput, etsInput) {
-    return {
-        sts: new Date(stsInput.value).toISOString(),
-        ets: new Date(etsInput.value).toISOString()
-    };
-}
-
-/**
  * Set up event handlers for time inputs
  * @param {HTMLInputElement} stsInput - Start time input element 
  * @param {HTMLInputElement} etsInput - End time input element

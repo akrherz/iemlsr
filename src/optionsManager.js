@@ -1,5 +1,4 @@
-import { getTimeRange } from './timeUtils.js';
-import { getFilters } from './state.js';
+import { getFilters, getState, StateKeys } from './state.js';
 
 /**
  * Build options for data requests based on current filters and time range
@@ -18,12 +17,14 @@ export function buildRequestOptions() {
     const wfos = filters.wfoSelect.getValue();
     const states = filters.stateSelect.getValue();
     
-    const timeRange = getTimeRange(
-        document.getElementById("sts"),
-        document.getElementById("ets")
-    );
+    // Get times directly from state
+    const stsTime = getState(StateKeys.STS);
+    const etsTime = getState(StateKeys.ETS);
     
-    const opts = { ...timeRange };
+    const opts = {
+        sts: stsTime.toISOString(),
+        ets: etsTime.toISOString()
+    };
     if (by === "state") {
         opts.states = states.length ? encodeURIComponent(states.join(",")) : "";
     } else {
