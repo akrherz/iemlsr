@@ -1,5 +1,5 @@
 // Handles LSR and SBW feature formatting and interactions
-import { Overlay } from 'ol';
+import { createPopup, removeAllPopups } from './popup.js';
 import { iemdata } from './iemdata.js';
 
 function revisedRandId() {
@@ -8,169 +8,141 @@ function revisedRandId() {
 
 /**
  * Creates HTML for LSR feature popup
- * @param {Feature} feature OpenLayers feature object
+ * @param {import("ol").Feature} feature OpenLayers feature object
  * @returns {string} HTML content
  */
 export function formatLSR(data) {
-    return `<div><strong>Source:</strong> ${data.source} &nbsp; <strong>UTC Valid:</strong> ${data.valid}<br /><strong>Remark:</strong> ${data.remark}</div>`;
+    const lines = [
+        '<div class="panel panel-default">',
+        '<div class="panel-heading">',
+        '<div class="panel-title">Local Storm Report</div>',
+        '</div>',
+        '<div class="panel-body">',
+        `<strong>Source:</strong> ${data.source}<br>`,
+        `<strong>UTC Valid:</strong> ${data.valid}<br>`,
+        `<strong>Remark:</strong> ${data.remark}`,
+        '</div>',
+        '</div>'
+    ];
+    return lines.join('\n');
 }
 
 /**
  * Creates HTML content for Storm Based Warning popup
- * @param {Feature} feature OpenLayers feature object
+ * @param {import("ol").Feature} feature OpenLayers feature object
  * @returns {string} HTML content
  */
 export function formatSBW(feature) {
-    const lines = [];
     const ph = feature.get("phenomena");
     const pph = ph in iemdata.vtec_phenomena ? iemdata.vtec_phenomena[ph] : ph;
     const sig = feature.get("significance");
     const ss = sig in iemdata.vtec_significance ? iemdata.vtec_significance[sig] : sig;
-    lines.push(`<strong>${pph} ${ss}</strong>`);
+    
     const issue = new Date(feature.get("issue"));
     const expire = new Date(feature.get("expire"));
-    let ldt = issue.toLocaleString();
-    let zz = issue.toISOString().slice(11, 16);
-    lines.push(`<strong>Issued:</strong> ${ldt} (${zz}Z)`);
-    ldt = expire.toLocaleString();
-    zz = expire.toISOString().slice(11, 16);
-    lines.push(`<strong>Expired:</strong> ${ldt} (${zz}Z)`);
-    lines.push(`<strong>More Details:</strong> <a href='${feature.get("href")}' target='_blank'>VTEC Browser</a>`);
-    return lines.join("<br />");
+    const issueLdt = issue.toLocaleString();
+    const issueZZ = issue.toISOString().slice(11, 16);
+    const expireLdt = expire.toLocaleString();
+    const expireZZ = expire.toISOString().slice(11, 16);
+    
+    const lines = [
+        '<div class="panel panel-default">',
+        '<div class="panel-heading">',
+        `<div class="panel-title">${pph} ${ss}</div>`,
+        '</div>',
+        '<div class="panel-body">',
+        `<strong>Issued:</strong> ${issueLdt} (${issueZZ}Z)<br>`,
+        `<strong>Expires:</strong> ${expireLdt} (${expireZZ}Z)<br>`,
+        `<strong>More Details:</strong> <a href='${feature.get("href")}' target='_blank'>VTEC Browser</a>`,
+        '</div>',
+        '</div>'
+    ];
+    return lines.join('\n');
 }
 
 /**
  * Formats LSR feature content for popup display
- * @param {Feature} feature OpenLayers feature object
+ * @param {import("ol").Feature} feature OpenLayers feature object
  * @returns {string} HTML content
  */
 export function lsrHTML(feature) {
-    const lines = [];
     const dt = new Date(feature.get("valid"));
     const ldt = dt.toLocaleString();
     const zz = dt.toISOString().slice(11, 16);
-    lines.push(`<strong>Valid:</strong> ${ldt} (${zz}Z)`);
-    let vv = feature.get("source");
-    if (vv !== null) {
-        lines.push(`<strong>Source:</strong> ${vv}`);
-    }
-    vv = feature.get("typetext");
-    if (vv !== null) {
-        lines.push(`<strong>Type:</strong> ${vv}`);
-    }
-    vv = feature.get("magnitude");
-    if (vv !== null && vv !== "") {
-        let unit = feature.get("unit");
-        if (unit === null) {
-            unit = "";
+    
+    const lines = [
+        '<div class="panel panel-default">',
+        '<div class="panel-heading">',
+        `<div class="panel-title">${feature.get("city")}, ${feature.get("st")}</div>`,
+        '</div>',
+        '<div class="panel-body">'
+    ];
+
+    // Add data fields with null checks
+    const fields = [
+        ['Valid', `${ldt} (${zz}Z)`],
+        ['Source', feature.get("source")],
+        ['Type', feature.get("typetext")],
+        ['Magnitude', feature.get("magnitude") ? `${feature.get("magnitude")} ${feature.get("unit") || ''}` : null],
+        ['Remark', feature.get("remark")]
+    ];
+
+    fields.forEach(([label, value]) => {
+        if (value) {
+            lines.push(`<strong>${label}:</strong> ${value}<br>`);
         }
-        lines.push(`<strong>Magnitude:</strong> ${vv} ${unit}`);
-    }
-    vv = feature.get("remark");
-    if (vv !== null) {
-        lines.push(`<strong>Remark:</strong> ${vv}`);
-    }
-    return lines.join("<br />");
+    });
+
+    lines.push('</div></div>');
+    return lines.join('\n');
 }
 
 /**
  * Handles click events on Storm Based Warning features
- * @param {Feature} feature OpenLayers feature object
- * @param {Map} olmap OpenLayers map object
+ * @param {import("ol").Feature} feature OpenLayers feature object
+ * @param {import("ol").Map} map OpenLayers map object
  * @param {DataTable} sbwtable SBW DataTable instance
  */
-export function handleSBWClick(feature, olmap, sbwtable) {
-    const divid = revisedRandId();
-    const div = document.createElement("div");
-    const title = `${feature.get("wfo")} ${feature.get("phenomena")}.${feature.get("significance")} #${feature.get("eventid")}`;
-    div.innerHTML = `<div class="panel panel-primary panel-popup" id="${divid}"><div class="panel-heading">${title} &nbsp; <button type="button" class="close" data-target="#${divid}" data-dismiss="alert"> <span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button></div><div class="panel-body">${formatSBW(feature)}</div></div>`;
+export function handleSBWClick(feature, map, sbwtable) {
+    removeAllPopups(map);
+    const content = formatSBW(feature);
     const coordinates = feature.getGeometry().getFirstCoordinate();
-    const marker = new Overlay({
-        position: coordinates,
-        positioning: 'center-center',
-        element: div,
-        stopEvent: false,
-        dragging: false
-    });
-    olmap.addOverlay(marker);
-    
-    div.addEventListener('mousedown', () => {
-        marker.set('dragging', true);
-    });
+    createPopup(content, coordinates, map);
 
-    olmap.on('pointermove', (evt) => {
-        if (marker.get('dragging') === true) {
-            marker.setPosition(evt.coordinate);
+    // Update table selection
+    if (sbwtable.rows) {
+        const id = feature.getId();
+        sbwtable.rows().deselect();
+        const rows = sbwtable.rows((idx, data) => data.id === id);
+        if (rows.any()) {
+            rows.select();
+            sbwtable.row(rows.indexes()[0]).scrollTo();
         }
-    });
-
-    olmap.on('pointerup', () => {
-        if (marker.get('dragging') === true) {
-            marker.set('dragging', false);
-        }
-    });
-
-    const id = feature.getId();
-    sbwtable.rows().deselect();
-    sbwtable.row(
-        sbwtable.rows((idx, data) => {
-            if (data.id === id) {
-                sbwtable.row(idx).select();
-                return true;
-            }
-            return false;
-        })
-    ).show().draw(false);
+    }
 }
 
 /**
  * Handles click events on LSR features
- * @param {Feature} feature OpenLayers feature object
- * @param {Map} olmap OpenLayers map object
+ * @param {import("ol").Feature} feature OpenLayers feature object
+ * @param {import("ol").Map} map OpenLayers map object
  * @param {DataTable} lsrtable LSR DataTable instance
  */
-export function handleLSRClick(feature, olmap, lsrtable) {
+export function handleLSRClick(feature, map, lsrtable) {
     if (feature.get('magnitude') === undefined) return;
     
-    const divid = revisedRandId();
-    const div = document.createElement("div");
-    div.innerHTML = `<div class="panel panel-primary panel-popup" id="${divid}"><div class="panel-heading">${feature.get("city")}, ${feature.get("st")} &nbsp; <button type="button" class="close" data-target="#${divid}" data-dismiss="alert"> <span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button></div><div class="panel-body">${lsrHTML(feature)}</div></div>`;
+    removeAllPopups(map);
+    const content = lsrHTML(feature);
     const coordinates = feature.getGeometry().getCoordinates();
-    const marker = new Overlay({
-        position: coordinates,
-        positioning: 'center-center',
-        element: div,
-        stopEvent: false,
-        dragging: false
-    });
-    
-    olmap.addOverlay(marker);
-    
-    div.addEventListener('mousedown', () => {
-        marker.set('dragging', true);
-    });
+    createPopup(content, coordinates, map);
 
-    olmap.on('pointermove', (evt) => {
-        if (marker.get('dragging') === true) {
-            marker.setPosition(evt.coordinate);
+    // Update table selection
+    if (lsrtable.rows) {
+        const id = feature.getId();
+        lsrtable.rows().deselect();
+        const rows = lsrtable.rows((idx, data) => data.id === id);
+        if (rows.any()) {
+            rows.select();
+            lsrtable.row(rows.indexes()[0]).scrollTo();
         }
-    });
-
-    olmap.on('pointerup', () => {
-        if (marker.get('dragging') === true) {
-            marker.set('dragging', false);
-        }
-    });
-
-    const id = feature.getId();
-    lsrtable.rows().deselect();
-    lsrtable.row(
-        lsrtable.rows((idx, data) => {
-            if (data.id === id) {
-                lsrtable.row(idx).select();
-                return true;
-            }
-            return false;
-        })
-    ).show().draw(false);
+    }
 }

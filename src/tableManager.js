@@ -1,4 +1,6 @@
 import DataTable from 'datatables.net';
+import 'datatables.net-select-dt';
+import 'datatables.net-scroller-dt';
 import { iemdata } from './iemdata.js';
 
 let lsrtable = null;

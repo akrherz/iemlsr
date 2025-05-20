@@ -1,4 +1,5 @@
 import './style.css';
+import './styles/popups.css';
 import 'ol/ol.css';
 import 'ol-layerswitcher/src/ol-layerswitcher.css';
 import 'tom-select/dist/css/tom-select.css';

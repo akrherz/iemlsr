@@ -7,6 +7,7 @@ import LayerGroup from 'ol/layer/Group';
 import { transform } from 'ol/proj';
 import { radarManager } from './radarManager.js';
 import { lsrtable, sbwtable } from './tableManager.js';
+import { handleLSRClick, handleSBWClick } from './featureManager.js';
 
 let n0q = null;
 let statesLayer = null;
