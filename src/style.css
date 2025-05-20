@@ -7,6 +7,32 @@ html, body {
   overflow: hidden;
 }
 
+#branding-overlay {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.8);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+#branding-overlay[data-mode="realtime"] {
+    background: rgba(144, 238, 144, 0.8); /* Light green */
+    color: #006400; /* Dark green text */
+}
+
+#branding-overlay[data-mode="archive"] {
+    background: rgba(255, 255, 224, 0.8); /* Light yellow */
+    color: #8B8000; /* Dark yellow text */
+}
+
 #map {
   position: absolute;
   width: 100%;
@@ -26,12 +52,12 @@ html, body {
 
 /* Table Controls */
 td.details-control {
-  background: url('/images/details_open.png') no-repeat center center;
+  background: url('/lsr/images/details_open.png') no-repeat center center;
   cursor: pointer;
 }
 
 tr.shown td.details-control {
-  background: url('/images/details_close.png') no-repeat center center;
+  background: url('/lsr/images/details_close.png') no-repeat center center;
 }
 
 /* Links */
@@ -80,7 +106,8 @@ a:focus {
 }
 
 .tab-panel.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .tab .tab-content {
@@ -115,6 +142,10 @@ a:focus {
 
 .table-container {
   margin-top: 15px;
+  width: 100%;
+  flex: 1;
+  position: relative;
+  overflow: auto;
 }
 
 /* Panel Popup */
@@ -190,7 +221,26 @@ a:focus {
 
 /* DataTables */
 .dataTables_wrapper {
-  padding: 10px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dataTables_info,
+.dataTables_filter {
+    flex: 0 0 auto;
+    margin: 5px 0;
+}
+
+.dataTables_scrollBody {
+    flex: 1;
+    overflow-y: auto !important;
+}
+
+.dataTables_scrollHeadInner,
+.dataTable {
+    width: 100% !important;
 }
 
 /* Map adjustments */
@@ -252,42 +302,40 @@ a:focus {
 }
 
 .action-buttons {
-  padding: 10px 0;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #eee;
+  padding: 8px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .action-buttons .button {
-  margin-right: 8px;
-  margin-bottom: 8px;
+  font-size: 0.9em;
+  padding: 4px 8px;
 }
 
 /* Tables */
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 15px 0;
-  background: white;
+  margin: 0;
 }
 
 .data-table th,
 .data-table td {
-  padding: 12px;
-  text-align: left;
+  padding: 8px;
   border: 1px solid #ddd;
+  white-space: nowrap;
+  min-width: 100px;
 }
 
-.data-table th {
-  background: #f8f9fa;
-  font-weight: 600;
-}
-
-.data-table tr:nth-child(even) {
-  background: #f8f9fa;
-}
-
-.data-table tr:hover {
-  background: #f5f5f5;
+.data-table thead th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  text-align: left;
+  border-bottom: 2px solid #ddd;
 }
 
 /* Time Slider */
@@ -348,20 +396,24 @@ a:focus {
 
 /* Filter Options */
 .filter-options {
-  padding: 10px 0;
-  margin-bottom: 15px;
+  padding: 8px 0;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  padding: 8px;
 }
 
 .filter-options label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   font-weight: 500;
+  font-size: 0.9em;
 }
 
 .filter-options select {
   width: 100%;
   max-width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
 
 /* Modal styling */
@@ -375,13 +427,15 @@ a:focus {
     background: white;
     border-radius: 4px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    min-width: 300px;
-    max-width: 90vw;
-    max-height: 90vh;
+    width: 90vw;
+    height: 90vh;
+    max-width: 1200px;
+    max-height: 800px;
+    flex-direction: column;
 }
 
 .modal.open {
-    display: block;
+    display: flex;
 }
 
 .modal.minimized {
@@ -392,13 +446,24 @@ a:focus {
     max-width: 300px;
 }
 
+.modal.maximized {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    border-radius: 0;
+}
+
 .modal-header {
+    flex: 0 0 auto;
     padding: 1rem;
     border-bottom: 1px solid #dee2e6;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    cursor: move;
 }
 
 .modal-title {
@@ -429,19 +494,56 @@ a:focus {
     overflow-y: auto;
 }
 
-.modal-backdrop {
-    position: fixed;
+.modal-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.tabs {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.tab-list {
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
+    background: white;
+    z-index: 2;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.tab-panels {
+    flex: 1;
+}
+
+.tab-panel {
     display: none;
 }
 
-.modal.open + .modal-backdrop {
+.tab-panel.active {
     display: block;
+}
+
+.panel-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.filter-options,
+.action-buttons {
+    flex: 0 0 auto;
+}
+
+.table-container {
+    margin: 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
 }
 
 /* Desktop modal default position and size */
@@ -537,11 +639,16 @@ a:focus {
 }
 
 /* View Table Button */
-.view-table-button {
+.view-table-buttons {
   position: fixed;
   bottom: 20px;
   right: 20px;
   z-index: 1002;
+  display: flex;
+  gap: 10px;
+}
+
+.view-table-button {
   background: #007bff;
   color: white;
   border: none;
@@ -551,6 +658,7 @@ a:focus {
   font-size: 14px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   transition: background-color 0.2s ease;
+  white-space: nowrap;
 }
 
 .view-table-button:hover {
@@ -673,4 +781,11 @@ a:focus {
 .toggle-label {
   font-size: 0.9em;
   color: #666;
+}
+
+.panel-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }

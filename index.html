@@ -9,12 +9,15 @@
   <body>
     <!-- Map Container -->
     <div id="map"></div>
-
+    <div id="branding-overlay" data-mode="archive">IEM LSR App</div>
     <!-- Left Drawer Toggle -->
     <button class="drawer-toggle drawer-toggle-left" id="drawer-toggle-left">☰</button>
 
-    <!-- Reports Modal Toggle -->
-    <button class="modal-toggle view-table-button" id="reports-toggle">View Table</button>
+    <!-- Reports Modal Toggles -->
+    <div class="view-table-buttons">
+        <button class="modal-toggle view-table-button" id="lsr-toggle">View LSRs</button>
+        <button class="modal-toggle view-table-button" id="sbw-toggle">View Warnings</button>
+    </div>
 
     <!-- Left Drawer - Controls -->
     <div class="drawer drawer-left" id="controls-drawer">
@@ -146,79 +149,82 @@
       </div>
     </div>
 
-    <!-- Reports Modal -->
-    <div class="modal" id="reports-modal">
+    <!-- LSR Modal -->
+    <div class="modal" id="lsr-modal">
       <div class="modal-header">
-        <span>Reports & Warnings</span>
+        <span>Local Storm Reports</span>
         <div class="modal-controls">
-          <button class="modal-control-btn" id="minimize-modal" title="Minimize">_</button>
-          <button class="modal-control-btn" id="maximize-modal" title="Maximize">□</button>
-          <button class="modal-control-btn" id="close-modal" title="Close">×</button>
+          <button class="modal-control-btn" id="minimize-lsr" title="Minimize">_</button>
+          <button class="modal-control-btn" id="maximize-lsr" title="Maximize">□</button>
+          <button class="modal-control-btn" id="close-lsr" title="Close">×</button>
         </div>
       </div>
       <div class="modal-content">
-        <div class="tabs">
-          <div class="tab-list" role="tablist">
-            <button class="tab-button active" role="tab" aria-selected="true" aria-controls="lsrs">LSRs</button>
-            <button class="tab-button" role="tab" aria-selected="false" aria-controls="sbw">SBW</button>
-          </div>
-          <div class="tab-panels">
-            <div class="tab-panel active" id="lsrs" role="tabpanel">
-              <div class="filter-options">
-                <label for="lsrtypefilter">Filter LSRs by Type:</label>
-                <select id="lsrtypefilter" class="input-field" multiple></select>
-              </div>
-              <div class="action-buttons">
-                <button id="lsrexcel" class="button secondary">LSR Excel</button>
-                <button id="lsrkml" class="button secondary">LSR KML</button>
-                <button id="lsrshapefile" class="button secondary">LSR Shapefile</button>
-                <button id="lsrgeojson" class="button secondary">LSR GeoJSON</button>
-              </div>
-              <div class="table-container">
-                <table id="lsrtable" class="data-table">
-                  <thead>
-                    <tr>
-                      <th>WFO</th>
-                      <th>Time</th>
-                      <th>County</th>
-                      <th>City</th>
-                      <th>State</th>
-                      <th>Type</th>
-                      <th>Magnitude</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
-            <div class="tab-panel" id="sbw" role="tabpanel">
-              <div class="filter-options">
-                <label for="sbwtypefilter">Filter SBWs by Type:</label>
-                <select id="sbwtypefilter" class="input-field" multiple></select>
-              </div>
-              <div class="action-buttons">
-                <button id="warnexcel" class="button secondary">Warning Excel</button>
-                <button id="warnshapefile" class="button secondary">Warning Shapefile</button>
-                <button id="sbwshapefile" class="button secondary">SBW Shapefile</button>
-                <button id="sbwgeojson" class="button secondary">SBW GeoJSON</button>
-              </div>
-              <div class="table-container">
-                <table id="sbwtable" class="data-table">
-                  <thead>
-                    <tr>
-                      <th>WFO</th>
-                      <th>Phenomena</th>
-                      <th>Significance</th>
-                      <th>Event ID</th>
-                      <th>Issue</th>
-                      <th>Expire</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+        <div class="filter-options">
+          <label for="lsrtypefilter">Filter LSRs by Type:</label>
+          <select id="lsrtypefilter" class="input-field" multiple></select>
+        </div>
+        <div class="action-buttons">
+          <button id="lsrexcel" class="button secondary">LSR Excel</button>
+          <button id="lsrkml" class="button secondary">LSR KML</button>
+          <button id="lsrshapefile" class="button secondary">LSR Shapefile</button>
+          <button id="lsrgeojson" class="button secondary">LSR GeoJSON</button>
+        </div>
+        <div class="table-container">
+          <table id="lsrtable" class="data-table">
+            <thead>
+              <tr>
+                <th>WFO</th>
+                <th>Time</th>
+                <th>City</th>
+                <th>County</th>
+                <th>State</th>
+                <th>Magnitude</th>
+                <th>Type</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SBW Modal -->
+    <div class="modal" id="sbw-modal">
+      <div class="modal-header">
+        <span>Storm Based Warnings</span>
+        <div class="modal-controls">
+          <button class="modal-control-btn" id="minimize-sbw" title="Minimize">_</button>
+          <button class="modal-control-btn" id="maximize-sbw" title="Maximize">□</button>
+          <button class="modal-control-btn" id="close-sbw" title="Close">×</button>
+        </div>
+      </div>
+      <div class="modal-content">
+        <div class="filter-options">
+          <label for="sbwtypefilter">Filter SBWs by Type:</label>
+          <select id="sbwtypefilter" class="input-field" multiple></select>
+        </div>
+        <div class="action-buttons">
+          <button id="warnexcel" class="button secondary">Warning Excel</button>
+          <button id="warnshapefile" class="button secondary">Warning Shapefile</button>
+          <button id="sbwshapefile" class="button secondary">SBW Shapefile</button>
+          <button id="sbwgeojson" class="button secondary">SBW GeoJSON</button>
+        </div>
+        <div class="table-container">
+          <table id="sbwtable" class="data-table">
+            <thead>
+              <tr>
+                <th>WFO</th>
+                <th>Phenomena</th>
+                <th>Significance</th>
+                <th>Event ID</th>
+                <th>Issue</th>
+                <th>Expire</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
     </div>

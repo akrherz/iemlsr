@@ -242,6 +242,21 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
         }
     });
 
+    sbwLayer.getSource().on('change', () => {
+        sbwtable.rows().remove().draw();
+        if (sbwLayer.getSource().isEmpty()) {
+            return;
+        }
+        const data = [];
+        sbwLayer.getSource().getFeatures().forEach((feat) => {
+            const props = feat.getProperties();
+            props.id = feat.getId();
+            data.push(props);
+        });
+        sbwtable.rows.add(data).draw();
+    });
+
+
     // Add event listeners
     sbwLayer.on('change:visible', updateURL);
     sbwLayer.addEventListener(TABLE_FILTERED_EVENT, () => {
