@@ -96,7 +96,7 @@ export function parseHref() {
     let etsTime;
     
     if (stsParam && etsParam) {
-        // Parse full date/time in YYYYmmddHH24MI format (UTC)
+        // Parse full date/time in YYYYmmddHH24MI format (already in UTC)
         stsTime = new Date(Date.UTC(
             parseInt(stsParam.slice(0, 4), 10),
             parseInt(stsParam.slice(4, 6), 10) - 1,
@@ -113,13 +113,15 @@ export function parseHref() {
             parseInt(etsParam.slice(10, 12), 10)
         ));
     } else if (secondsParam) {
-        // Parse relative time
+        // Parse relative time (create in UTC)
         setState(StateKeys.REALTIME, true);
         etsTime = new Date();
+        etsTime.setTime(etsTime.getTime());  // Ensure we're working with UTC
         stsTime = new Date(etsTime.getTime() - Math.abs(parseInt(secondsParam, 10)) * 1000);
     } else {
-        // No parameters provided, use defaults
+        // No parameters provided, use defaults (in UTC)
         etsTime = new Date();
+        etsTime.setTime(etsTime.getTime());  // Ensure we're working with UTC
         stsTime = new Date(etsTime.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
     }
     // check that stsTime and etsTime are valid dates

@@ -2,8 +2,8 @@ import { initializeTimeSlider } from './timeslider.js';
 import { getRADARSource } from './mapManager.js';
 import { n0q } from './mapManager.js';
 import { loadData } from './dataManager.js';
-import { getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
-import { setupTimeEventHandlers, updateTimeInputs } from './timeUtils.js';
+import { getEts, getSts, getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
+import { setupTimeEventHandlers, updateTimeInputs, formatForDateTimeLocal } from './timeUtils.js';
 
 /**
  * Initialize all UI components
@@ -12,17 +12,23 @@ export function initializeUI() {
     // Initialize time inputs
     const stsInput = document.getElementById('sts');
     const etsInput = document.getElementById('ets');
-    const realtimeCheckbox = document.getElementById('realtime');
 
+    const initialSts = getSts();
+    const initialEts = getEts();
+    stsInput.value = formatForDateTimeLocal(initialSts);
+    console.log(stsInput.value);
+    etsInput.value = formatForDateTimeLocal(initialEts);
     // Subscribe to state changes for UI elements
     subscribeToState(StateKeys.STS, (newTime) => {
-        stsInput.value = newTime.toISOString().slice(0, 16);
+        console.log('SETTING UI STS:', newTime);
+        stsInput.value = formatForDateTimeLocal(newTime);
     });
 
     subscribeToState(StateKeys.ETS, (newTime) => {
-        etsInput.value = newTime.toISOString().slice(0, 16);
+        etsInput.value = formatForDateTimeLocal(newTime);
     });
 
+    const realtimeCheckbox = document.getElementById('realtime');
     subscribeToState(StateKeys.REALTIME, (isRealtime) => {
         realtimeCheckbox.checked = isRealtime;
         updateTimeInputs(stsInput, etsInput, isRealtime);

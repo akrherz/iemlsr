@@ -1,5 +1,7 @@
 // Utility functions for handling time/date operations
 
+import { setState, StateKeys } from "./state";
+
 /**
  * Our custom toLocaleString() function to format date without seconds
  * in the format of YYYY/mm/dd hh:mm AM/PM
@@ -20,18 +22,33 @@ export function toLocaleString(dt) {
 export function updateTimeInputs(stsInput, etsInput, realtime) {
     const now = new Date();
     
+    // Configure input states based on realtime mode
     if (realtime) {
-        // In realtime mode, end time is now and start time is relative
-        etsInput.value = now.toISOString().slice(0, 16);
+        // In realtime mode, inputs should be read-only
+        stsInput.readOnly = true;
+        etsInput.readOnly = true;
+        stsInput.style.pointerEvents = 'none';
+        etsInput.style.pointerEvents = 'none';
+        
+        // Update values
+        etsInput.value = formatForDateTimeLocal(now);
         const sts = new Date(now);
         sts.setDate(sts.getDate() - 1); // Default to last 24 hours
-        stsInput.value = sts.toISOString().slice(0, 16);
-    } else if (!stsInput.value || !etsInput.value) {
-        // Initial load or reset - set default time range
-        etsInput.value = now.toISOString().slice(0, 16);
-        const sts = new Date(now);
-        sts.setDate(sts.getDate() - 1); // Default to last 24 hours
-        stsInput.value = sts.toISOString().slice(0, 16);
+        stsInput.value = formatForDateTimeLocal(sts);
+    } else {
+        // In manual mode, inputs should be enabled
+        stsInput.readOnly = false;
+        etsInput.readOnly = false;
+        stsInput.style.pointerEvents = 'auto';
+        etsInput.style.pointerEvents = 'auto';
+        
+        // Only set default values if inputs are empty
+        if (!stsInput.value || !etsInput.value) {
+            etsInput.value = formatForDateTimeLocal(now);
+            const sts = new Date(now);
+            sts.setDate(sts.getDate() - 1); // Default to last 24 hours
+            stsInput.value = formatForDateTimeLocal(sts);
+        }
     }
     
     // Ensure inputs stay within valid range
@@ -79,25 +96,75 @@ export function getShapefileDateParams(date) {
  * @param {Function} loadData - Function to call when times change
  */
 export function setupTimeEventHandlers(stsInput, etsInput, realtime) {
-    // Apply loading indicator classes to input fields
     const inputs = [stsInput, etsInput];
-    inputs.forEach(input => input.classList.add('input-field-loading'));
 
+    // Remove the loading class if it exists
+    inputs.forEach(input => {
+        input.classList.remove('input-field-loading');
+        input.removeAttribute('readonly');
+        input.removeAttribute('disabled');
+    });
+
+    // Add click and focus handlers
+    inputs.forEach(input => {
+        // Handle click event
+        input.addEventListener('click', () => {
+            if (!realtime) {
+                input.showPicker(); // Show the native datetime picker
+            }
+        });
+
+        // Handle focus event
+        input.addEventListener('focus', () => {
+            if (!realtime) {
+                input.showPicker(); // Show the native datetime picker
+            }
+        });
+    });
+
+    // Handle value changes
     stsInput.addEventListener('change', (event) => {
+        if (realtime) return;
         // Ensure end time is not before start time
-        if (new Date(etsInput.value) < new Date(event.target.value)) {
-            etsInput.value = event.target.value;
-        }
+        const newStartDate = new Date(event.target.value);
+        setState(StateKeys.STS, newStartDate);
         // Highlight inputs to indicate changes need to be loaded
         inputs.forEach(input => input.classList.add('input-changed'));
     });
     
     etsInput.addEventListener('change', (event) => {
+        if (realtime) return;
         // Ensure start time is not after end time
-        if (new Date(stsInput.value) > new Date(event.target.value)) {
-            stsInput.value = event.target.value;
-        }
+        const newEndDate = new Date(event.target.value);
+        setState(StateKeys.ETS, newEndDate);
         // Highlight inputs to indicate changes need to be loaded
         inputs.forEach(input => input.classList.add('input-changed'));
     });
+}
+
+/**
+ * Format a date for a datetime-local input (YYYY-MM-DDThh:mm)
+ * @param {Date} date - Date object
+ * @returns {string} Formatted date string in local timezone
+ */
+export function formatForDateTimeLocal(date) {
+    // Use local getters since datetime-local input expects local time
+    return date.toLocaleString('sv', { 
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    }).replace(' ', 'T');
+}
+
+/**
+ * Parse a datetime-local input value to a Date object
+ * @param {string} value - The datetime-local input value (in local time)
+ * @returns {Date} Date object
+ */
+export function parseFromDateTimeLocal(value) {
+    // Create Date from local components
+    return new Date(value);
 }

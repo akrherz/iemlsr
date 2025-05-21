@@ -20,8 +20,9 @@ const state = {
     [StateKeys.STATE_FILTER]: [],
     [StateKeys.BY_STATE]: false,
     [StateKeys.LAYER_SETTINGS]: '',
-    [StateKeys.STS]: new Date(Date.now() - 24 * 60 * 60 * 1000), // 24 hours ago
-    [StateKeys.ETS]: new Date() // Current time
+    // Store dates in UTC internally
+    [StateKeys.STS]: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    [StateKeys.ETS]: new Date()
 };
 
 const subscribers = {};
@@ -31,6 +32,7 @@ export function getState(key) {
 }
 
 export function setState(key, value) {
+    console.error(`Setting state: ${key} = ${value}`);
     if (!key) return;
     state[key] = value;
     notifySubscribers(key);
@@ -81,7 +83,7 @@ export function getSts() {
 }
 
 export function setSts(date) {
-    setState(StateKeys.STS, date instanceof Date ? date : new Date(date));
+    setState(StateKeys.STS, date);
 }
 
 export function getEts() {
@@ -89,5 +91,5 @@ export function getEts() {
 }
 
 export function setEts(date) {
-    setState(StateKeys.ETS, date instanceof Date ? date : new Date(date));
+    setState(StateKeys.ETS, date);
 }
