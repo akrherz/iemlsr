@@ -39,8 +39,8 @@ function initializeApplication() {
     const olmap = initializeMap();
 
     // Initialize data tables
-    initializeLSRTable("tfe", document.getElementById('lsrtable'));
-    initializeSBWTable("tfe", document.getElementById('sbwtable'));
+    initializeLSRTable("tfe", document.getElementById('lsrtable'), olmap);
+    initializeSBWTable("tfe", document.getElementById('sbwtable'), olmap);
 
     // Initialize the right pane and tabs
     initializeRightPane();

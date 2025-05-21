@@ -1,6 +1,5 @@
 import { initializeTimeSlider } from './timeslider.js';
-import { getRADARSource } from './mapManager.js';
-import { n0q } from './mapManager.js';
+import { getRADARSource, n0q } from './mapManager.js';
 import { loadData } from './dataManager.js';
 import { getEts, getSts, getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
 import { toLocaleString, setupTimeEventHandlers, updateTimeInputs, formatForDateTimeLocal } from './timeUtils.js';

@@ -19,7 +19,8 @@ export function formatLSR(data) {
         '<div class="panel-title">Local Storm Report</div>',
         '</div>',
         '<div class="panel-body">',
-        `<strong>Source:</strong> ${data.source}<br>`,
+        `<strong>Source:</strong> ${data.source} `,
+        `<a href="/p.php?pid=${data.product_id}" target="_blank">(${data.product_id})</a><br>`,
         `<strong>UTC Valid:</strong> ${data.valid}<br>`,
         `<strong>Remark:</strong> ${data.remark}`,
         '</div>',
@@ -82,7 +83,7 @@ export function lsrHTML(feature) {
     // Add data fields with null checks
     const fields = [
         ['Valid', `${ldt} (${zz}Z)`],
-        ['Source', feature.get("source")],
+        ['Source', `${feature.get("source")} <a href="/p.php?pid=${feature.get("product_id")}" target="_blank">NWS Text</a>`],
         ['Type', feature.get("typetext")],
         ['Magnitude', feature.get("magnitude") ? `${feature.get("magnitude")} ${feature.get("unit") || ''}` : null],
         ['Remark', feature.get("remark")]

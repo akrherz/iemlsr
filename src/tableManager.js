@@ -17,7 +17,7 @@ export { lsrtable, sbwtable };
  * @param {HTMLElement} lsrtableEl - The table element 
  * @returns {DataTable} Initialized DataTable instance
  */
-export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl) {
+export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl, olmap) {
     // Destroy existing table if it exists
     if (lsrtable) {
         lsrtable.destroy();
@@ -66,10 +66,16 @@ export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl) {
         const tbody = lsrtableEl.querySelector('tbody');
         if (tbody) {
             tbody.addEventListener('click', (event) => {
-                const td = event.target.closest('td.details-control');
+                const td = event.target.closest('td');
                 if (!td) return;
                 const tr = td.closest('tr');
                 const row = lsrtable.row(tr);
+                // Zoom to the selected feature
+                olmap.getView().fit(row.data().geometry.getExtent(), {
+                    duration: 500,
+                    maxZoom: 10,
+                    nearest: true
+                });
                 if (row.child.isShown()) {
                     // This row is already open - close it
                     row.child.hide();
@@ -88,7 +94,7 @@ export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl) {
  * @param {Function} onSearch - Callback for search events
  * @returns {DataTable} Initialized DataTable instance
  */
-export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl) {
+export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl, olmap) {
     // Destroy existing table if it exists
     if (sbwtable) {
         sbwtable.destroy();
@@ -149,6 +155,23 @@ export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl) {
             }
         ]
     });
+    if (sbwtableEl) {
+        const tbody = sbwtableEl.querySelector('tbody');
+        if (tbody) {
+            tbody.addEventListener('click', (event) => {
+                const td = event.target.closest('td');
+                if (!td) return;
+                const tr = td.closest('tr');
+                const row = sbwtable.row(tr);
+                // Zoom to the selected feature
+                olmap.getView().fit(row.data().geometry.getExtent(), {
+                    duration: 500,
+                    maxZoom: 8,
+                    nearest: true
+                });
+            });
+        }
+    }
     sbwtable.on("search.dt", () => {
         getSBWLayer().dispatchEvent(TABLE_FILTERED_EVENT)
     });

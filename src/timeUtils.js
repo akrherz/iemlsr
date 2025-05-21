@@ -93,7 +93,6 @@ export function getShapefileDateParams(date) {
  * @param {HTMLInputElement} stsInput - Start time input element 
  * @param {HTMLInputElement} etsInput - End time input element
  * @param {boolean} realtime - Whether realtime mode is enabled
- * @param {Function} loadData - Function to call when times change
  */
 export function setupTimeEventHandlers(stsInput, etsInput, realtime) {
     const inputs = [stsInput, etsInput];
@@ -157,14 +156,4 @@ export function formatForDateTimeLocal(date) {
         minute: '2-digit',
         hour12: false
     }).replace(' ', 'T');
-}
-
-/**
- * Parse a datetime-local input value to a Date object
- * @param {string} value - The datetime-local input value (in local time)
- * @returns {Date} Date object
- */
-export function parseFromDateTimeLocal(value) {
-    // Create Date from local components
-    return new Date(value);
 }

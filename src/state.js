@@ -54,11 +54,6 @@ function notifySubscribers(key) {
     }
 }
 
-// Specialized getters/setters for common state
-export function getFilters() {
-    return getState(StateKeys.FILTERS);
-}
-
 export function setFilters(filters) {
     setState(StateKeys.FILTERS, filters);
 }
