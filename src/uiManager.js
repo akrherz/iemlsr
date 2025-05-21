@@ -1,7 +1,7 @@
 import { initializeTimeSlider } from './timeslider.js';
 import { getRADARSource, n0q } from './mapManager.js';
 import { loadData } from './dataManager.js';
-import { getEts, getSts, getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
+import { getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
 import { toLocaleString, setupTimeEventHandlers, updateTimeInputs, formatForDateTimeLocal } from './timeUtils.js';
 import { updateBrandingOverlay } from './brandingOverlay.js';
 
@@ -13,8 +13,8 @@ export function initializeUI() {
     const stsInput = document.getElementById('sts');
     const etsInput = document.getElementById('ets');
 
-    const initialSts = getSts();
-    const initialEts = getEts();
+    const initialSts = getState(StateKeys.STS);
+    const initialEts = getState(StateKeys.ETS);
     stsInput.value = formatForDateTimeLocal(initialSts);
     etsInput.value = formatForDateTimeLocal(initialEts);
     // Subscribe to state changes for UI elements

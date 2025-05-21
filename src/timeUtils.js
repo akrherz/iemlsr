@@ -63,15 +63,6 @@ export function updateTimeInputs(stsInput, etsInput, realtime) {
     etsInput.max = maxDateStr;
 }
 
-/**
- * Gets a date in the format YYYY-MM-DD-HHMM
- * @param {Date} dt - Date to format
- * @returns {string} Formatted date
- */
-export function getFormattedDate(dt) {
-    return dt.toISOString().replace(/[-:T]/g, '').slice(0, 12);
-}
-
 
 /**
  * Builds date parameters for shapefile requests

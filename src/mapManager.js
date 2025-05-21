@@ -4,9 +4,9 @@ import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
 import LayerGroup from 'ol/layer/Group';
 import { transform } from 'ol/proj';
-import { radarManager } from './radarManager.js';
 import { lsrtable, sbwtable } from './tableManager.js';
 import { handleLSRClick, handleSBWClick } from './featureManager.js';
+import { getState, StateKeys } from './state.js';
 
 let n0q = null;
 let statesLayer = null;
@@ -110,7 +110,7 @@ export function initializeMap() {
     n0q = new TileLayer({
         title: 'NEXRAD Base Reflectivity',
         visible: true,
-        source: getRADARSource(radarManager.getBaseTime())
+        source: getRADARSource(getState(StateKeys.ETS))
     });
     map.addLayer(n0q);
 

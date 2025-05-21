@@ -1,4 +1,4 @@
-import * as timeUtils from './timeUtils.js';
+import { getShapefileDateParams } from './timeUtils.js';
 import { buildRequestOptions } from './optionsManager.js';
 
 
@@ -30,8 +30,8 @@ function getShapefileLink(base, filters) {
     const sts = new Date(stsElement.value);
     const ets = new Date(etsElement.value);
 
-    const stsParams = timeUtils.getShapefileDateParams(sts);
-    const etsParams = timeUtils.getShapefileDateParams(ets);
+    const stsParams = getShapefileDateParams(sts);
+    const etsParams = getShapefileDateParams(ets);
 
     params.append('year1', stsParams.year);
     params.append('month1', stsParams.month);

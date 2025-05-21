@@ -12,7 +12,6 @@ export function initializeLayerControls(map) {
     // Base layer selection
     const baseLayerSelect = document.getElementById('baseLayer');
     baseLayerSelect.addEventListener('change', () => {
-        const selectedValue = baseLayerSelect.value;
         baseLayers.forEach((layer, index) => {
             layer.setVisible(index === baseLayerSelect.selectedIndex);
         });

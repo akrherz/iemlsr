@@ -1,10 +1,9 @@
 import { n0q, getStatesLayer, getCountiesLayer } from "./mapManager";
 import { getLSRLayer, getSBWLayer, setLSRIconMode } from "./layerManager";
-import { getState, StateKeys } from "./state";
+import { getState, setState, StateKeys } from "./state";
+
 /**
  * Generate settings string based on layer visibility
- * @param {object} layers Object containing layer references
- * @param {boolean} realtime Realtime mode state
  * @returns {string} Settings string
  */
 export function generateSettings() {
@@ -23,10 +22,8 @@ export function generateSettings() {
 /**
  * Apply settings to layers and controls
  * @param {string[]} opts Settings array
- * @param {object} layers Object containing layer references
- * @param {Function} setRealtime Function to update realtime state
  */
-export function applySettings(opts, setRealtime) {
+export function applySettings(opts) {
     if (opts[0] !== undefined) { // Show RADAR
         n0q.setVisible(opts[0] === "1");
     }
@@ -37,7 +34,7 @@ export function applySettings(opts, setRealtime) {
         getSBWLayer().setVisible(opts[2] === "1");
     }
     if (opts[3] === "1") { // Realtime
-        setRealtime(true);
+        setState(StateKeys.REALTIME, true);
         document.getElementById("realtime").checked = true;
     }
     if (opts[4] !== undefined) {
