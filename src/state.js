@@ -8,7 +8,8 @@ export const StateKeys = {
     BY_STATE: 'byState',
     LAYER_SETTINGS: 'layerSettings',
     STS: 'sts',
-    ETS: 'ets'
+    ETS: 'ets',
+    SECONDS: 'seconds'
 };
 
 const state = {
@@ -20,8 +21,9 @@ const state = {
     [StateKeys.STATE_FILTER]: [],
     [StateKeys.BY_STATE]: false,
     [StateKeys.LAYER_SETTINGS]: '',
-    [StateKeys.STS]: new Date(Date.now() - 24 * 60 * 60 * 1000), // 24 hours ago
-    [StateKeys.ETS]: new Date() // Current time
+    [StateKeys.STS]: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    [StateKeys.ETS]: new Date(),
+    [StateKeys.SECONDS]: 4 * 60 * 60
 };
 
 const subscribers = {};
@@ -31,6 +33,7 @@ export function getState(key) {
 }
 
 export function setState(key, value) {
+    console.error(`Setting state: ${key} = ${value}`);
     if (!key) return;
     state[key] = value;
     notifySubscribers(key);
@@ -49,11 +52,6 @@ function notifySubscribers(key) {
     if (subscribers[key]) {
         subscribers[key].forEach((callback) => callback(state[key]));
     }
-}
-
-// Specialized getters/setters for common state
-export function getFilters() {
-    return getState(StateKeys.FILTERS);
 }
 
 export function setFilters(filters) {
@@ -81,7 +79,7 @@ export function getSts() {
 }
 
 export function setSts(date) {
-    setState(StateKeys.STS, date instanceof Date ? date : new Date(date));
+    setState(StateKeys.STS, date);
 }
 
 export function getEts() {
@@ -89,5 +87,5 @@ export function getEts() {
 }
 
 export function setEts(date) {
-    setState(StateKeys.ETS, date instanceof Date ? date : new Date(date));
+    setState(StateKeys.ETS, date);
 }

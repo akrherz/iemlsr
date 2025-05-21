@@ -1,6 +1,7 @@
 // Handles LSR and SBW feature formatting and interactions
 import { createPopup, removeAllPopups } from './popup.js';
 import { iemdata } from './iemdata.js';
+import { toLocaleString } from './timeUtils.js';
 
 function revisedRandId() {
     return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
@@ -18,7 +19,8 @@ export function formatLSR(data) {
         '<div class="panel-title">Local Storm Report</div>',
         '</div>',
         '<div class="panel-body">',
-        `<strong>Source:</strong> ${data.source}<br>`,
+        `<strong>Source:</strong> ${data.source} `,
+        `<a href="/p.php?pid=${data.product_id}" target="_blank">(${data.product_id})</a><br>`,
         `<strong>UTC Valid:</strong> ${data.valid}<br>`,
         `<strong>Remark:</strong> ${data.remark}`,
         '</div>',
@@ -40,9 +42,9 @@ export function formatSBW(feature) {
     
     const issue = new Date(feature.get("issue"));
     const expire = new Date(feature.get("expire"));
-    const issueLdt = issue.toLocaleString();
+    const issueLdt = toLocaleString(issue);
     const issueZZ = issue.toISOString().slice(11, 16);
-    const expireLdt = expire.toLocaleString();
+    const expireLdt = toLocaleString(expire);
     const expireZZ = expire.toISOString().slice(11, 16);
     
     const lines = [
@@ -67,7 +69,7 @@ export function formatSBW(feature) {
  */
 export function lsrHTML(feature) {
     const dt = new Date(feature.get("valid"));
-    const ldt = dt.toLocaleString();
+    const ldt = toLocaleString(dt);
     const zz = dt.toISOString().slice(11, 16);
     
     const lines = [
@@ -81,7 +83,7 @@ export function lsrHTML(feature) {
     // Add data fields with null checks
     const fields = [
         ['Valid', `${ldt} (${zz}Z)`],
-        ['Source', feature.get("source")],
+        ['Source', `${feature.get("source")} <a href="/p.php?pid=${feature.get("product_id")}" target="_blank">NWS Text</a>`],
         ['Type', feature.get("typetext")],
         ['Magnitude', feature.get("magnitude") ? `${feature.get("magnitude")} ${feature.get("unit") || ''}` : null],
         ['Remark', feature.get("remark")]

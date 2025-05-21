@@ -1,3 +1,5 @@
+import { getState, StateKeys } from './state.js';
+
 export function initializeTimeSlider(containerId, onChangeCallback) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -8,10 +10,9 @@ export function initializeTimeSlider(containerId, onChangeCallback) {
     slider.type = 'range';
     slider.min = '0';
     slider.max = '100';
-    slider.value = '0';
+    slider.value = '100';
     slider.className = 'time-slider';
     container.appendChild(slider);
-
     const handle = document.createElement('div');
     handle.id = 'custom-handle';
     handle.className = 'ui-slider-handle';
@@ -23,10 +24,18 @@ export function initializeTimeSlider(containerId, onChangeCallback) {
     };
 
     const updateTimeDisplay = (value) => {
-        const dt = new Date();
-        dt.setUTCMinutes(dt.getUTCMinutes() + value * 5);
+        const sts = getState(StateKeys.STS);
+        const ets = getState(StateKeys.ETS);
+        const increment = (ets - sts) / 1000 / 60 / 100; // minutes
+        const minutes = Math.floor(increment * value);
+        const newDate = new Date(sts.getTime() + minutes * 60 * 1000);
+        // Rectify newDate to nearest 5 minutes
+        const dt = new Date(newDate);
+        dt.setUTCSeconds(0);
+        dt.setUTCMilliseconds(0);
+        dt.setUTCMinutes(Math.round(dt.getUTCMinutes() / 5) * 5);
+        onChangeCallback(dt);
         const timeStr = dt.toLocaleString();
-        handle.textContent = timeStr;
         if (radarTimeDisplay) {
             radarTimeDisplay.textContent = timeStr;
         }
@@ -36,12 +45,9 @@ export function initializeTimeSlider(containerId, onChangeCallback) {
         const value = parseInt(event.target.value, 10);
         updateHandlePosition();
         updateTimeDisplay(value);
-        if (onChangeCallback) {
-            onChangeCallback(value);
-        }
     });
 
     // Initialize display
     updateHandlePosition();
-    updateTimeDisplay(0);
+    updateTimeDisplay(100);
 }

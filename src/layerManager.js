@@ -225,7 +225,7 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
         
         // Update LSR type filter
         const lsrTypeFilter = document.getElementById('lsrtypefilter');
-        if (lsrTypeFilter && lsrTypeFilter.tomselect) {
+        if (lsrTypeFilter?.tomselect) {
             const currentSelection = lsrTypeFilter.tomselect.getValue();
             lsrTypeFilter.tomselect.clear();
             lsrTypeFilter.tomselect.clearOptions();
@@ -285,7 +285,7 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
         
         // Update SBW type filter
         const sbwTypeFilter = document.getElementById('sbwtypefilter');
-        if (sbwTypeFilter && sbwTypeFilter.tomselect) {
+        if (sbwTypeFilter?.tomselect) {
             const currentSelection = sbwTypeFilter.tomselect.getValue();
             sbwTypeFilter.tomselect.clear();
             sbwTypeFilter.tomselect.clearOptions();

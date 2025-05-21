@@ -96,7 +96,7 @@ export function parseHref() {
     let etsTime;
     
     if (stsParam && etsParam) {
-        // Parse full date/time in YYYYmmddHH24MI format (UTC)
+        // Parse full date/time in YYYYmmddHH24MI format (already in UTC)
         stsTime = new Date(Date.UTC(
             parseInt(stsParam.slice(0, 4), 10),
             parseInt(stsParam.slice(4, 6), 10) - 1,
@@ -113,14 +113,17 @@ export function parseHref() {
             parseInt(etsParam.slice(10, 12), 10)
         ));
     } else if (secondsParam) {
-        // Parse relative time
+        const seconds = Math.abs(parseInt(secondsParam, 10));
+        // Provision of seconds parameter indicates realtime mode
         setState(StateKeys.REALTIME, true);
+        setState(StateKeys.SECONDS, seconds);
         etsTime = new Date();
-        stsTime = new Date(etsTime.getTime() - Math.abs(parseInt(secondsParam, 10)) * 1000);
+        etsTime.setTime(etsTime.getTime());
+        stsTime = new Date(etsTime.getTime() - (seconds * 1000));
     } else {
-        // No parameters provided, use defaults
         etsTime = new Date();
-        stsTime = new Date(etsTime.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
+        etsTime.setTime(etsTime.getTime());
+        stsTime = new Date(etsTime.getTime() - 24 * 60 * 60 * 1000);
     }
     // check that stsTime and etsTime are valid dates
     if (stsTime instanceof Date && !isNaN(stsTime) &&
@@ -170,11 +173,15 @@ export function updateURL() {
     } else if (by === "state" && stateFilter.length > 0) {
         params.set("state", stateFilter.join(","));
     }
-    
-    // Add time parameters in YYYYmmddHH24MI format
-    params.set("sts", sts);
-    params.set("ets", ets);
-    
+    const realtime = getState(StateKeys.REALTIME);
+    if (realtime) {
+        const seconds = getState(StateKeys.SECONDS);
+        params.set("seconds", seconds);
+    } else {
+        params.set("sts", sts);
+        params.set("ets", ets);
+    }
+
     // Add settings
     const settings = generateSettings();
     if (settings) {

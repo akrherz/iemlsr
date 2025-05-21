@@ -142,6 +142,15 @@ sl-drawer.right-container:not([open]) ~ sl-button.drawer-toggle-right {
   background: #fff;
 }
 
+td.details-control {
+    background: url('/images/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+
+tr.shown td.details-control {
+    background: url('/images/details_close.png') no-repeat center center;
+}
+
 /* Tab Styles */
 .tab-headers {
   border-bottom: 1px solid #ddd;

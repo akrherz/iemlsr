@@ -1,16 +1,13 @@
-import { getFilters, getState, StateKeys } from './state.js';
+import { getState, StateKeys } from './state.js';
 
 /**
  * Build options for data requests based on current filters and time range
- * @param {object} filters Filter selections
- * @param {Function} filters.wfoSelect.getValue Get selected WFOs
- * @param {Function} filters.stateSelect.getValue Get selected states
  * @returns {object} Request options
  */
 export function buildRequestOptions() {
-    const filters = getFilters();
+    const filters = getState(StateKeys.FILTERS);
     if (!filters) {
-        return;
+        return {};
     }
     const byStateRadio = document.querySelector('input[type=radio][name=by][value=state]');
     const by = byStateRadio.checked ? 'state' : 'wfo';

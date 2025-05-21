@@ -1,9 +1,9 @@
 import { initializeTimeSlider } from './timeslider.js';
-import { getRADARSource } from './mapManager.js';
-import { n0q } from './mapManager.js';
+import { getRADARSource, n0q } from './mapManager.js';
 import { loadData } from './dataManager.js';
-import { getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
-import { setupTimeEventHandlers, updateTimeInputs } from './timeUtils.js';
+import { getEts, getSts, getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
+import { toLocaleString, setupTimeEventHandlers, updateTimeInputs, formatForDateTimeLocal } from './timeUtils.js';
+import { updateBrandingOverlay } from './brandingOverlay.js';
 
 /**
  * Initialize all UI components
@@ -12,17 +12,22 @@ export function initializeUI() {
     // Initialize time inputs
     const stsInput = document.getElementById('sts');
     const etsInput = document.getElementById('ets');
-    const realtimeCheckbox = document.getElementById('realtime');
 
+    const initialSts = getSts();
+    const initialEts = getEts();
+    stsInput.value = formatForDateTimeLocal(initialSts);
+    etsInput.value = formatForDateTimeLocal(initialEts);
     // Subscribe to state changes for UI elements
     subscribeToState(StateKeys.STS, (newTime) => {
-        stsInput.value = newTime.toISOString().slice(0, 16);
+        stsInput.value = formatForDateTimeLocal(newTime);
     });
 
     subscribeToState(StateKeys.ETS, (newTime) => {
-        etsInput.value = newTime.toISOString().slice(0, 16);
+        etsInput.value = formatForDateTimeLocal(newTime);
     });
 
+    const realtimeCheckbox = document.getElementById('realtime');
+    realtimeCheckbox.checked = getState(StateKeys.REALTIME);
     subscribeToState(StateKeys.REALTIME, (isRealtime) => {
         realtimeCheckbox.checked = isRealtime;
         updateTimeInputs(stsInput, etsInput, isRealtime);
@@ -38,11 +43,9 @@ export function initializeUI() {
     setupTimeEventHandlers(stsInput, etsInput, getState(StateKeys.REALTIME), loadData);
 
     // Initialize time slider
-    initializeTimeSlider('timeslider', (value) => {
-        const nexradBaseTime = getState(StateKeys.NEXRAD_BASE_TIME);
-        const dt = new Date(nexradBaseTime);
-        dt.setUTCMinutes(dt.getUTCMinutes() + value * 5);
-        n0q.setSource(getRADARSource(dt));
+    initializeTimeSlider('timeslider', (dt) => {
+        n0q?.setSource(getRADARSource(dt));
+        updateBrandingOverlay(`IEM LSR App: RADAR: ${toLocaleString(dt)}`)
     });
 
     // Handle realtime toggle

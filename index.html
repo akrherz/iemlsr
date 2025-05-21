@@ -18,72 +18,11 @@
       <div id="right-pane" class="right-pane">
         <!-- Tab Headers -->
         <div class="tab-headers">
-          <button class="tab-btn active" data-tab="lsr">LSRs</button>
+          <button class="tab-btn active" data-tab="settings">Settings</button>
+          <button class="tab-btn" data-tab="lsr">LSRs</button>
           <button class="tab-btn" data-tab="sbw">Warnings</button>
-          <button class="tab-btn" data-tab="settings">Settings</button>
+          <button class="tab-btn" data-tab="help">Help</button>
         </div>
-        
-        <!-- LSR Tab Content -->
-        <div class="tab-content" id="lsr-tab">
-          <div class="filter-options">
-            <label for="lsrtypefilter">Filter LSRs by Type:</label>
-            <select id="lsrtypefilter" class="input-field" multiple></select>
-          </div>
-          <div class="action-buttons">
-            <button id="lsrexcel" class="button secondary">LSR Excel</button>
-            <button id="lsrkml" class="button secondary">LSR KML</button>
-            <button id="lsrshapefile" class="button secondary">LSR Shapefile</button>
-            <button id="lsrgeojson" class="button secondary">LSR GeoJSON</button>
-          </div>
-          <div class="table-container">
-            <table id="lsrtable" class="data-table">
-              <thead>
-                <tr>
-                  <th></th><th></th>
-                  <th>WFO</th>
-                  <th>Time</th>
-                  <th>Type</th>
-                  <th>Magnitude</th>
-                  <th>City</th>
-                  <th>County</th>
-                  <th>State</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- SBW Tab Content -->
-        <div class="tab-content" id="sbw-tab">
-          <div class="filter-options">
-            <label for="sbwtypefilter">Filter SBWs by Type:</label>
-            <select id="sbwtypefilter" class="input-field" multiple></select>
-          </div>
-          <div class="action-buttons">
-            <button id="warnexcel" class="button secondary">Warning Excel</button>
-            <button id="warnshapefile" class="button secondary">Warning Shapefile</button>
-            <button id="sbwshapefile" class="button secondary">SBW Shapefile</button>
-            <button id="sbwgeojson" class="button secondary">SBW GeoJSON</button>
-          </div>
-          <div class="table-container">
-            <table id="sbwtable" class="data-table">
-              <thead>
-                <tr>
-                  <th></th><th></th>
-                  <th>WFO</th>
-                  <th>Phenomena</th>
-                  <th>Significance</th>
-                  <th>Event ID</th>
-                  <th>Issue</th>
-                  <th>Expire</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-
         <!-- Settings Tab Content -->
         <div class="tab-content" id="settings-tab">
           <!-- Data Controls Section -->
@@ -210,6 +149,106 @@
             <label>RADAR Time: <span id="radartime"></span></label>
             <div id="timeslider"></div>
           </div>
+        </div>
+        
+        <!-- LSR Tab Content -->
+        <div class="tab-content" id="lsr-tab">
+          <div class="filter-options">
+            <label for="lsrtypefilter">Filter LSRs by Type:</label>
+            <select id="lsrtypefilter" class="input-field" multiple></select>
+          </div>
+          <div class="action-buttons">
+            <button id="lsrexcel" class="button secondary">LSR Excel</button>
+            <button id="lsrkml" class="button secondary">LSR KML</button>
+            <button id="lsrshapefile" class="button secondary">LSR Shapefile</button>
+            <button id="lsrgeojson" class="button secondary">LSR GeoJSON</button>
+          </div>
+          <div class="table-container">
+            <table id="lsrtable" class="data-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>WFO</th>
+                  <th>Time</th>
+                  <th>Type</th>
+                  <th>Magnitude</th>
+                  <th>City</th>
+                  <th>County</th>
+                  <th>State</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SBW Tab Content -->
+        <div class="tab-content" id="sbw-tab">
+          <div class="filter-options">
+            <label for="sbwtypefilter">Filter SBWs by Type:</label>
+            <select id="sbwtypefilter" class="input-field" multiple></select>
+          </div>
+          <div class="action-buttons">
+            <button id="warnexcel" class="button secondary">Warning Excel</button>
+            <button id="warnshapefile" class="button secondary">Warning Shapefile</button>
+            <button id="sbwshapefile" class="button secondary">SBW Shapefile</button>
+            <button id="sbwgeojson" class="button secondary">SBW GeoJSON</button>
+          </div>
+          <div class="table-container">
+            <table id="sbwtable" class="data-table">
+              <thead>
+                <tr>
+                  <th></th><th></th>
+                  <th>WFO</th>
+                  <th>Phenomena</th>
+                  <th>Significance</th>
+                  <th>Event ID</th>
+                  <th>Issue</th>
+                  <th>Expire</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Help Tab Content -->
+        <div class="tab-content" id="help-tab">
+            <p>Welcome to the IEM Local Storm Report (LSR) App! The
+            <a href="old.phtml">old version</a> of this app is still available for
+            use, but this new version is the way forward. It is built using
+            modern web technologies and is designed to be mobile friendly.</p>
+
+            <p>Please provide <a href="/info/contacts.php" target="_blank">feedback</a> on
+            this app. It is a work in progress and your input is valuable.</p>
+
+            <p>This app displays National Weather Service (NWS) Local Storm Reports
+                (LSR)s for a given time period of your choice.  Additionally, NWS
+                Storm Based Warnings (SBW) are also displayed for events
+                <strong>Issued</strong> between the start and end time of your
+                choice.</p>
+
+            <h3>Web Services</h3>
+
+            <p>This app uses to main GeoJSON web services to provide the data
+                displayed here. <a href="/geojson/lsr.py?help" target="_blank">LSR</a> and
+                <a href="/geojson/sbw.py?help" target="_blank">SBW</a>.  You are
+                welcome to use these services in your own applications.</p>
+
+            <h3>URL Parameters</h3>
+            <p>You can use the following URL parameters to customize your experience:</p>
+            <ul>
+              <li><strong>by</strong>: Filter by either "wfo" (default) or "state".</li>
+              <li><strong>wfo</strong>: Comma-separated list of WFOs to filter by.</li>
+              <li><strong>state</strong>: Comma-separated list of states to filter by.</li>
+              <li><strong>seconds</strong>: Puts the app into an auto-refreshing
+               mode that loads the previous number of seconds worth of LSRs
+               and warnings issued.</li>
+            </ul>
+
+            <h3>Changelog</h3>
+            <ul>
+                <li><strong>2025-05-21</strong>: Initial release.</li>
+            </ul>
         </div>
       </div>
     </sl-drawer>
