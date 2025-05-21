@@ -19,7 +19,6 @@ export function initializeUI() {
     etsInput.value = formatForDateTimeLocal(initialEts);
     // Subscribe to state changes for UI elements
     subscribeToState(StateKeys.STS, (newTime) => {
-        console.log('SETTING UI STS:', newTime);
         stsInput.value = formatForDateTimeLocal(newTime);
     });
 

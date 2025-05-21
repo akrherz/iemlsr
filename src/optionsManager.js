@@ -7,7 +7,7 @@ import { getState, StateKeys } from './state.js';
 export function buildRequestOptions() {
     const filters = getState(StateKeys.FILTERS);
     if (!filters) {
-        return;
+        return {};
     }
     const byStateRadio = document.querySelector('input[type=radio][name=by][value=state]');
     const by = byStateRadio.checked ? 'state' : 'wfo';
