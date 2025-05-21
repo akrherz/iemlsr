@@ -8,7 +8,8 @@ export const StateKeys = {
     BY_STATE: 'byState',
     LAYER_SETTINGS: 'layerSettings',
     STS: 'sts',
-    ETS: 'ets'
+    ETS: 'ets',
+    SECONDS: 'seconds'
 };
 
 const state = {
@@ -20,9 +21,9 @@ const state = {
     [StateKeys.STATE_FILTER]: [],
     [StateKeys.BY_STATE]: false,
     [StateKeys.LAYER_SETTINGS]: '',
-    // Store dates in UTC internally
     [StateKeys.STS]: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    [StateKeys.ETS]: new Date()
+    [StateKeys.ETS]: new Date(),
+    [StateKeys.SECONDS]: 4 * 60 * 60
 };
 
 const subscribers = {};

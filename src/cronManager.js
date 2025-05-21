@@ -9,7 +9,8 @@ export function cronMinute() {
     if (!realtime) return;
     
     const now = new Date();
-    const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+    const seconds = getState(StateKeys.SECONDS);
+    const fourHoursAgo = new Date(now.getTime() - seconds * 1000);
     
     // Update state with new times
     setState(StateKeys.ETS, now);

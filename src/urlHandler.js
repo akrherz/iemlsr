@@ -113,16 +113,17 @@ export function parseHref() {
             parseInt(etsParam.slice(10, 12), 10)
         ));
     } else if (secondsParam) {
-        // Parse relative time (create in UTC)
+        const seconds = Math.abs(parseInt(secondsParam, 10));
+        // Provision of seconds parameter indicates realtime mode
         setState(StateKeys.REALTIME, true);
+        setState(StateKeys.SECONDS, seconds);
         etsTime = new Date();
-        etsTime.setTime(etsTime.getTime());  // Ensure we're working with UTC
-        stsTime = new Date(etsTime.getTime() - Math.abs(parseInt(secondsParam, 10)) * 1000);
+        etsTime.setTime(etsTime.getTime());
+        stsTime = new Date(etsTime.getTime() - (seconds * 1000));
     } else {
-        // No parameters provided, use defaults (in UTC)
         etsTime = new Date();
-        etsTime.setTime(etsTime.getTime());  // Ensure we're working with UTC
-        stsTime = new Date(etsTime.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
+        etsTime.setTime(etsTime.getTime());
+        stsTime = new Date(etsTime.getTime() - 24 * 60 * 60 * 1000);
     }
     // check that stsTime and etsTime are valid dates
     if (stsTime instanceof Date && !isNaN(stsTime) &&
@@ -172,11 +173,15 @@ export function updateURL() {
     } else if (by === "state" && stateFilter.length > 0) {
         params.set("state", stateFilter.join(","));
     }
-    
-    // Add time parameters in YYYYmmddHH24MI format
-    params.set("sts", sts);
-    params.set("ets", ets);
-    
+    const realtime = getState(StateKeys.REALTIME);
+    if (realtime) {
+        const seconds = getState(StateKeys.SECONDS);
+        params.set("seconds", seconds);
+    } else {
+        params.set("sts", sts);
+        params.set("ets", ets);
+    }
+
     // Add settings
     const settings = generateSettings();
     if (settings) {
