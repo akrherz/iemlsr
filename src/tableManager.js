@@ -5,6 +5,7 @@ import 'datatables.net-scroller-dt';
 import { iemdata } from './iemdata.js';
 import { formatLSR } from "./featureManager.js";
 import { getLSRLayer, getSBWLayer } from './layerManager.js';
+import { toLocaleString } from './timeUtils.js';
 
 let lsrtable = null;
 let sbwtable = null;
@@ -30,10 +31,6 @@ export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl) {
         rowId: 'id',
         columns: [
             {
-                "data": "valid",
-                "visible": false
-            },
-            {
                 "className": 'details-control',
                 "orderable": false,
                 "data": null,
@@ -42,8 +39,7 @@ export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl) {
             { "data": "wfo" },
             {
                 "data": "valid",
-                "type": "datetime",
-                "orderData": [1]
+                "type": "datetime"
             },
             { "data": "typetext" },
             { "data": "magnitude" },
@@ -51,12 +47,12 @@ export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl) {
             { "data": "county" },
             { "data": "st" },
         ],
-        order: [[1, 'asc']],
+        order: [[2, 'desc']],
         columnDefs: [
             {
-                targets: 3,
+                targets: 2,
                 render(data) {
-                    return new Date(data).toLocaleString();
+                    return toLocaleString(new Date(data));
                 }
             }
         ]
@@ -148,7 +144,7 @@ export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl) {
             }, {
                 targets: [6, 7],
                 render(data) {
-                    return new Date(data).toLocaleString();
+                    return toLocaleString(new Date(data));
                 }
             }
         ]

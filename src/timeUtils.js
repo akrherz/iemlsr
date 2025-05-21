@@ -1,6 +1,17 @@
 // Utility functions for handling time/date operations
 
 /**
+ * Our custom toLocaleString() function to format date without seconds
+ * in the format of YYYY/mm/dd hh:mm AM/PM
+ * @param {Date} dt - Date to format
+ * @returns {string} Formatted date string
+ */
+export function toLocaleString(dt) {
+    // Format date to YYYY/mm/dd hh:mm AM/PM
+    return `${dt.getFullYear()}/${String(dt.getMonth() + 1).padStart(2, '0')}/${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours() % 12 || 12).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')} ${dt.getHours() < 12 ? 'AM' : 'PM'}`;
+}
+
+/**
  * Updates the start and end time inputs based on realtime mode
  * @param {HTMLInputElement} stsInput - Start time input element
  * @param {HTMLInputElement} etsInput - End time input element
@@ -43,7 +54,6 @@ export function updateTimeInputs(stsInput, etsInput, realtime) {
 export function getFormattedDate(dt) {
     return dt.toISOString().replace(/[-:T]/g, '').slice(0, 12);
 }
-
 
 
 /**

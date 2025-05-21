@@ -1,6 +1,7 @@
 // Handles LSR and SBW feature formatting and interactions
 import { createPopup, removeAllPopups } from './popup.js';
 import { iemdata } from './iemdata.js';
+import { toLocaleString } from './timeUtils.js';
 
 function revisedRandId() {
     return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
@@ -40,9 +41,9 @@ export function formatSBW(feature) {
     
     const issue = new Date(feature.get("issue"));
     const expire = new Date(feature.get("expire"));
-    const issueLdt = issue.toLocaleString();
+    const issueLdt = toLocaleString(issue);
     const issueZZ = issue.toISOString().slice(11, 16);
-    const expireLdt = expire.toLocaleString();
+    const expireLdt = toLocaleString(expire);
     const expireZZ = expire.toISOString().slice(11, 16);
     
     const lines = [
@@ -67,7 +68,7 @@ export function formatSBW(feature) {
  */
 export function lsrHTML(feature) {
     const dt = new Date(feature.get("valid"));
-    const ldt = dt.toLocaleString();
+    const ldt = toLocaleString(dt);
     const zz = dt.toISOString().slice(11, 16);
     
     const lines = [
