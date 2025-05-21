@@ -2,7 +2,6 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
-import FullScreen from 'ol/control/FullScreen';
 import LayerGroup from 'ol/layer/Group';
 import { transform } from 'ol/proj';
 import { radarManager } from './radarManager.js';
@@ -90,7 +89,7 @@ export function make_iem_tms(title, layername, visible, type) {
 export function initializeMap() {
     const map = new Map({
         target: 'map',
-        controls: [new FullScreen()],
+        controls: [],
         view: new View({
             enableRotation: false,
             center: transform([-94.5, 42.1], 'EPSG:4326', 'EPSG:3857'),
