@@ -8,230 +8,214 @@
   </head>
   <body>
     <!-- Map Container -->
-    <div id="map"></div>
-    <div id="branding-overlay" data-mode="archive">IEM LSR App</div>
-    <!-- Left Drawer Toggle -->
-    <button class="drawer-toggle drawer-toggle-left" id="drawer-toggle-left">☰</button>
-
-    <!-- Reports Modal Toggles -->
-    <div class="view-table-buttons">
-        <button class="modal-toggle view-table-button" id="lsr-toggle">View LSRs</button>
-        <button class="modal-toggle view-table-button" id="sbw-toggle">View Warnings</button>
+    <div id="map">
+      <div id="branding-overlay" data-mode="archive">IEM LSR App</div>
     </div>
 
-    <!-- Left Drawer - Controls -->
-    <div class="drawer drawer-left" id="controls-drawer">
-      <button class="drawer-close" id="drawer-close-left">&times;</button>
-      <div class="drawer-content">
-        <h3>Controls</h3>
+    <!-- Right Side Container -->
+    <sl-drawer id="right-container" placement="end" contained class="right-container" no-modal>
+      <!-- Right Side Pane -->
+      <div id="right-pane" class="right-pane">
+        <!-- Tab Headers -->
+        <div class="tab-headers">
+          <button class="tab-btn active" data-tab="lsr">LSRs</button>
+          <button class="tab-btn" data-tab="sbw">Warnings</button>
+          <button class="tab-btn" data-tab="settings">Settings</button>
+        </div>
         
-        <!-- Data Controls Section -->
-        <div class="data-controls-section">
-          <div class="control-group">
-            <label>Filter by:</label>
-            <div class="radio-group">
-              <label>
-                <input type="radio" name="by" value="wfo" checked>
-                NWS Forecast Office
-              </label>
-            </div>
-            <div class="radio-group">
-              <label>
-                <input type="radio" name="by" value="state">
-                State
-              </label>
-            </div>
+        <!-- LSR Tab Content -->
+        <div class="tab-content" id="lsr-tab">
+          <div class="filter-options">
+            <label for="lsrtypefilter">Filter LSRs by Type:</label>
+            <select id="lsrtypefilter" class="input-field" multiple></select>
           </div>
-
-          <div class="control-group">
-            <label for="wfo">WFO:</label>
-            <select id="wfo" class="input-field" multiple></select>
+          <div class="action-buttons">
+            <button id="lsrexcel" class="button secondary">LSR Excel</button>
+            <button id="lsrkml" class="button secondary">LSR KML</button>
+            <button id="lsrshapefile" class="button secondary">LSR Shapefile</button>
+            <button id="lsrgeojson" class="button secondary">LSR GeoJSON</button>
           </div>
-
-          <div class="control-group">
-            <label for="state">State:</label>
-            <select id="state" class="input-field" multiple></select>
-          </div>
-
-          <div class="control-group">
-            <label for="sts">Start Time:</label>
-            <input type="datetime-local" class="input-field" id="sts">
-          </div>
-
-          <div class="control-group">
-            <label for="ets">End Time:</label>
-            <input type="datetime-local" class="input-field" id="ets">
-          </div>
-
-          <div class="control-group">
-            <div class="checkbox-group">
-              <label>
-                <input type="checkbox" id="realtime"> Auto-Refresh
-              </label>
-            </div>
-          </div>
-
-          <div class="control-group load-button-container">
-            <button id="load" class="button primary load-button">Load Data</button>
+          <div class="table-container">
+            <table id="lsrtable" class="data-table">
+              <thead>
+                <tr>
+                  <th></th><th></th>
+                  <th>WFO</th>
+                  <th>Time</th>
+                  <th>Type</th>
+                  <th>Magnitude</th>
+                  <th>City</th>
+                  <th>County</th>
+                  <th>State</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
 
-        <!-- Map Controls -->
-        <div class="map-controls-section">
-          <h4>Map Settings</h4>
-          <!-- Base Maps -->
-          <div class="layer-group">
-            <label>Base Map:</label>
-            <select id="baseLayer" class="input-field">
-              <option value="osm">OpenStreetMap</option>
-              <option value="toner">MapTiler Toner</option>
-              <option value="pastel">MapTiler Pastel</option>
-            </select>
+        <!-- SBW Tab Content -->
+        <div class="tab-content" id="sbw-tab">
+          <div class="filter-options">
+            <label for="sbwtypefilter">Filter SBWs by Type:</label>
+            <select id="sbwtypefilter" class="input-field" multiple></select>
           </div>
-          
-          <!-- Overlay Layers -->
-          <div class="layer-group">
-            <label>Overlays:</label>
-            <div class="checkbox-group">
-              <label>
-                <input type="checkbox" id="layer-nexrad" checked> NEXRAD Reflectivity
-              </label>
-            </div>
-            <div class="checkbox-group">
-              <label>
-                <input type="checkbox" id="layer-states" checked> US States
-              </label>
-            </div>
-            <div class="checkbox-group">
-              <label>
-                <input type="checkbox" id="layer-counties"> US Counties
-              </label>
-            </div>
-            <div class="checkbox-group">
-              <label>
-                <input type="checkbox" id="layer-lsr" checked> Local Storm Reports
-              </label>
-              <div class="layer-option">
-                <label class="toggle-switch">
-                  <input type="checkbox" id="lsr-label-mode">
-                  <span class="toggle-slider"></span>
-                  <span class="toggle-label">Use Icons (instead of Magnitude)</span>
+          <div class="action-buttons">
+            <button id="warnexcel" class="button secondary">Warning Excel</button>
+            <button id="warnshapefile" class="button secondary">Warning Shapefile</button>
+            <button id="sbwshapefile" class="button secondary">SBW Shapefile</button>
+            <button id="sbwgeojson" class="button secondary">SBW GeoJSON</button>
+          </div>
+          <div class="table-container">
+            <table id="sbwtable" class="data-table">
+              <thead>
+                <tr>
+                  <th></th><th></th>
+                  <th>WFO</th>
+                  <th>Phenomena</th>
+                  <th>Significance</th>
+                  <th>Event ID</th>
+                  <th>Issue</th>
+                  <th>Expire</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Settings Tab Content -->
+        <div class="tab-content" id="settings-tab">
+          <!-- Data Controls Section -->
+          <div class="data-controls-section">
+            <div class="control-group">
+              <label>Filter by:</label>
+              <div class="radio-group">
+                <label>
+                  <input type="radio" name="by" value="wfo" checked>
+                  NWS Forecast Office
+                </label>
+              </div>
+              <div class="radio-group">
+                <label>
+                  <input type="radio" name="by" value="state">
+                  State
                 </label>
               </div>
             </div>
-            <div class="checkbox-group">
-              <label>
-                <input type="checkbox" id="layer-sbw" checked> Storm Based Warnings
-              </label>
+
+            <div class="control-group">
+              <label for="wfo">WFO:</label>
+              <select id="wfo" class="input-field" multiple></select>
+            </div>
+
+            <div class="control-group">
+              <label for="state">State:</label>
+              <select id="state" class="input-field" multiple></select>
+            </div>
+
+            <div class="control-group">
+              <label for="sts">Start Time:</label>
+              <input type="datetime-local" class="input-field" id="sts">
+            </div>
+
+            <div class="control-group">
+              <label for="ets">End Time:</label>
+              <input type="datetime-local" class="input-field" id="ets">
+            </div>
+
+            <div class="control-group">
+              <div class="checkbox-group">
+                <label>
+                  <input type="checkbox" id="realtime"> Auto-Refresh
+                </label>
+              </div>
+            </div>
+
+            <div class="control-group load-button-container">
+              <button id="load" class="button primary load-button">Load Data</button>
             </div>
           </div>
 
-          <!-- Layer Opacity Controls -->
-          <div class="layer-group">
-            <label>Layer Opacity:</label>
-            <div class="opacity-control">
-              <label for="nexrad-opacity">NEXRAD:</label>
-              <input type="range" id="nexrad-opacity" min="0" max="100" value="100">
+          <!-- Map Controls -->
+          <div class="map-controls-section">
+            <h4>Map Settings</h4>
+            <!-- Base Maps -->
+            <div class="layer-group">
+              <label>Base Map:</label>
+              <select id="baseLayer" class="input-field">
+                <option value="osm">OpenStreetMap</option>
+                <option value="toner">MapTiler Toner</option>
+                <option value="pastel">MapTiler Pastel</option>
+              </select>
             </div>
-            <div class="opacity-control">
-              <label for="lsr-opacity">Storm Reports:</label>
-              <input type="range" id="lsr-opacity" min="0" max="100" value="100">
+            
+            <!-- Overlay Layers -->
+            <div class="layer-group">
+              <label>Overlays:</label>
+              <div class="checkbox-group">
+                <label>
+                  <input type="checkbox" id="layer-nexrad" checked> NEXRAD Reflectivity
+                </label>
+              </div>
+              <div class="checkbox-group">
+                <label>
+                  <input type="checkbox" id="layer-states" checked> US States
+                </label>
+              </div>
+              <div class="checkbox-group">
+                <label>
+                  <input type="checkbox" id="layer-counties"> US Counties
+                </label>
+              </div>
+              <div class="checkbox-group">
+                <label>
+                  <input type="checkbox" id="layer-lsr" checked> Local Storm Reports
+                </label>
+                <div class="layer-option">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="lsr-label-mode">
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">Use Icons (instead of Magnitude)</span>
+                  </label>
+                </div>
+              </div>
+              <div class="checkbox-group">
+                <label>
+                  <input type="checkbox" id="layer-sbw" checked> Storm Based Warnings
+                </label>
+              </div>
             </div>
-            <div class="opacity-control">
-              <label for="sbw-opacity">Warnings:</label>
-              <input type="range" id="sbw-opacity" min="0" max="100" value="100">
+
+            <!-- Layer Opacity Controls -->
+            <div class="layer-group">
+              <label>Layer Opacity:</label>
+              <div class="opacity-control">
+                <label for="nexrad-opacity">NEXRAD:</label>
+                <input type="range" id="nexrad-opacity" min="0" max="100" value="100">
+              </div>
+              <div class="opacity-control">
+                <label for="lsr-opacity">Storm Reports:</label>
+                <input type="range" id="lsr-opacity" min="0" max="100" value="100">
+              </div>
+              <div class="opacity-control">
+                <label for="sbw-opacity">Warnings:</label>
+                <input type="range" id="sbw-opacity" min="0" max="100" value="100">
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Time Slider -->
-        <div class="control-group">
-          <label>RADAR Time: <span id="radartime"></span></label>
-          <div id="timeslider"></div>
+          <!-- Time Slider -->
+          <div class="control-group">
+            <label>RADAR Time: <span id="radartime"></span></label>
+            <div id="timeslider"></div>
+          </div>
         </div>
       </div>
-    </div>
+    </sl-drawer>
 
-    <!-- LSR Modal -->
-    <div class="modal" id="lsr-modal">
-      <div class="modal-header">
-        <span>Local Storm Reports</span>
-        <div class="modal-controls">
-          <button class="modal-control-btn" id="minimize-lsr" title="Minimize">_</button>
-          <button class="modal-control-btn" id="maximize-lsr" title="Maximize">□</button>
-          <button class="modal-control-btn" id="close-lsr" title="Close">×</button>
-        </div>
-      </div>
-      <div class="modal-content">
-        <div class="filter-options">
-          <label for="lsrtypefilter">Filter LSRs by Type:</label>
-          <select id="lsrtypefilter" class="input-field" multiple></select>
-        </div>
-        <div class="action-buttons">
-          <button id="lsrexcel" class="button secondary">LSR Excel</button>
-          <button id="lsrkml" class="button secondary">LSR KML</button>
-          <button id="lsrshapefile" class="button secondary">LSR Shapefile</button>
-          <button id="lsrgeojson" class="button secondary">LSR GeoJSON</button>
-        </div>
-        <div class="table-container">
-          <table id="lsrtable" class="data-table">
-            <thead>
-              <tr>
-                <th></th><th></th>
-                <th>WFO</th>
-                <th>Time</th>
-                <th>Type</th>
-                <th>Magnitude</th>
-                <th>City</th>
-                <th>County</th>
-                <th>State</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- SBW Modal -->
-    <div class="modal" id="sbw-modal">
-      <div class="modal-header">
-        <span>Storm Based Warnings</span>
-        <div class="modal-controls">
-          <button class="modal-control-btn" id="minimize-sbw" title="Minimize">_</button>
-          <button class="modal-control-btn" id="maximize-sbw" title="Maximize">□</button>
-          <button class="modal-control-btn" id="close-sbw" title="Close">×</button>
-        </div>
-      </div>
-      <div class="modal-content">
-        <div class="filter-options">
-          <label for="sbwtypefilter">Filter SBWs by Type:</label>
-          <select id="sbwtypefilter" class="input-field" multiple></select>
-        </div>
-        <div class="action-buttons">
-          <button id="warnexcel" class="button secondary">Warning Excel</button>
-          <button id="warnshapefile" class="button secondary">Warning Shapefile</button>
-          <button id="sbwshapefile" class="button secondary">SBW Shapefile</button>
-          <button id="sbwgeojson" class="button secondary">SBW GeoJSON</button>
-        </div>
-        <div class="table-container">
-          <table id="sbwtable" class="data-table">
-            <thead>
-              <tr>
-                <th></th><th></th>
-                <th>WFO</th>
-                <th>Phenomena</th>
-                <th>Significance</th>
-                <th>Event ID</th>
-                <th>Issue</th>
-                <th>Expire</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <!-- Right drawer toggle button -->
+    <sl-button class="drawer-toggle-right" id="right-pane-toggle" size="large">▶</sl-button>
 
     <script type="module" src="/src/main.js"></script>
   </body>

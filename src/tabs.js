@@ -1,63 +1,30 @@
 /**
- * Initialize both Bootstrap-style and ARIA tabs in the application.
- * Handles both .nav-tabs links and [role="tab"] elements.
+ * Initialize tab functionality for the application.
+ * Handles tab switching and content display.
  */
 export function initializeTabs() {
-    // Initialize Bootstrap-style tabs
-    const tabLinks = document.querySelectorAll('.nav-tabs a');
-    const tabContents = document.querySelectorAll('.tab-pane');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-    tabLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
+    // Event listeners for tab buttons
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update button states
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             
-            // Remove active class from all tabs and panes
-            tabLinks.forEach(l => l.parentElement.classList.remove('active'));
-            tabContents.forEach(p => p.classList.remove('active'));
-            
-            // Add active class to clicked tab and corresponding pane
-            link.parentElement.classList.add('active');
-            const paneId = link.getAttribute('href').substring(1);
-            document.getElementById(paneId)?.classList.add('active');
+            // Update content visibility
+            const tabId = btn.dataset.tab + '-tab';
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId)?.classList.add('active');
         });
     });
 
-    // Initialize ARIA tabs
-    const ariaTabs = document.querySelectorAll('[role="tab"]');
-    const ariaTabPanels = document.querySelectorAll('[role="tabpanel"]');
-
-    ariaTabs.forEach(tab => {
-        tab.addEventListener('click', e => {
-            e.preventDefault();
-            
-            // Deactivate all tabs
-            ariaTabs.forEach(t => {
-                t.setAttribute('aria-selected', 'false');
-                t.classList.remove('active');
-            });
-            
-            // Hide all tab panels
-            ariaTabPanels.forEach(panel => {
-                panel.setAttribute('hidden', 'true');
-                panel.classList.remove('active');
-            });
-            
-            // Activate the selected tab
-            tab.setAttribute('aria-selected', 'true');
-            tab.classList.add('active');
-            
-            // Show the associated panel
-            const panelId = tab.getAttribute('aria-controls');
-            document.getElementById(panelId)?.removeAttribute('hidden');
-            document.getElementById(panelId)?.classList.add('active');
-        });
-    });
-
-    // Activate first tabs by default
-    if (tabLinks.length > 0) {
-        tabLinks[0].click();
-    }
-    if (ariaTabs.length > 0 && tabLinks.length === 0) {
-        ariaTabs[0].click();
+    // Show LSR tab by default
+    const defaultTab = document.querySelector('.tab-btn[data-tab="lsr"]');
+    if (defaultTab) {
+        defaultTab.click();
     }
 }

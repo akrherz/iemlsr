@@ -1,7 +1,5 @@
 import { initializeTimeSlider } from './timeslider.js';
 import { getRADARSource } from './mapManager.js';
-import { initializeDrawerControls } from './drawerManager.js';
-import { initializeModals } from './modalManager.js';
 import { n0q } from './mapManager.js';
 import { loadData } from './dataManager.js';
 import { getState, setState, StateKeys, setRealtime, subscribeToState } from './state.js';
@@ -58,6 +56,7 @@ export function initializeUI() {
             const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000);
             setState(StateKeys.ETS, now);
             setState(StateKeys.STS, fourHoursAgo);
+
             // Immediately load new data
             loadData();
         }
@@ -80,16 +79,4 @@ export function initializeUI() {
             loadButton.classList.add('load-needed');
         });
     });
-
-
-    // Initialize drawer controls
-    initializeDrawerControls(
-        document.getElementById('controls-drawer'),
-        document.getElementById('drawer-toggle-left'),
-        document.getElementById('drawer-close-left')
-    );
-
-    // Initialize tabs and modals
-    initializeModals();
-
 }
