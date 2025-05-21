@@ -2,6 +2,14 @@ import './style.css';
 import './styles/popups.css';
 import 'ol/ol.css';
 import 'tom-select/dist/css/tom-select.css';
+import '@shoelace-style/shoelace/dist/themes/light.css';
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path';
+// Import the drawer components
+import '@shoelace-style/shoelace/dist/components/drawer/drawer.js';
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+
+// Set the base path for Shoelace assets
+setBasePath('/node_modules/@shoelace-style/shoelace/dist');
 
 import { initializeMap } from './mapManager.js';
 import { parseHref, migrateHashToParams } from './urlHandler.js';
@@ -14,6 +22,8 @@ import { setFilters } from './state.js';
 import { loadData } from './dataManager.js';
 import { initializeLayerControls } from './layerControlManager.js';
 import { startCronTasks } from './cronManager.js';
+import { initializeRightPane } from './rightPaneManager.js';
+import { initializeTabs } from './tabs.js';
 
 function initializeApplication() {
     // First migrate any hash parameters to URL parameters
@@ -31,6 +41,10 @@ function initializeApplication() {
     // Initialize data tables
     initializeLSRTable("tfe", document.getElementById('lsrtable'));
     initializeSBWTable("tfe", document.getElementById('sbwtable'));
+
+    // Initialize the right pane and tabs
+    initializeRightPane();
+    initializeTabs();
 
     // Initialize filters with state from URL parameters
     const filters = initializeFilters();
