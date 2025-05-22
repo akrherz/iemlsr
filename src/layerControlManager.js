@@ -38,7 +38,7 @@ export function initializeLayerControls(map) {
     // Handle changes
     sbwWidth.addEventListener('input', () => {
         const scale = Math.exp(Math.log(0.1) + (Math.log(10) - Math.log(0.1)) * (sbwWidth.value / 100));
-        sbwWidthValue.textContent = scale.toFixed(1) + '×';
+        sbwWidthValue.textContent = `${scale.toFixed(1)}×`;
         updateSBWLineWidth(sbwWidth.value);
     });
 
