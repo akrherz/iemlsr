@@ -141,6 +141,10 @@
                 <label for="sbw-opacity">Warnings:</label>
                 <input type="range" id="sbw-opacity" min="0" max="100" value="100">
               </div>
+              <div class="opacity-control">
+                <label for="sbw-width">Warning Line Width: <span id="sbw-width-value">1×</span></label>
+                <input type="range" id="sbw-width" min="1" max="100" value="50" step="1">
+              </div>
             </div>
           </div>
 
@@ -247,6 +251,12 @@
 
             <h3>Changelog</h3>
             <ul>
+                <li><strong>2025-05-22</strong>: Added a scale control for
+                 Storm Based Warnings polygon outline width.  You can find this
+                 within the Settings tab.</li>
+                <li><strong>2025-05-22</strong>: Changed SBW polygon plotting
+                priority to show Tornado then Severe Thunderstorm Warnings
+                then others.</li>
                 <li><strong>2025-05-21</strong>: Initial release.</li>
             </ul>
         </div>
