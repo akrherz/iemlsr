@@ -2,6 +2,7 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
+import StadiaMaps from 'ol/source/StadiaMaps.js';
 import LayerGroup from 'ol/layer/Group';
 import { transform } from 'ol/proj';
 import { lsrtable, sbwtable } from './tableManager.js';
@@ -53,21 +54,29 @@ function createBaseLayers() {
                 })
             }),
             new TileLayer({
-                title: "MapTiler Toner (Black/White)",
+                visible: false,
+                title: 'Stadia Maps Alidade Smooth',
+                source: new StadiaMaps({
+                    layer: 'alidade_smooth_dark',
+                    retina: true
+                }),
+            }),
+            new TileLayer({
+                title: "MapTiler Dataviz",
                 type: 'base',
                 visible: false,
                 source: new XYZ({
-                    url: 'https://api.maptiler.com/maps/toner/tiles.json?key=d7EdAVvDI3ocoa9OUt9Z',
+                    url: 'https://api.maptiler.com/maps/dataviz/{z}/{x}/{y}.png?key=d7EdAVvDI3ocoa9OUt9Z',
                     tileSize: 512,
                     crossOrigin: 'anonymous'
                 })
             }),
             new TileLayer({
-                title: "MapTiler Pastel",
+                title: "MapTiler Toner v2 (Black/White)",
                 type: 'base',
                 visible: false,
                 source: new XYZ({
-                    url: 'https://api.maptiler.com/maps/pastel/tiles.json?key=d7EdAVvDI3ocoa9OUt9Z',
+                    url: 'https://api.maptiler.com/maps/toner-v2/{z}/{x}/{y}.png?key=d7EdAVvDI3ocoa9OUt9Z',
                     tileSize: 512,
                     crossOrigin: 'anonymous'
                 })
