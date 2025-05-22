@@ -1,9 +1,4 @@
 export const iemdata = {
-    nws_products: [
-        ['AFD', 'Area Forecast Discussion'],
-        ['HWO', 'Hazzardous Weather Outlook'],
-        ['NOW', 'Nowcast']
-    ],
     vtec_phenomena: {
         'SV': 'Severe Thunderstorm',
         'TO': 'Tornado',

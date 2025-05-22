@@ -14,7 +14,7 @@ export function initializeTabs() {
             btn.classList.add('active');
             
             // Update content visibility
-            const tabId = btn.dataset.tab + '-tab';
+            const tabId = `${btn.dataset.tab}-tab`;
             tabContents.forEach(content => {
                 content.classList.remove('active');
             });

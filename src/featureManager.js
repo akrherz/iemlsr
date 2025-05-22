@@ -3,10 +3,6 @@ import { createPopup, removeAllPopups } from './popup.js';
 import { iemdata } from './iemdata.js';
 import { toLocaleString } from './timeUtils.js';
 
-function revisedRandId() {
-    return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
-}
-
 /**
  * Creates HTML for LSR feature popup
  * @param {import("ol").Feature} feature OpenLayers feature object

@@ -18,7 +18,7 @@ import { initializeUI } from './uiManager.js';
 import { initializeLSRTable, initializeSBWTable } from './tableManager.js';
 import { initializeFilters } from './filterManager.js';
 import { initializeExportHandlers } from './exportManager.js';
-import { setFilters } from './state.js';
+import { setState, StateKeys } from './state.js';
 import { loadData } from './dataManager.js';
 import { initializeLayerControls } from './layerControlManager.js';
 import { startCronTasks } from './cronManager.js';
@@ -48,7 +48,7 @@ function initializeApplication() {
 
     // Initialize filters with state from URL parameters
     const filters = initializeFilters();
-    setFilters(filters);
+    setState(StateKeys.FILTERS, filters);
     // Initialize export handlers
     initializeExportHandlers(filters);
 

@@ -108,13 +108,7 @@ function initializeFilterTypeHandlers() {
     radioButtons.forEach(radio => {
         radio.addEventListener('change', (e) => {
             const isByState = e.target.value === 'state';
-            setState(StateKeys.BY_STATE, isByState);
-            
-            // Update active filter when selection type changes
-            const activeFilter = isByState ? 
-                getState(StateKeys.STATE_FILTER) : 
-                getState(StateKeys.WFO_FILTER);
-            setState(StateKeys.ACTIVE_FILTER, activeFilter || []);
+            setState(StateKeys.BY_STATE, isByState);            
         });
     });
 }

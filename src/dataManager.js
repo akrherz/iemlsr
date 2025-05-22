@@ -43,5 +43,6 @@ export function loadData() {
             );
         });
 
+    // Update the URL to reflect the newly loaded data state
     updateURL();
 }

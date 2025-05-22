@@ -33,7 +33,7 @@ export function getState(key) {
 }
 
 export function setState(key, value) {
-    console.error(`Setting state: ${key} = ${value}`);
+    // console.error(`Setting state: ${key} = ${value}`);
     if (!key) return;
     state[key] = value;
     notifySubscribers(key);
@@ -54,38 +54,10 @@ function notifySubscribers(key) {
     }
 }
 
-export function setFilters(filters) {
-    setState(StateKeys.FILTERS, filters);
-}
-
 export function getRealtime() {
     return getState(StateKeys.REALTIME);
 }
 
 export function setRealtime(value) {
     setState(StateKeys.REALTIME, Boolean(value));
-}
-
-export function getLayerSettings() {
-    return getState(StateKeys.LAYER_SETTINGS);
-}
-
-export function setLayerSettings(settings) {
-    setState(StateKeys.LAYER_SETTINGS, settings);
-}
-
-export function getSts() {
-    return getState(StateKeys.STS);
-}
-
-export function setSts(date) {
-    setState(StateKeys.STS, date);
-}
-
-export function getEts() {
-    return getState(StateKeys.ETS);
-}
-
-export function setEts(date) {
-    setState(StateKeys.ETS, date);
 }
