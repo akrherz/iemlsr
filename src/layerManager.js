@@ -74,17 +74,23 @@ const lsrLookup = {
     "Z": "/lsr/icons/blizzard.png"
 };
 
+// Base widths for warning polygon lines (these maintain the ratio between lines)
+const BASE_OUTER_WIDTH = 4.5;
+const BASE_INNER_WIDTH = 3;
+const WIDTH_RATIO = BASE_INNER_WIDTH / BASE_OUTER_WIDTH;  // Maintain ratio between lines
+let lineWidthScale = 1.0;  // Will be controlled by the slider
+
 // Default styles
 const sbwStyle = [new Style({
     stroke: new Stroke({
         color: '#000',
-        width: 4.5
+        width: BASE_OUTER_WIDTH
     }),
     zIndex: undefined  // Will be set dynamically
 }), new Style({
     stroke: new Stroke({
         color: '#319FD3',
-        width: 3
+        width: BASE_INNER_WIDTH
     }),
     zIndex: undefined  // Will be set dynamically
 })];
@@ -342,4 +348,24 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
         sbwLayer.changed();
     });
     return sbwLayer;
+}
+
+/**
+ * Update the line width of Storm Based Warning polygons
+ * @param {number} scale - Scale factor from 0.1 to 10 for line width
+ */
+/**
+ * Update the line width of Storm Based Warning polygons
+ * @param {number} scale - Scale value from 0-100 from the slider
+ */
+export function updateSBWLineWidth(scale) {
+    // Convert 0-100 range to 0.1-10 range logarithmically
+    lineWidthScale = Math.exp(Math.log(0.1) + (Math.log(10) - Math.log(0.1)) * (scale / 100));
+    const outerWidth = BASE_OUTER_WIDTH * lineWidthScale;
+    
+    sbwStyle[0].getStroke().setWidth(outerWidth);
+    sbwStyle[1].getStroke().setWidth(outerWidth * WIDTH_RATIO);  // Maintain ratio
+    if (sbwLayer) {
+        sbwLayer.changed();  // Trigger redraw
+    }
 }
