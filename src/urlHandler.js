@@ -32,7 +32,6 @@ export function migrateHashToParams() {
     if (ids.length > 0 && ids[0] !== "") {
         params.set("by", by);
         params.set(by, tokens[0]);
-        console.log(params);
     }
     
     // Handle time parameters
