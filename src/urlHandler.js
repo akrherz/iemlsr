@@ -15,9 +15,6 @@ export function migrateHashToParams() {
     
     // Remove the # character
     const tokens = hash.substring(1).split("/");
-    if (tokens.length < 2) {
-        return;
-    }
     
     // Parse components from hash
     const ids = tokens[0].split(",");
