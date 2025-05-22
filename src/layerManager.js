@@ -6,16 +6,30 @@ import { lsrtable, sbwtable } from './tableManager.js';
 import { updateURL } from './urlHandler.js';
 import { iemdata } from './iemdata.js';
 // Lookup tables for styling
+// Define warning type priorities and colors
 const sbwLookup = {
-    "TO": '#FF0000',
-    "MA": 'purple',
-    "FF": 'green',
-    "EW": 'green',
-    "FA": 'green',
-    "FL": 'green',
-    "SV": 'yellow',
-    "SQ": "#C71585",
-    "DS": "#FFE4C4"
+    "TO": '#FF0000',    // Tornado Warning (highest priority)
+    "SV": 'yellow',     // Severe Thunderstorm Warning
+    "FF": 'green',      // Flash Flood Warning
+    "MA": 'purple',     // Marine Warning
+    "EW": 'green',      // Extreme Wind Warning
+    "FA": 'green',      // Flood Advisory
+    "FL": 'green',      // Flood Warning
+    "SQ": "#C71585",    // Snow Squall Warning
+    "DS": "#FFE4C4"     // Dust Storm Warning
+};
+
+// Priority order for warning types (higher index = higher priority)
+const sbwPriority = {
+    "TO": 1000,  // Tornado (highest)
+    "SV": 900,   // Severe Thunderstorm
+    "FF": 800,   // Flash Flood
+    "EW": 700,   // Extreme Wind
+    "SQ": 600,   // Snow Squall
+    "DS": 500,   // Dust Storm
+    "MA": 400,   // Marine
+    "FA": 300,   // Flood Advisory
+    "FL": 200    // Flood
 };
 
 const lsrLookup = {
@@ -65,12 +79,14 @@ const sbwStyle = [new Style({
     stroke: new Stroke({
         color: '#000',
         width: 4.5
-    })
+    }),
+    zIndex: undefined  // Will be set dynamically
 }), new Style({
     stroke: new Stroke({
         color: '#319FD3',
         width: 3
-    })
+    }),
+    zIndex: undefined  // Will be set dynamically
 })];
 
 const lsrStyle = new Style({
@@ -259,9 +275,16 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
             if (feature.hidden === true) {
                 return new Style();
             }
-            const color = sbwLookup[feature.get('phenomena')];
+            const phenomena = feature.get('phenomena');
+            const color = sbwLookup[phenomena];
             if (color === undefined) return sbwStyle;
+            
+            // Set the color and zIndex based on priority
+            const zIndex = sbwPriority[phenomena] || 100; // Default priority 100 for unknown types
+            sbwStyle[0].setZIndex(zIndex);
+            sbwStyle[1].setZIndex(zIndex + 1);
             sbwStyle[1].getStroke().setColor(color);
+            
             return sbwStyle;
         }
     });
