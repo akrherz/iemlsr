@@ -23,9 +23,9 @@ export function buildRequestOptions() {
         ets: etsTime.toISOString()
     };
     if (by === "state") {
-        opts.states = states.length ? encodeURIComponent(states.join(",")) : "";
+        opts.states = states.length ? states.join(",") : "";
     } else {
-        opts.wfos = wfos.length ? encodeURIComponent(wfos.join(",")) : "";
+        opts.wfos = wfos.length ? wfos.join(",") : "";
     }
     return opts;
 }
