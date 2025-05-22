@@ -137,32 +137,6 @@ export function getSBWLayer() {
     return sbwLayer;
 }
 
-/**
- * Helper function to get selected values from a select element
- * @param {HTMLSelectElement} selectElement 
- * @returns {string[]} Array of selected values
- */
-function getSelectedValues(selectElement) {
-    return Array.from(selectElement.selectedOptions).map(option => option.value);
-}
-
-/**
- * Helper function to set selected values on a select element
- * @param {HTMLSelectElement} selectElement 
- * @param {string[]} values 
- */
-function setSelectedValues(selectElement, values) {
-    // Clear current selections
-    selectElement.querySelectorAll('option').forEach(option => option.selected = false);
-    // Set new selections
-    values.forEach(value => {
-        const option = selectElement.querySelector(`option[value="${value}"]`);
-        if (option) option.selected = true;
-    });
-    // Dispatch change event
-    selectElement.dispatchEvent(new Event('change'));
-}
-
 // Track if we should use icons instead of magnitude for LSR labels
 let useLSRIcons = false;
 
