@@ -58,7 +58,8 @@ function createBaseLayers() {
                 title: 'Stadia Maps Alidade Smooth',
                 source: new StadiaMaps({
                     layer: 'alidade_smooth_dark',
-                    retina: true
+                    retina: true,
+		    apiKey: '72baaf91-97a2-49cd-aa31-ba5c5e48f63b'
                 }),
             }),
             new TileLayer({
