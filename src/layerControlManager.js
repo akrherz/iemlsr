@@ -15,7 +15,6 @@ export function initializeLayerControls(map) {
         baseLayers.forEach((layer, index) => {
             layer.setVisible(index === baseLayerSelect.selectedIndex);
         });
-        updateURL();
     });
 
     // Layer visibility toggles
