@@ -12,7 +12,13 @@ let n0q = null;
 let statesLayer = null;
 let countiesLayer = null;
 
-export { n0q };
+/**
+ * Get the N0Q layer instance
+ * @returns {TileLayer} The N0Q layer
+ */
+export function getN0QLayer() {
+    return n0q;
+}
 
 /**
  * Get the states layer instance
@@ -141,11 +147,11 @@ export function initializeMap() {
  */
 export function getRADARSource(dt) {
     // Format the date to the required format (YYYY-mm-dd-HHMM)
-    const dateStr = dt.getUTCFullYear() +
+    const dateStr = `${dt.getUTCFullYear()}` +
         `${String(dt.getUTCMonth() + 1).padStart(2, '0')}` +
         `${String(dt.getUTCDate()).padStart(2, '0')}` +
         `${String(dt.getUTCHours()).padStart(2, '0')}` +
-        String(dt.getUTCMinutes()).padStart(2, '0');
+        `${String(dt.getUTCMinutes()).padStart(2, '0')}`;
 
     return new XYZ({
         url: `https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/ridge::USCOMP-N0Q-${dateStr}/{z}/{x}/{y}.png`

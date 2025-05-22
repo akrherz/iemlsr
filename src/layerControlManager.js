@@ -1,4 +1,4 @@
-import { n0q, getStatesLayer, getCountiesLayer } from './mapManager.js';
+import { getN0QLayer, getStatesLayer, getCountiesLayer } from './mapManager.js';
 import { getLSRLayer, getSBWLayer, setLSRIconMode } from './layerManager.js';
 import { updateURL } from './urlHandler.js';
 
@@ -19,14 +19,14 @@ export function initializeLayerControls(map) {
     });
 
     // Layer visibility toggles
-    setupLayerToggle('layer-nexrad', n0q);
+    setupLayerToggle('layer-nexrad', getN0QLayer());
     setupLayerToggle('layer-states', getStatesLayer());
     setupLayerToggle('layer-counties', getCountiesLayer());
     setupLayerToggle('layer-lsr', getLSRLayer());
     setupLayerToggle('layer-sbw', getSBWLayer());
 
     // Layer opacity controls
-    setupOpacityControl('nexrad-opacity', n0q);
+    setupOpacityControl('nexrad-opacity', getN0QLayer());
     setupOpacityControl('lsr-opacity', getLSRLayer());
     setupOpacityControl('sbw-opacity', getSBWLayer());
 

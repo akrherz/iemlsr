@@ -192,8 +192,8 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
             feat.hidden = false;
         });
         // Filter out the map too
-        lsrtable.rows({ "search": "removed" }).forEach((row) => {
-            lsrLayer.getSource().getFeatureById(row.data().id).hidden = true;
+        lsrtable.rows({ "search": "removed" }).every(function() { // Fastest and needs this
+            lsrLayer.getSource().getFeatureById(this.row.data().id).hidden = true;
         });
         lsrLayer.changed();
     });
@@ -313,7 +313,7 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
             feat.hidden = false;
         });
         // Filter out the map too
-        sbwtable.rows({ "search": "removed" }).forEach((row) => {
+        sbwtable.rows({ "search": "removed" }).every(function() { // Fastest and needs this
             sbwLayer.getSource().getFeatureById(row.data().id).hidden = true;
         });
         sbwLayer.changed();

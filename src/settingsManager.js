@@ -1,4 +1,4 @@
-import { n0q, getStatesLayer, getCountiesLayer } from "./mapManager";
+import { getN0QLayer, getStatesLayer, getCountiesLayer } from "./mapManager";
 import { getLSRLayer, getSBWLayer, setLSRIconMode } from "./layerManager";
 import { getState, setState, StateKeys } from "./state";
 
@@ -9,7 +9,7 @@ import { getState, setState, StateKeys } from "./state";
 export function generateSettings() {
     const realtime = getState(StateKeys.REALTIME);
     let res = "";
-    res += (n0q.getVisible() ? "1" : "0");
+    res += (getN0QLayer().getVisible() ? "1" : "0");
     res += (getLSRLayer().getVisible() ? "1" : "0");
     res += (getSBWLayer().getVisible() ? "1" : "0");
     res += (realtime ? "1" : "0");
@@ -25,7 +25,7 @@ export function generateSettings() {
  */
 export function applySettings(opts) {
     if (opts[0] !== undefined) { // Show RADAR
-        n0q.setVisible(opts[0] === "1");
+        getN0QLayer().setVisible(opts[0] === "1");
     }
     if (opts[1] !== undefined) { // Show LSRs
         getLSRLayer().setVisible(opts[1] === "1");
