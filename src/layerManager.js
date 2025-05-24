@@ -65,6 +65,7 @@ const lsrLookup = {
     "q": "/lsr/icons/downburst.png",
     "Q": "/lsr/icons/tropicalstorm.gif",
     "s": "/lsr/icons/sleet.png",
+    "R": "/lsr/icons/heavyrain.png",
     "T": "/lsr/icons/tornado.png",
     "U": "/lsr/icons/fire.png",
     "V": "/lsr/icons/avalanche.gif",
