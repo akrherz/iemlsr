@@ -170,8 +170,8 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
                 return textStyle;
             }
             
-            // Use icons for everything else
-            const url = lsrLookup[typ];
+            // Use icons for everything else, default to '9' if type is unknown
+            const url = lsrLookup[typ] || lsrLookup['9'];
             if (url) {
                 const icon = new Icon({
                     src: url
