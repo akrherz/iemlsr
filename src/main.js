@@ -18,12 +18,13 @@ import { initializeUI } from './uiManager.js';
 import { initializeLSRTable, initializeSBWTable } from './tableManager.js';
 import { initializeFilters } from './filterManager.js';
 import { initializeExportHandlers } from './exportManager.js';
-import { setState, StateKeys } from './state.js';
+import { setState, StateKeys, getState } from './state.js';
 import { loadData } from './dataManager.js';
 import { initializeLayerControls } from './layerControlManager.js';
 import { startCronTasks } from './cronManager.js';
 import { initializeRightPane } from './rightPaneManager.js';
 import { initializeTabs } from './tabs.js';
+import { applySettings } from './settingsManager.js';
 
 function initializeApplication() {
     // First migrate any hash parameters to URL parameters
@@ -57,6 +58,13 @@ function initializeApplication() {
     olmap.addLayer(createSBWLayer("tfe"));
 
     initializeLayerControls(olmap);
+
+    // Apply URL-based settings after all layers and controls are initialized
+    // This ensures settings from URL parameters are properly applied at page load
+    const initialSettings = getState(StateKeys.LAYER_SETTINGS);
+    if (initialSettings) {
+        applySettings(initialSettings);
+    }
 
     // Start the realtime cron tasks
     startCronTasks();
