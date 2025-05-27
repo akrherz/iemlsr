@@ -114,21 +114,31 @@ export function setupTimeEventHandlers(stsInput, etsInput, realtime) {
 
     // Handle value changes
     stsInput.addEventListener('change', (event) => {
-        if (realtime) return;
+        if (realtime) {
+            return;
+        }
         // Ensure end time is not before start time
-        const newStartDate = new Date(event.target.value);
-        setState(StateKeys.STS, newStartDate);
-        // Highlight inputs to indicate changes need to be loaded
-        inputs.forEach(input => input.classList.add('input-changed'));
+        const target = event.target;
+        if (target instanceof HTMLInputElement) {
+            const newStartDate = new Date(target.value);
+            setState(StateKeys.STS, newStartDate);
+            // Highlight inputs to indicate changes need to be loaded
+            inputs.forEach(input => input.classList.add('input-changed'));
+        }
     });
     
     etsInput.addEventListener('change', (event) => {
-        if (realtime) return;
+        if (realtime) {
+            return;
+        }
         // Ensure start time is not after end time
-        const newEndDate = new Date(event.target.value);
-        setState(StateKeys.ETS, newEndDate);
-        // Highlight inputs to indicate changes need to be loaded
-        inputs.forEach(input => input.classList.add('input-changed'));
+        const target = event.target;
+        if (target instanceof HTMLInputElement) {
+            const newEndDate = new Date(target.value);
+            setState(StateKeys.ETS, newEndDate);
+            // Highlight inputs to indicate changes need to be loaded
+            inputs.forEach(input => input.classList.add('input-changed'));
+        }
     });
 }
 

@@ -16,3 +16,5 @@ This repo is a single page app / dashboard for NWS Local Storm Reports.
 4. After making a change, an audit of the code should be performed to ensure
    that all variables are defined, there are no unused variables, and that
    there are no unused ES Module imports.
+5. After making a change, tests should be generated to ensure that all modified
+   code is covered by tests.

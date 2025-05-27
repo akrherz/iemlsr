@@ -1,7 +1,7 @@
 
 /**
  * Update the branding overlay with the given title.
- * @param {text} title 
+ * @param {string} title 
  */
 export function updateBrandingOverlay(title) {
     const brandingOverlay = document.getElementById('branding-overlay');

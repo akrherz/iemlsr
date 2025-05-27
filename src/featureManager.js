@@ -5,7 +5,7 @@ import { toLocaleString } from './timeUtils.js';
 
 /**
  * Creates HTML for LSR feature popup
- * @param {import("ol").Feature} feature OpenLayers feature object
+ * @param {*} data OpenLayers feature object
  * @returns {string} HTML content
  */
 export function formatLSR(data) {
@@ -99,12 +99,18 @@ export function lsrHTML(feature) {
  * Handles click events on Storm Based Warning features
  * @param {import("ol").Feature} feature OpenLayers feature object
  * @param {import("ol").Map} map OpenLayers map object
- * @param {DataTable} sbwtable SBW DataTable instance
+ * @param {*} sbwtable SBW DataTable instance
  */
 export function handleSBWClick(feature, map, sbwtable) {
     removeAllPopups(map);
     const content = formatSBW(feature);
-    const coordinates = feature.getGeometry().getFirstCoordinate();
+    const geom = feature.getGeometry();
+    if (!geom) {
+        console.warn("SBW feature has no geometry, cannot create popup");
+        return;
+    }
+    // @ts-ignore
+    const coordinates = geom.getFirstCoordinate();
     createPopup(content, coordinates, map);
 
     // Update table selection
@@ -123,13 +129,16 @@ export function handleSBWClick(feature, map, sbwtable) {
  * Handles click events on LSR features
  * @param {import("ol").Feature} feature OpenLayers feature object
  * @param {import("ol").Map} map OpenLayers map object
- * @param {DataTable} lsrtable LSR DataTable instance
+ * @param {*} lsrtable LSR DataTable instance
  */
 export function handleLSRClick(feature, map, lsrtable) {
-    if (feature.get('magnitude') === undefined) return;
+    if (feature.get('magnitude') === undefined) {
+        return;
+    }
     
     removeAllPopups(map);
     const content = lsrHTML(feature);
+    // @ts-ignore
     const coordinates = feature.getGeometry().getCoordinates();
     createPopup(content, coordinates, map);
 

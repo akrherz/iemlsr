@@ -46,7 +46,7 @@ export function initializeUI() {
     // Initialize time slider
     initializeTimeSlider('timeslider', (dt) => {
         getN0QLayer()?.setSource(getRADARSource(dt));
-        updateBrandingOverlay(`IEM LSR App: RADAR: ${toLocaleString(dt)}`)
+        updateBrandingOverlay(`IEM LSR App: RADAR: ${toLocaleString(dt)}`);
     });
 
     // Handle realtime toggle

@@ -14,8 +14,9 @@ export { lsrtable, sbwtable };
 
 /**
  * Initialize the LSR DataTable
- * @param {HTMLElement} lsrtableEl - The table element 
- * @returns {DataTable} Initialized DataTable instance
+ * @param {string} TABLE_FILTERED_EVENT - Event to dispatch when table is filtered
+ * @param {HTMLElement} lsrtableEl - The table element
+ * @param {import('ol/Map').default} olmap - OpenLayers map instance 
  */
 export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl, olmap) {
     // Destroy existing table if it exists
@@ -59,15 +60,22 @@ export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl, olmap) {
     });
 
     lsrtable.on("search.dt", () => {
-        getLSRLayer().dispatchEvent(TABLE_FILTERED_EVENT)
+        getLSRLayer().dispatchEvent(TABLE_FILTERED_EVENT);
     });
 
     if (lsrtableEl) {
         const tbody = lsrtableEl.querySelector('tbody');
         if (tbody) {
             tbody.addEventListener('click', (event) => {
-                const td = event.target.closest('td');
-                if (!td) return;
+                const target = event.target;
+                if (!(target instanceof HTMLTableCellElement)) {
+                    // If the clicked element is not a table cell, exit
+                    return;
+                }
+                const td = target.closest('td');
+                if (!td) {
+                    return;
+                }
                 const tr = td.closest('tr');
                 const row = lsrtable.row(tr);
                 // Zoom to the selected feature
@@ -90,9 +98,9 @@ export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl, olmap) {
 
 /**
  * Initialize the SBW DataTable
+ * @param {string} TABLE_FILTERED_EVENT - Event to dispatch when table is filtered
  * @param {HTMLElement} sbwtableEl - The table element
- * @param {Function} onSearch - Callback for search events
- * @returns {DataTable} Initialized DataTable instance
+ * @param {import('ol/Map').default} olmap - OpenLayers map instance
  */
 export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl, olmap) {
     // Destroy existing table if it exists
@@ -159,8 +167,15 @@ export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl, olmap) {
         const tbody = sbwtableEl.querySelector('tbody');
         if (tbody) {
             tbody.addEventListener('click', (event) => {
-                const td = event.target.closest('td');
-                if (!td) return;
+                const target = event.target;
+                if (!(target instanceof HTMLTableCellElement)) {
+                    // If the clicked element is not a table cell, exit
+                    return;
+                }
+                const td = target.closest('td');
+                if (!td) {
+                    return;
+                }
                 const tr = td.closest('tr');
                 const row = sbwtable.row(tr);
                 // Zoom to the selected feature
@@ -173,6 +188,6 @@ export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl, olmap) {
         }
     }
     sbwtable.on("search.dt", () => {
-        getSBWLayer().dispatchEvent(TABLE_FILTERED_EVENT)
+        getSBWLayer().dispatchEvent(TABLE_FILTERED_EVENT);
     });
 }

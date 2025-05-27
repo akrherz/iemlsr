@@ -1,6 +1,7 @@
 import { getN0QLayer, getStatesLayer, getCountiesLayer } from "./mapManager";
 import { getLSRLayer, getSBWLayer, setLSRIconMode } from "./layerManager";
 import { getState, setState, StateKeys } from "./state";
+import { requireInputElement } from "./domUtils";
 
 /**
  * Generate settings string based on layer visibility
@@ -15,7 +16,7 @@ export function generateSettings() {
     res += (realtime ? "1" : "0");
     res += (getStatesLayer().getVisible() ? "1" : "0");
     res += (getCountiesLayer().getVisible() ? "1" : "0");
-    res += (document.getElementById("lsr-label-mode").checked ? "1" : "0");
+    res += (requireInputElement("lsr-label-mode").checked ? "1" : "0");
     return res;
 }
 
@@ -35,7 +36,7 @@ export function applySettings(opts) {
     }
     if (opts[3] === "1") { // Realtime
         setState(StateKeys.REALTIME, true);
-        document.getElementById("realtime").checked = true;
+        requireInputElement("realtime").checked = true;
     }
     if (opts[4] !== undefined) {
         getStatesLayer().setVisible(opts[4] === "1");
@@ -45,7 +46,7 @@ export function applySettings(opts) {
     }
     if (opts[6] !== undefined) { // LSR Label Mode
         const useLSRIcons = opts[6] === "1";
-        document.getElementById("lsr-label-mode").checked = useLSRIcons;
+        requireInputElement("lsr-label-mode").checked = useLSRIcons;
         setLSRIconMode(useLSRIcons);
     }
 }
