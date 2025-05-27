@@ -17,12 +17,12 @@ const BASE_CONFIG = {
 
 /**
  * Initialize the LSR type filter
- * @param {HTMLElement} element - The select element to transform
+ * @param {string} divid - The select element to transform
  * @param {object} lsrtable - DataTable instance for LSRs
  * @returns {TomSelect} Initialized tom-select instance
  */
-export function initializeLSRTypeFilter(element, lsrtable) {
-    const filter = new TomSelect(element, {
+function initializeLSRTypeFilter(divid, lsrtable) {
+    const filter = new TomSelect(divid, {
         ...BASE_CONFIG,
         placeholder: "Filter LSRs by Event Type",
         maxItems: null, // Allow multiple selections
@@ -30,7 +30,11 @@ export function initializeLSRTypeFilter(element, lsrtable) {
 
     filter.on('change', () => {
         const vals = filter.getValue();
-        const val = vals.length ? vals.join("|") : null;
+        let val = null;
+        if (vals instanceof Array) {
+            // Join selected values with pipe for regex matching
+            val = vals.join("|");
+        }
         lsrtable.column(3).search(val ? `^${val}$` : '', true, false).draw();
         setState(StateKeys.LSR_TYPES, vals);
     });
@@ -40,12 +44,12 @@ export function initializeLSRTypeFilter(element, lsrtable) {
 
 /**
  * Initialize the SBW type filter
- * @param {HTMLElement} element - The select element to transform
+ * @param {string} divid - The select element to transform
  * @param {object} sbwtable - DataTable instance for SBWs
  * @returns {TomSelect} Initialized tom-select instance
  */
-export function initializeSBWTypeFilter(element, sbwtable) {
-    const filter = new TomSelect(element, {
+function initializeSBWTypeFilter(divid, sbwtable) {
+    const filter = new TomSelect(divid, {
         ...BASE_CONFIG,
         placeholder: "Filter SBWs by Event Type",
         maxItems: null, // Allow multiple selections
@@ -53,7 +57,11 @@ export function initializeSBWTypeFilter(element, sbwtable) {
 
     filter.on('change', () => {
         const vals = filter.getValue();
-        const val = vals.length ? vals.join("|") : null;
+        let val = null;
+        if (vals instanceof Array) {
+            // Join selected values with pipe for regex matching
+            val = vals.join("|");
+        }
         sbwtable.column(3).search(val ? `^${val}$` : '', true, false).draw();
         setState(StateKeys.SBW_TYPES, vals);
     });
@@ -63,13 +71,13 @@ export function initializeSBWTypeFilter(element, sbwtable) {
 
 /**
  * Initialize a location select (WFO or State)
- * @param {HTMLElement} element - The select element to transform
+ * @param {string} divid - The select element to transform
  * @param {Array<Array<string>>} data - Array of [value, text] pairs for options
  * @param {string} filterType - Type of filter (wfo or state)
  * @returns {TomSelect} Initialized tom-select instance
  */
-export function initializeLocationSelect(element, data, filterType) {
-    const select = new TomSelect(element, {
+function initializeLocationSelect(divid, data, filterType) {
+    const select = new TomSelect(divid, {
         ...BASE_CONFIG,
         maxItems: null,
         render: {
@@ -108,7 +116,7 @@ function initializeFilterTypeHandlers() {
     radioButtons.forEach(radio => {
         radio.addEventListener('change', (e) => {
             const isByState = e.target.value === 'state';
-            setState(StateKeys.BY_STATE, isByState);            
+            setState(StateKeys.BY_STATE, isByState);
         });
     });
 }
@@ -120,24 +128,24 @@ function initializeFilterTypeHandlers() {
 export function initializeFilters() {
     // Initialize LSR and SBW type filters
     const lsrtypefilter = initializeLSRTypeFilter(
-        document.getElementById('lsrtypefilter'),
+        '#lsrtypefilter',
         lsrtable
     );
 
     const sbwtypefilter = initializeSBWTypeFilter(
-        document.getElementById('sbwtypefilter'),
+        '#sbwtypefilter',
         sbwtable
     );
 
     // Initialize location selectors
     const wfoSelect = initializeLocationSelect(
-        document.getElementById('wfo'),
+        '#wfo',
         iemdata.wfos,
         'wfo'
     );
 
     const stateSelect = initializeLocationSelect(
-        document.getElementById('state'),
+        '#state',
         iemdata.states,
         'state'
     );
