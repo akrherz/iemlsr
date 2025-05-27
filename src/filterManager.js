@@ -18,10 +18,9 @@ const BASE_CONFIG = {
 /**
  * Initialize the LSR type filter
  * @param {string} divid - The select element to transform
- * @param {object} lsrtable - DataTable instance for LSRs
  * @returns {TomSelect} Initialized tom-select instance
  */
-function initializeLSRTypeFilter(divid, lsrtable) {
+function initializeLSRTypeFilter(divid) {
     const filter = new TomSelect(divid, {
         ...BASE_CONFIG,
         placeholder: "Filter LSRs by Event Type",
@@ -45,10 +44,9 @@ function initializeLSRTypeFilter(divid, lsrtable) {
 /**
  * Initialize the SBW type filter
  * @param {string} divid - The select element to transform
- * @param {object} sbwtable - DataTable instance for SBWs
  * @returns {TomSelect} Initialized tom-select instance
  */
-function initializeSBWTypeFilter(divid, sbwtable) {
+function initializeSBWTypeFilter(divid) {
     const filter = new TomSelect(divid, {
         ...BASE_CONFIG,
         placeholder: "Filter SBWs by Event Type",
@@ -81,8 +79,8 @@ function initializeLocationSelect(divid, data, filterType) {
         ...BASE_CONFIG,
         maxItems: null,
         render: {
-            item: (data) => `<div>[${data.value}] ${data.text}</div>`,
-            option: (data) => `<div>[${data.value}] ${data.text}</div>`
+            item: (ldata) => `<div>[${ldata.value}] ${ldata.text}</div>`,
+            option: (ldata) => `<div>[${ldata.value}] ${ldata.text}</div>`
         }
     });
 
@@ -109,14 +107,19 @@ function initializeFilterTypeHandlers() {
 
     // Set initial radio button state
     radioButtons.forEach(radio => {
-        radio.checked = (radio.value === 'state') === byState;
+        if (radio instanceof HTMLInputElement) {
+            radio.checked = (radio.value === 'state') === byState;
+        }
     });
     
     // Add change event handlers
     radioButtons.forEach(radio => {
         radio.addEventListener('change', (e) => {
-            const isByState = e.target.value === 'state';
-            setState(StateKeys.BY_STATE, isByState);
+            const target = e.target;
+            if (target instanceof HTMLInputElement) {
+                const isByState = target.value === 'state';
+                setState(StateKeys.BY_STATE, isByState);
+            }
         });
     });
 }
@@ -127,15 +130,9 @@ function initializeFilterTypeHandlers() {
  */
 export function initializeFilters() {
     // Initialize LSR and SBW type filters
-    const lsrtypefilter = initializeLSRTypeFilter(
-        '#lsrtypefilter',
-        lsrtable
-    );
+    const lsrtypefilter = initializeLSRTypeFilter('#lsrtypefilter');
 
-    const sbwtypefilter = initializeSBWTypeFilter(
-        '#sbwtypefilter',
-        sbwtable
-    );
+    const sbwtypefilter = initializeSBWTypeFilter('#sbwtypefilter');
 
     // Initialize location selectors
     const wfoSelect = initializeLocationSelect(
