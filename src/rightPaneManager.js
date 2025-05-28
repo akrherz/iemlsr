@@ -97,7 +97,7 @@ export function initializeRightPane() {
             
             // Update content visibility
             const htmlBtn = /** @type {HTMLElement} */ (btn);
-            const tabId = htmlBtn.dataset.tab + '-tab';
+            const tabId = `${htmlBtn.dataset.tab}-tab`;
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
@@ -117,12 +117,12 @@ export function initializeRightPane() {
         
         if (e.matches) {
             // Mobile view - start collapsed
-            container.hide?.() || container.removeAttribute('open');
+            container.hide();
             map.classList.remove('with-right-pane');
             toggle.textContent = '▲';  // Point up when closed on mobile
         } else {
             // Desktop view - start expanded
-            container.show?.() || container.setAttribute('open', '');
+            container.show();
             map.classList.add('with-right-pane');
             toggle.textContent = '▶';  // Point right when open on desktop
         }

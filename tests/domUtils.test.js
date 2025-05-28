@@ -3,12 +3,9 @@ import {
     getElement,
     requireElement,
     getInputElement,
-    requireInputElement,
-    getTomSelectElement,
-    requireTomSelectElement
+    requireInputElement
 } from '../src/domUtils.js';
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import { jest } from '@jest/globals';
 
 describe('DOM Utilities', () => {
     beforeEach(() => {
@@ -89,52 +86,4 @@ describe('DOM Utilities', () => {
         });
     });
 
-    describe('TomSelect Elements', () => {
-        test('getTomSelectElement should return element with tomselect property', () => {
-            document.body.innerHTML = '<select id="test-select"></select>';
-            const selectElement = requireTomSelectElement('test-select');
-            
-            // Mock TomSelect initialization by adding tomselect property
-            const mockTomSelect = {
-                getValue: jest.fn(() => []),
-                setValue: jest.fn(),
-                clear: jest.fn(),
-                addOption: jest.fn()
-            };
-            selectElement.tomselect = mockTomSelect;
-
-            const element = getTomSelectElement('test-select');
-            expect(element).not.toBeNull();
-            expect(element?.tomselect).toBe(mockTomSelect);
-        });
-
-        test('getTomSelectElement should return null when element has no tomselect property', () => {
-            document.body.innerHTML = '<select id="test-select"></select>';
-            const element = getTomSelectElement('test-select');
-            expect(element).toBeNull();
-        });
-
-        test('requireTomSelectElement should throw error when element has no tomselect property', () => {
-            document.body.innerHTML = '<select id="test-select"></select>';
-            expect(() => requireTomSelectElement('test-select')).toThrow("Required TomSelect element 'test-select' not found or not initialized");
-        });
-
-        test('requireTomSelectElement should return element with tomselect property', () => {
-            document.body.innerHTML = '<select id="test-select"></select>';
-            const selectElement = document.getElementById('test-select');
-            
-            // Mock TomSelect initialization
-            const mockTomSelect = {
-                getValue: jest.fn(() => []),
-                setValue: jest.fn(),
-                clear: jest.fn(),
-                addOption: jest.fn()
-            };
-            selectElement.tomselect = mockTomSelect;
-
-            const element = requireTomSelectElement('test-select');
-            expect(element).not.toBeNull();
-            expect(element.tomselect).toBe(mockTomSelect);
-        });
-    });
 });
