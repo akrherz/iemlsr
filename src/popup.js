@@ -40,10 +40,7 @@ export function createPopup(content, coordinates, map) {
         position: coordinates,
         positioning: 'bottom-center',
         offset: [0, -15],
-        autoPan: true,
-        autoPanAnimation: {
-            duration: 250
-        }
+        autoPan: true
     });
 
     // Make draggable
@@ -113,12 +110,14 @@ function makeDraggable(element, popup) {
         // Get current position
         const position = popup.getPosition();
         const map = popup.getMap();
-        const pixel = map.getPixelFromCoordinate(position);
-        
-        // Update position
-        const newPixel = [pixel[0] - pos1, pixel[1] - pos2];
-        const newPosition = map.getCoordinateFromPixel(newPixel);
-        popup.setPosition(newPosition);
+        if (map && position) {
+            const pixel = map.getPixelFromCoordinate(position);
+            
+            // Update position
+            const newPixel = [pixel[0] - pos1, pixel[1] - pos2];
+            const newPosition = map.getCoordinateFromPixel(newPixel);
+            popup.setPosition(newPosition);
+        }
     }
 
     function closeDragElement() {

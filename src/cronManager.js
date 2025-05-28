@@ -6,10 +6,16 @@ import { loadData } from './dataManager.js';
  */
 export function cronMinute() {
     const realtime = getState(StateKeys.REALTIME);
-    if (!realtime) return;
+    if (!realtime) {
+        return;
+    }
     
     const now = new Date();
     const seconds = getState(StateKeys.SECONDS);
+    if (typeof seconds !== 'number' || seconds <= 0) {
+        console.error('Invalid seconds value in state:', seconds);
+        return;
+    }
     const fourHoursAgo = new Date(now.getTime() - seconds * 1000);
     
     // Update state with new times

@@ -1,13 +1,31 @@
+const js = require("@eslint/js");
+const globals = require("globals");
+
 module.exports = [
     {
+        ignores: ["tests/**", "dist/**"]
+    },
+    js.configs.recommended,
+    {
         files: ["**/*.js"],
-        languageOptions: {
+        languageOptions:{
+            ecmaVersion: "latest",
+            sourceType: "module",
             globals: {
-                "jQuery": false,
-                "ol": false,
-                "iemdata": false,
-                "google": false
+                ...globals.browser,
+                ...globals.node
             }
+        }
+    },
+    {
+        rules: {
+            "curly": ["error", "all"],
+            "dot-notation": "error",
+            "eqeqeq": "error",
+            "no-eval": "error",
+            "no-var": "error",
+            "prefer-const": "error",
+            "semi": "error"
         }
     }
 ];

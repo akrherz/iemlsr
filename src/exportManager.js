@@ -1,5 +1,6 @@
 import { getShapefileDateParams } from './timeUtils.js';
 import { buildRequestOptions } from './optionsManager.js';
+import { requireElement, requireInputElement } from './domUtils.js';
 
 
 /**
@@ -10,7 +11,7 @@ import { buildRequestOptions } from './optionsManager.js';
  */
 function getShapefileLink(base, filters) {
     const params = new URLSearchParams();
-    const byStateRadio = document.querySelector('input[type=radio][name=by][value=state]');
+    const byStateRadio = requireInputElement('input[type=radio][name=by][value=state]');
     const by = byStateRadio.checked ? 'state' : 'wfo';
     const selectedWFOs = filters.wfoSelect.getValue();
     const selectedStates = filters.stateSelect.getValue();
@@ -25,24 +26,24 @@ function getShapefileLink(base, filters) {
         });
     }
 
-    const stsElement = document.getElementById("sts");
-    const etsElement = document.getElementById("ets");
+    const stsElement = requireInputElement("sts");
+    const etsElement = requireInputElement("ets");
     const sts = new Date(stsElement.value);
     const ets = new Date(etsElement.value);
 
     const stsParams = getShapefileDateParams(sts);
     const etsParams = getShapefileDateParams(ets);
 
-    params.append('year1', stsParams.year);
-    params.append('month1', stsParams.month);
-    params.append('day1', stsParams.day);
-    params.append('hour1', stsParams.hour);
-    params.append('minute1', stsParams.minute);
-    params.append('year2', etsParams.year);
-    params.append('month2', etsParams.month);
-    params.append('day2', etsParams.day);
-    params.append('hour2', etsParams.hour);
-    params.append('minute2', etsParams.minute);
+    params.append('year1', String(stsParams.year));
+    params.append('month1', String(stsParams.month));
+    params.append('day1', String(stsParams.day));
+    params.append('hour1', String(stsParams.hour));
+    params.append('minute1', String(stsParams.minute));
+    params.append('year2', String(etsParams.year));
+    params.append('month2', String(etsParams.month));
+    params.append('day2', String(etsParams.day));
+    params.append('hour2', String(etsParams.hour));
+    params.append('minute2', String(etsParams.minute));
 
     return `https://mesonet.agron.iastate.edu/cgi-bin/request/gis/${base}.py?${params}`;
 }
@@ -52,15 +53,15 @@ function getShapefileLink(base, filters) {
  * @param {object} filters - Filter selections
  */
 export function initializeExportHandlers(filters) {
-    document.getElementById('lsrshapefile').addEventListener('click', () => {
+    requireElement('lsrshapefile').addEventListener('click', () => {
         window.location.href = getShapefileLink("lsr", filters);
     });
 
-    document.getElementById('lsrexcel').addEventListener('click', () => {
+    requireElement('lsrexcel').addEventListener('click', () => {
         window.location.href = `${getShapefileLink("lsr", filters)}&fmt=excel`;
     });
 
-    document.getElementById('lsrkml').addEventListener('click', () => {
+    requireElement('lsrkml').addEventListener('click', () => {
         window.location.href = `${getShapefileLink("lsr", filters)}&fmt=kml`;
     });
 
@@ -83,7 +84,7 @@ export function initializeExportHandlers(filters) {
         }, 2000);
     };
 
-    document.getElementById('lsrgeojson').addEventListener('click', () => {
+    requireElement('lsrgeojson').addEventListener('click', () => {
         const params = new URLSearchParams(buildRequestOptions());
         const url = `https://mesonet.agron.iastate.edu/geojson/lsr.geojson?${params}`;
         // Copy the URL to the clipboard
@@ -94,7 +95,6 @@ export function initializeExportHandlers(filters) {
                 // Show error notification
                 const notification = document.querySelector('.clipboard-notification') || document.createElement('div');
                 notification.className = 'clipboard-notification';
-                notification.style.backgroundColor = '#dc3545'; // Error red color
                 notification.textContent = 'Failed to copy URL to clipboard';
                 document.body.appendChild(notification);
                 notification.classList.add('show');
@@ -104,19 +104,19 @@ export function initializeExportHandlers(filters) {
             });
     });
 
-    document.getElementById('warnshapefile').addEventListener('click', () => {
+    requireElement('warnshapefile').addEventListener('click', () => {
         window.location.href = getShapefileLink("watchwarn", filters);
     });
 
-    document.getElementById('warnexcel').addEventListener('click', () => {
+    requireElement('warnexcel').addEventListener('click', () => {
         window.location.href = `${getShapefileLink("watchwarn", filters)}&accept=excel`;
     });
 
-    document.getElementById('sbwshapefile').addEventListener('click', () => {
+    requireElement('sbwshapefile').addEventListener('click', () => {
         window.location.href = `${getShapefileLink("watchwarn", filters)}&limit1=yes`;
     });
 
-    document.getElementById('sbwgeojson').addEventListener('click', () => {
+    requireElement('sbwgeojson').addEventListener('click', () => {
         const params = new URLSearchParams(buildRequestOptions());
         const url = `https://mesonet.agron.iastate.edu/geojson/sbw.geojson?${params}`;
         // Copy the URL to the clipboard
@@ -127,7 +127,6 @@ export function initializeExportHandlers(filters) {
                 // Show error notification
                 const notification = document.querySelector('.clipboard-notification') || document.createElement('div');
                 notification.className = 'clipboard-notification';
-                notification.style.backgroundColor = '#dc3545';
                 notification.textContent = 'Failed to copy URL to clipboard';
                 document.body.appendChild(notification);
                 notification.classList.add('show');

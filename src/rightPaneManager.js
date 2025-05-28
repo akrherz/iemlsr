@@ -1,13 +1,22 @@
 // Manages the right side pane with LSR and SBW tables
 
 /**
+ * @typedef {import('@shoelace-style/shoelace/dist/components/drawer/drawer.js').default} SlDrawer
+ */
+
+/**
  * Initializes the right pane functionality
  */
 export function initializeRightPane() {
-    const rightContainer = document.getElementById('right-container');
+    // Type assertion to treat the element as a Shoelace drawer component
+    const rightContainer = /** @type {SlDrawer} */ (document.getElementById('right-container'));
     const mapContainer = document.getElementById('map');
     const toggleBtn = document.getElementById('right-pane-toggle');
     const tabBtns = document.querySelectorAll('.tab-btn');
+    if (!rightContainer || !mapContainer || !toggleBtn) {
+        console.error('Required elements for right pane management are missing.');
+        return;
+    }
     const mobileQuery = window.matchMedia('(max-width: 768px)');
 
     // Initial state - start expanded on desktop, collapsed on mobile
@@ -15,12 +24,11 @@ export function initializeRightPane() {
 
     // Set initial state
     if (isMobile) {
-        // Start with panel hidden but ready to slide up
-        rightContainer.hide();  // Use the Shoelace method directly
+        rightContainer.hide();
         mapContainer.classList.remove('with-right-pane');
         toggleBtn.textContent = '▲';
     } else {
-        rightContainer.show();  // Use the Shoelace method directly
+        rightContainer.show();
         mapContainer.classList.add('with-right-pane');
         toggleBtn.textContent = '▶';
     }
@@ -88,26 +96,35 @@ export function initializeRightPane() {
             btn.classList.add('active');
             
             // Update content visibility
-            const tabId = btn.dataset.tab + '-tab';
+            const htmlBtn = /** @type {HTMLElement} */ (btn);
+            const tabId = `${htmlBtn.dataset.tab}-tab`;
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            document.getElementById(tabId).classList.add('active');
+            const tabElement = document.getElementById(tabId);
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
         });
     });
     
     // Handle mobile responsiveness
     function handleMobileChange(e) {
+        // Elements are guaranteed to be non-null due to the check above
+        const container = /** @type {SlDrawer} */ (rightContainer);
+        const map = /** @type {HTMLElement} */ (mapContainer);
+        const toggle = /** @type {HTMLElement} */ (toggleBtn);
+        
         if (e.matches) {
             // Mobile view - start collapsed
-            rightContainer.hide?.() || rightContainer.removeAttribute('open');
-            mapContainer.classList.remove('with-right-pane');
-            toggleBtn.textContent = '▲';  // Point up when closed on mobile
+            container.hide();
+            map.classList.remove('with-right-pane');
+            toggle.textContent = '▲';  // Point up when closed on mobile
         } else {
             // Desktop view - start expanded
-            rightContainer.show?.() || rightContainer.setAttribute('open', '');
-            mapContainer.classList.add('with-right-pane');
-            toggleBtn.textContent = '▶';  // Point right when open on desktop
+            container.show();
+            map.classList.add('with-right-pane');
+            toggle.textContent = '▶';  // Point right when open on desktop
         }
         // Trigger OpenLayers map resize
         window.dispatchEvent(new Event('resize'));

@@ -5,6 +5,7 @@ import VectorSource from 'ol/source/Vector';
 import { lsrtable, sbwtable } from './tableManager.js';
 import { updateURL } from './urlHandler.js';
 import { iemdata } from './iemdata.js';
+import { getTomSelectElement } from './domUtils.js';
 // Lookup tables for styling
 // Define warning type priorities and colors
 const sbwLookup = {
@@ -125,16 +126,24 @@ let sbwLayer = null;
 /**
  * Get the LSR layer instance
  * @returns {VectorLayer} The LSR layer
+ * @throws {Error} If LSR layer is not initialized
  */
 export function getLSRLayer() {
+    if (!lsrLayer) {
+        throw new Error("LSR layer is not initialized. Call createLSRLayer first.");
+    }
     return lsrLayer;
 }
 
 /**
  * Get the SBW layer instance
  * @returns {VectorLayer} The SBW layer
+ * @throws {Error} If SBW layer is not initialized
  */
 export function getSBWLayer() {
+    if (!sbwLayer) {
+        throw new Error("SBW layer is not initialized. Call createSBWLayer first.");
+    }
     return sbwLayer;
 }
 
@@ -150,11 +159,13 @@ export function setLSRIconMode(useIcons) {
 
 export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
     lsrLayer = new VectorLayer({
+        // @ts-ignore
         title: "Local Storm Reports",
         source: new VectorSource({
             format: new GeoJSON()
         }),
         style(feature) {
+            // @ts-ignore
             if (feature.hidden === true) {
                 return new Style();
             }
@@ -163,8 +174,8 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
             
             // If we want to use magnitude and it's available (unless icons are forced)
             if (!useLSRIcons && mag !== "") {
-                textStyle.getText().setText(mag);
-                textStyle.getText().getBackgroundFill().setColor(
+                textStyle.getText()?.setText(mag);
+                textStyle.getText()?.getBackgroundFill()?.setColor(
                     lsrTextBackgroundColor[typ] || 'black'
                 );
                 return textStyle;
@@ -195,7 +206,7 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
         lsrLayer.changed();
     });
 
-    lsrLayer.getSource().on('change', () => {
+    lsrLayer.getSource()?.on('change', () => {
         lsrtable.rows().remove().draw();
         if (lsrLayer.getSource().isEmpty()) {
             return;
@@ -221,8 +232,8 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
         });
         
         // Update LSR type filter
-        const lsrTypeFilter = document.getElementById('lsrtypefilter');
-        if (lsrTypeFilter?.tomselect) {
+        const lsrTypeFilter = getTomSelectElement('lsrtypefilter');
+        if (lsrTypeFilter) {
             const currentSelection = lsrTypeFilter.tomselect.getValue();
             lsrTypeFilter.tomselect.clear();
             lsrTypeFilter.tomselect.clearOptions();
@@ -230,7 +241,7 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
                 lsrTypeFilter.tomselect.addOption({ value: type, text: type });
             });
             // Restore previous selection if options still exist
-            if (currentSelection.length) {
+            if (Array.isArray(currentSelection) && currentSelection.length) {
                 const validSelections = currentSelection.filter(value => types.has(value));
                 if (validSelections.length) {
                     lsrTypeFilter.tomselect.setValue(validSelections);
@@ -245,32 +256,41 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
     return lsrLayer;
 }
 
+/**
+ * 
+ * @param {String} TABLE_FILTERED_EVENT 
+ * @returns 
+ */
 export function createSBWLayer(TABLE_FILTERED_EVENT) {
     sbwLayer = new VectorLayer({
+        // @ts-ignore
         title: "Storm Based Warnings",
         source: new VectorSource({
             format: new GeoJSON()
         }),
         visible: true,
         style(feature) {
+            // @ts-ignore
             if (feature.hidden === true) {
                 return new Style();
             }
             const phenomena = feature.get('phenomena');
             const color = sbwLookup[phenomena];
-            if (color === undefined) return sbwStyle;
+            if (color === undefined) {
+                return sbwStyle;
+            }
             
             // Set the color and zIndex based on priority
             const zIndex = sbwPriority[phenomena] || 100; // Default priority 100 for unknown types
             sbwStyle[0].setZIndex(zIndex);
             sbwStyle[1].setZIndex(zIndex + 1);
-            sbwStyle[1].getStroke().setColor(color);
+            sbwStyle[1].getStroke()?.setColor(color);
             
             return sbwStyle;
         }
     });
 
-    sbwLayer.getSource().on('change', () => {
+    sbwLayer.getSource()?.on('change', () => {
         sbwtable.rows().remove().draw();
         if (sbwLayer.getSource().isEmpty()) {
             return;
@@ -288,8 +308,8 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
         });
         
         // Update SBW type filter
-        const sbwTypeFilter = document.getElementById('sbwtypefilter');
-        if (sbwTypeFilter?.tomselect) {
+        const sbwTypeFilter = getTomSelectElement('sbwtypefilter');
+        if (sbwTypeFilter) {
             const currentSelection = sbwTypeFilter.tomselect.getValue();
             sbwTypeFilter.tomselect.clear();
             sbwTypeFilter.tomselect.clearOptions();
@@ -297,7 +317,7 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
                 sbwTypeFilter.tomselect.addOption({ value: type, text: type });
             });
             // Restore previous selection if options still exist
-            if (currentSelection.length) {
+            if (Array.isArray(currentSelection) && currentSelection.length) {
                 const validSelections = currentSelection.filter(value => types.has(value));
                 if (validSelections.length) {
                     sbwTypeFilter.tomselect.setValue(validSelections);
@@ -338,8 +358,8 @@ export function updateSBWLineWidth(scale) {
     lineWidthScale = Math.exp(Math.log(0.1) + (Math.log(10) - Math.log(0.1)) * (scale / 100));
     const outerWidth = BASE_OUTER_WIDTH * lineWidthScale;
     
-    sbwStyle[0].getStroke().setWidth(outerWidth);
-    sbwStyle[1].getStroke().setWidth(outerWidth * WIDTH_RATIO);  // Maintain ratio
+    sbwStyle[0].getStroke()?.setWidth(outerWidth);
+    sbwStyle[1].getStroke()?.setWidth(outerWidth * WIDTH_RATIO);  // Maintain ratio
     if (sbwLayer) {
         sbwLayer.changed();  // Trigger redraw
     }
