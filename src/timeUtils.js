@@ -1,6 +1,7 @@
 // Utility functions for handling time/date operations
 
 import { setState, StateKeys } from "./state";
+import strftime from "strftime";
 
 /**
  * Our custom toLocaleString() function to format date without seconds
@@ -10,7 +11,7 @@ import { setState, StateKeys } from "./state";
  */
 export function toLocaleString(dt) {
     // Format date to YYYY/mm/dd hh:mm AM/PM
-    return `${dt.getFullYear()}/${String(dt.getMonth() + 1).padStart(2, '0')}/${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours() % 12 || 12).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')} ${dt.getHours() < 12 ? 'AM' : 'PM'}`;
+    return strftime('%Y/%m/%d %I:%M %p', dt);
 }
 
 /**
@@ -61,22 +62,6 @@ export function updateTimeInputs(stsInput, etsInput, realtime) {
     stsInput.max = maxDateStr;
     etsInput.min = minDate;
     etsInput.max = maxDateStr;
-}
-
-
-/**
- * Builds date parameters for shapefile requests
- * @param {Date} date - The date to format
- * @returns {{ year: number, month: number, day: number, hour: number, minute: number }} Formatted date parts
- */
-export function getShapefileDateParams(date) {
-    return {
-        year: date.getUTCFullYear(),
-        month: date.getUTCMonth() + 1,
-        day: date.getUTCDate(),
-        hour: date.getUTCHours(),
-        minute: date.getUTCMinutes()
-    };
 }
 
 /**
@@ -148,13 +133,5 @@ export function setupTimeEventHandlers(stsInput, etsInput, realtime) {
  * @returns {string} Formatted date string in local timezone
  */
 export function formatForDateTimeLocal(date) {
-    // Use local getters since datetime-local input expects local time
-    return date.toLocaleString('sv', { 
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-    }).replace(' ', 'T');
+    return strftime('%Y-%m-%dT%H:%M', date);
 }

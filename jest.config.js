@@ -9,6 +9,7 @@ const config = {
   coverageReporters: ['lcov', 'text-summary'],
   moduleNameMapper: {
     '\\.css$': '<rootDir>/tests/mocks/styleMock.js',
+    '^ol/style$': '<rootDir>/tests/mocks/ol-style.js',
     '^ol/(.*)$': '<rootDir>/tests/mocks/olMock.js',
     '^ol$': '<rootDir>/tests/mocks/olMock.js'
   },
