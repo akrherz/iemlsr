@@ -1,6 +1,6 @@
-import { getShapefileDateParams } from './timeUtils.js';
 import { buildRequestOptions } from './optionsManager.js';
 import { requireElement, requireInputElement } from './domUtils.js';
+import strftime from 'strftime';
 
 
 /**
@@ -31,19 +31,8 @@ function getShapefileLink(base, filters) {
     const sts = new Date(stsElement.value);
     const ets = new Date(etsElement.value);
 
-    const stsParams = getShapefileDateParams(sts);
-    const etsParams = getShapefileDateParams(ets);
-
-    params.append('year1', String(stsParams.year));
-    params.append('month1', String(stsParams.month));
-    params.append('day1', String(stsParams.day));
-    params.append('hour1', String(stsParams.hour));
-    params.append('minute1', String(stsParams.minute));
-    params.append('year2', String(etsParams.year));
-    params.append('month2', String(etsParams.month));
-    params.append('day2', String(etsParams.day));
-    params.append('hour2', String(etsParams.hour));
-    params.append('minute2', String(etsParams.minute));
+    params.append('sts', strftime('%Y-%m-%dT%H:%M:%S', sts));
+    params.append('ets', strftime('%Y-%m-%dT%H:%M:%S', ets));
 
     return `https://mesonet.agron.iastate.edu/cgi-bin/request/gis/${base}.py?${params}`;
 }
