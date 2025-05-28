@@ -78,6 +78,7 @@ function initializeLocationSelect(divid, data, filterType) {
     const select = new TomSelect(divid, {
         ...BASE_CONFIG,
         maxItems: null,
+        searchField: ['value', 'text'],
         render: {
             item: (ldata) => `<div>[${ldata.value}] ${ldata.text}</div>`,
             option: (ldata) => `<div>[${ldata.value}] ${ldata.text}</div>`
