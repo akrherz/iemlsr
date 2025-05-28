@@ -1,6 +1,6 @@
 import { buildRequestOptions } from './optionsManager.js';
-import { requireElement, requireInputElement } from './domUtils.js';
-import strftime from 'strftime';
+import { requireElement } from './domUtils.js';
+import { getState, StateKeys } from './state.js';
 
 
 /**
@@ -11,12 +11,11 @@ import strftime from 'strftime';
  */
 function getShapefileLink(base, filters) {
     const params = new URLSearchParams();
-    const byStateRadio = requireInputElement('input[type=radio][name=by][value=state]');
-    const by = byStateRadio.checked ? 'state' : 'wfo';
+    const byState = /** @type{boolean} */ getState(StateKeys.BY_STATE);
     const selectedWFOs = filters.wfoSelect.getValue();
     const selectedStates = filters.stateSelect.getValue();
 
-    if (by === 'wfo') {
+    if (!byState) {
         selectedWFOs.forEach(wfo => {
             params.append('wfo', encodeURIComponent(wfo));
         });
@@ -26,13 +25,16 @@ function getShapefileLink(base, filters) {
         });
     }
 
-    const stsElement = requireInputElement("sts");
-    const etsElement = requireInputElement("ets");
-    const sts = new Date(stsElement.value);
-    const ets = new Date(etsElement.value);
+    const sts = /** @type{Date} */ getState(StateKeys.STS);
+    const ets = /** @type{Date} */ getState(StateKeys.ETS);
 
-    params.append('sts', strftime('%Y-%m-%dT%H:%M:%S', sts));
-    params.append('ets', strftime('%Y-%m-%dT%H:%M:%S', ets));
+    // Ensure we have valid Date objects and convert to UTC ISO strings for API compatibility
+    if (!(sts instanceof Date) || !(ets instanceof Date)) {
+        throw new Error('Invalid date objects in state');
+    }
+    
+    params.append('sts', sts.toISOString());
+    params.append('ets', ets.toISOString());
 
     return `https://mesonet.agron.iastate.edu/cgi-bin/request/gis/${base}.py?${params}`;
 }
