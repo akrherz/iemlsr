@@ -8,6 +8,7 @@ import { setState, getState, StateKeys} from './state.js';
  */
 const BASE_CONFIG = {
     allowEmptyOption: true,
+    maxOptions: 1000, // ts did not like this being set to null
     plugins: {
         clear_button: {
             title: 'Remove all selected options'
