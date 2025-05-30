@@ -8,6 +8,7 @@ import { setState, getState, StateKeys} from './state.js';
  */
 const BASE_CONFIG = {
     allowEmptyOption: true,
+    maxOptions: 1000, // ts did not like this being set to null
     plugins: {
         clear_button: {
             title: 'Remove all selected options'
@@ -156,19 +157,21 @@ export function initializeFilters() {
     // Set initial radio button state
     const stateRadio = document.querySelector('input[type=radio][name=by][value=state]');
     const wfoRadio = document.querySelector('input[type=radio][name=by][value=wfo]');
-    if (byState) {
-        stateRadio.checked = true;
-        wfoRadio.checked = false;
-    } else {
-        wfoRadio.checked = true;
-        stateRadio.checked = false;
+    if (stateRadio instanceof HTMLInputElement && wfoRadio instanceof HTMLInputElement) {
+        if (byState) {
+            stateRadio.checked = true;
+            wfoRadio.checked = false;
+        } else {
+            wfoRadio.checked = true;
+            stateRadio.checked = false;
+        }
     }
 
     // Set initial selections
-    if (wfoFilter.length > 0) {
+    if (Array.isArray(wfoFilter) && wfoFilter.length > 0) {
         wfoSelect.setValue(wfoFilter);
     }
-    if (stateFilter.length > 0) {
+    if (Array.isArray(stateFilter) && stateFilter.length > 0) {
         stateSelect.setValue(stateFilter);
     }
 
@@ -180,6 +183,7 @@ export function initializeFilters() {
         wfoSelect,
         stateSelect,
         getValue: () => ({
+            // @ts-ignore
             byState: document.querySelector('input[type=radio][name=by][value=state]').checked,
             wfos: wfoSelect.getValue(),
             states: stateSelect.getValue(),
