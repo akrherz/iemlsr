@@ -27,7 +27,7 @@
     "datatables.net-dt": "^2.3.1",
     "datatables.net-scroller-dt": "^2.4.3",
     "datatables.net-select-dt": "^3.0.0",
-    "eslint": "^9.27.0",
+    "eslint": "^9.28.0",
     "globals": "^16.2.0",
     "jquery-ui": "^1.14.1",
     "ol": "latest",
