@@ -22,7 +22,7 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "@eslint/js": "^9.27.0",
+    "@eslint/js": "^9.28.0",
     "@shoelace-style/shoelace": "^2.20.1",
     "datatables.net-dt": "^2.3.1",
     "datatables.net-scroller-dt": "^2.4.3",
