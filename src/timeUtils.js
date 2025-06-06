@@ -135,3 +135,22 @@ export function setupTimeEventHandlers(stsInput, etsInput, realtime) {
 export function formatForDateTimeLocal(date) {
     return strftime('%Y-%m-%dT%H:%M', date);
 }
+
+/**
+ * DataTable render function for datetime columns that need proper sorting
+ * Returns the original Date object for sorting operations and formatted string for display
+ * @param {string|Date} data - The datetime data (ISO string or Date object)
+ * @param {string} type - The operation type ('display', 'type', 'sort', etc.)
+ * @returns {Date|string} Date object for sorting, formatted string for display
+ */
+export function renderDateTime(data, type) {
+    const date = new Date(data);
+    
+    // For sorting and type detection, return the Date object which DataTables can sort properly
+    if (type === 'sort' || type === 'type') {
+        return date;
+    }
+    
+    // For display, return the formatted string
+    return toLocaleString(date);
+}

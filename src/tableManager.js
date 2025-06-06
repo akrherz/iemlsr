@@ -5,7 +5,7 @@ import 'datatables.net-scroller-dt';
 import { iemdata } from './iemdata.js';
 import { formatLSR } from "./featureManager.js";
 import { getLSRLayer, getSBWLayer } from './layerManager.js';
-import { toLocaleString } from './timeUtils.js';
+import { renderDateTime } from './timeUtils.js';
 
 let lsrtable = null;
 let sbwtable = null;
@@ -52,9 +52,8 @@ export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl, olmap) {
         columnDefs: [
             {
                 targets: 2,
-                render(data) {
-                    return toLocaleString(new Date(data));
-                }
+                type: 'datetime',
+                render: renderDateTime
             }
         ]
     });
@@ -115,12 +114,6 @@ export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl, olmap) {
         },
         columns: [
             {
-                "data": "issue",
-                "visible": false
-            }, {
-                "data": "expire",
-                "visible": false
-            }, {
                 "data": "wfo"
             }, {
                 "data": "phenomena"
@@ -130,25 +123,25 @@ export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl, olmap) {
                 "data": "eventid"
             }, {
                 "data": "issue",
-                "orderData": [0]
+                "type": "datetime"
             }, {
                 "data": "expire",
-                "orderData": [1]
+                "type": "datetime"
             }
         ],
         columnDefs: [
             {
-                targets: 3,
+                targets: 1,
                 render(data) {
                     return data in iemdata.vtec_phenomena ? iemdata.vtec_phenomena[data] : data;
                 }
             }, {
-                targets: 4,
+                targets: 2,
                 render(data) {
                     return data in iemdata.vtec_significance ? iemdata.vtec_significance[data] : data;
                 }
             }, {
-                targets: 5,
+                targets: 3,
                 render(_data, type, row) {
                     if (type === 'display') {
                         return `<a href="${row.href}">${row.eventid}</a>`;
@@ -156,10 +149,8 @@ export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl, olmap) {
                     return row.eventid;
                 }
             }, {
-                targets: [6, 7],
-                render(data) {
-                    return toLocaleString(new Date(data));
-                }
+                targets: [4, 5],
+                render: renderDateTime
             }
         ]
     });
