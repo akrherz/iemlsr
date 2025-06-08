@@ -1,6 +1,6 @@
 import TomSelect from 'tom-select';
-import { iemdata } from './iemdata.js';
-import { lsrtable, sbwtable } from './tableManager.js';
+import { wfos, states } from 'iemjs/iemdata';
+import { getLSRTable, getSBWTable } from './tableManager.js';
 import { setState, getState, StateKeys} from './state.js';
 
 /**
@@ -35,7 +35,7 @@ function initializeLSRTypeFilter(divid) {
             // Join selected values with pipe for regex matching
             val = vals.join("|");
         }
-        lsrtable.column(3).search(val ? `^${val}$` : '', true, false).draw();
+        getLSRTable().column(3).search(val ? `^${val}$` : '', true, false).draw();
         setState(StateKeys.LSR_TYPES, vals);
     });
 
@@ -61,7 +61,7 @@ function initializeSBWTypeFilter(divid) {
             // Join selected values with pipe for regex matching
             val = vals.join("|");
         }
-        sbwtable.column(3).search(val ? `^${val}$` : '', true, false).draw();
+        getSBWTable().column(3).search(val ? `^${val}$` : '', true, false).draw();
         setState(StateKeys.SBW_TYPES, vals);
     });
 
@@ -139,13 +139,13 @@ export function initializeFilters() {
     // Initialize location selectors
     const wfoSelect = initializeLocationSelect(
         '#wfo',
-        iemdata.wfos,
+        wfos,
         'wfo'
     );
 
     const stateSelect = initializeLocationSelect(
         '#state',
-        iemdata.states,
+        states,
         'state'
     );
 

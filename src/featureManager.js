@@ -1,6 +1,6 @@
 // Handles LSR and SBW feature formatting and interactions
 import { createPopup, removeAllPopups } from './popup.js';
-import { iemdata } from './iemdata.js';
+import { vtec_phenomena, vtec_significance } from 'iemjs/iemdata';
 import { toLocaleString } from './timeUtils.js';
 
 /**
@@ -32,9 +32,9 @@ export function formatLSR(data) {
  */
 export function formatSBW(feature) {
     const ph = feature.get("phenomena");
-    const pph = ph in iemdata.vtec_phenomena ? iemdata.vtec_phenomena[ph] : ph;
+    const pph = ph in vtec_phenomena ? vtec_phenomena[ph] : ph;
     const sig = feature.get("significance");
-    const ss = sig in iemdata.vtec_significance ? iemdata.vtec_significance[sig] : sig;
+    const ss = sig in vtec_significance ? vtec_significance[sig] : sig;
     
     const issue = new Date(feature.get("issue"));
     const expire = new Date(feature.get("expire"));

@@ -2,7 +2,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import { getLSRLayer, getSBWLayer } from './layerManager.js';
 import { buildRequestOptions } from './optionsManager.js';
 import { updateURL } from './urlHandler.js';
-import { requireElement } from './domUtils.js';
+import { requireElement } from 'iemjs/domUtils';
 
 /**
  * Load LSR and SBW data from the server
@@ -26,7 +26,7 @@ export function loadData() {
         .then(response => response.json())
         .then(data => {
             if (data.features.length === 10000) {
-                alert("App limit of 10,000 LSRs reached.");
+                alert("App limit of 10,000 LSRs reached.");  // skipcq
             }
             getLSRLayer().getSource()?.addFeatures(
                 (new GeoJSON({ featureProjection: 'EPSG:3857' }))

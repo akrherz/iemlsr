@@ -2,10 +2,10 @@ import { Style, Icon, Text, Fill, Stroke } from 'ol/style';
 import GeoJSON from 'ol/format/GeoJSON';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
-import { lsrtable, sbwtable } from './tableManager.js';
+import { getLSRTable, getSBWTable } from './tableManager.js';
 import { updateURL } from './urlHandler.js';
-import { iemdata } from './iemdata.js';
-import { getTomSelectElement } from './domUtils.js';
+import { vtec_phenomena } from 'iemjs/iemdata';
+import { getTomSelectElement } from 'iemjs/domUtils';
 // Lookup tables for styling
 // Define warning type priorities and colors
 const sbwLookup = {
@@ -200,14 +200,14 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
             feat.hidden = false;
         });
         // Filter out the map too
-        lsrtable.rows({ "search": "removed" }).every(function() { // skipcq
+        getLSRTable().rows({ "search": "removed" }).every(function() { // skipcq
             lsrLayer.getSource().getFeatureById(this.data().id).hidden = true;
         });
         lsrLayer.changed();
     });
 
     lsrLayer.getSource()?.on('change', () => {
-        lsrtable.rows().remove().draw();
+        getLSRTable().rows().remove().draw();
         if (lsrLayer.getSource().isEmpty()) {
             return;
         }
@@ -249,7 +249,7 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
             }
         }
         
-        lsrtable.rows.add(data).draw();
+        getLSRLayer().rows.add(data).draw();
     });
 
     lsrLayer.on('change:visible', updateURL);
@@ -291,7 +291,7 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
     });
 
     sbwLayer.getSource()?.on('change', () => {
-        sbwtable.rows().remove().draw();
+        getSBWTable().rows().remove().draw();
         if (sbwLayer.getSource().isEmpty()) {
             return;
         }
@@ -301,7 +301,7 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
             const props = feat.getProperties();
             props.id = feat.getId();
             if (props.phenomena) {
-                const phenText = iemdata.vtec_phenomena[props.phenomena] || props.phenomena;
+                const phenText = vtec_phenomena[props.phenomena] || props.phenomena;
                 types.add(phenText);
             }
             data.push(props);
@@ -325,7 +325,7 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
             }
         }
         
-        sbwtable.rows.add(data).draw();
+        getSBWTable().rows.add(data).draw();
     });
 
 
@@ -337,7 +337,7 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
             feat.hidden = false;
         });
         // Filter out the map too
-        sbwtable.rows({ "search": "removed" }).every(function() { // skipcq
+        getSBWTable().rows({ "search": "removed" }).every(function() { // skipcq
             sbwLayer.getSource().getFeatureById(this.data().id).hidden = true;
         });
         sbwLayer.changed();

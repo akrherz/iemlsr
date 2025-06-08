@@ -5,7 +5,7 @@ import XYZ from 'ol/source/XYZ';
 import StadiaMaps from 'ol/source/StadiaMaps.js';
 import LayerGroup from 'ol/layer/Group';
 import { transform } from 'ol/proj';
-import { lsrtable, sbwtable } from './tableManager.js';
+import { getLSRTable, getSBWTable } from './tableManager.js';
 import { handleLSRClick, handleSBWClick } from './featureManager.js';
 import { getState, StateKeys } from './state.js';
 
@@ -43,9 +43,11 @@ export function getCountiesLayer() {
  */
 function createBaseLayers() {
     return new LayerGroup({
+        // @ts-ignore
         title: 'Base Maps',
         layers: [
             new TileLayer({
+                // @ts-ignore
                 title: 'OpenStreetMap',
                 visible: true,
                 type: 'base',
@@ -55,6 +57,7 @@ function createBaseLayers() {
             }),
             new TileLayer({
                 visible: false,
+                // @ts-ignore
                 title: 'Stadia Maps Alidade Smooth',
                 source: new StadiaMaps({
                     layer: 'alidade_smooth_dark',
@@ -63,6 +66,7 @@ function createBaseLayers() {
                 }),
             }),
             new TileLayer({
+                // @ts-ignore
                 title: "MapTiler Dataviz",
                 type: 'base',
                 visible: false,
@@ -73,6 +77,7 @@ function createBaseLayers() {
                 })
             }),
             new TileLayer({
+                // @ts-ignore
                 title: "MapTiler Toner v2 (Black/White)",
                 type: 'base',
                 visible: false,
@@ -88,6 +93,7 @@ function createBaseLayers() {
 
 export function make_iem_tms(title, layername, visible, type) {
     return new TileLayer({
+        // @ts-ignore
         title,
         visible,
         type,
@@ -99,7 +105,6 @@ export function make_iem_tms(title, layername, visible, type) {
 
 /**
  * Initialize the OpenLayers map
- * @param {TileLayer[]} additionalLayers - Additional layers to add to the map
  * @returns {Map} Initialized OpenLayers map
  */
 export function initializeMap() {
@@ -124,6 +129,7 @@ export function initializeMap() {
 
     // Initialize n0q radar layer
     n0q = new TileLayer({
+        // @ts-ignore
         title: 'NEXRAD Base Reflectivity',
         visible: true,
         source: getRADARSource(getState(StateKeys.ETS))
@@ -141,10 +147,10 @@ export function initializeMap() {
             return;
         }
         if (feature.get("phenomena") !== undefined) {
-            handleSBWClick(feature, map, sbwtable);
+            handleSBWClick(feature, map, getSBWTable());
             return;
         }
-        handleLSRClick(feature, map, lsrtable);
+        handleLSRClick(feature, map, getLSRTable());
     });
 
     return map;

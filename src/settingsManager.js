@@ -1,7 +1,7 @@
 import { getN0QLayer, getStatesLayer, getCountiesLayer } from "./mapManager";
 import { getLSRLayer, getSBWLayer, setLSRIconMode } from "./layerManager";
 import { getState, setState, StateKeys } from "./state";
-import { requireInputElement } from "./domUtils";
+import { requireInputElement } from "iemjs/domUtils";
 
 /**
  * Generate settings string based on layer visibility
