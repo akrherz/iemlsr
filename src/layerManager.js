@@ -4,8 +4,8 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import { lsrtable, sbwtable } from './tableManager.js';
 import { updateURL } from './urlHandler.js';
-import { iemdata } from './iemdata.js';
-import { getTomSelectElement } from './domUtils.js';
+import { vtec_phenomena } from 'iemjs/iemdata';
+import { getTomSelectElement } from 'iemjs/domUtils';
 // Lookup tables for styling
 // Define warning type priorities and colors
 const sbwLookup = {
@@ -301,7 +301,7 @@ export function createSBWLayer(TABLE_FILTERED_EVENT) {
             const props = feat.getProperties();
             props.id = feat.getId();
             if (props.phenomena) {
-                const phenText = iemdata.vtec_phenomena[props.phenomena] || props.phenomena;
+                const phenText = vtec_phenomena[props.phenomena] || props.phenomena;
                 types.add(phenText);
             }
             data.push(props);

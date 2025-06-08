@@ -1,5 +1,5 @@
 import TomSelect from 'tom-select';
-import { iemdata } from './iemdata.js';
+import { wfos, states } from 'iemjs/iemdata';
 import { lsrtable, sbwtable } from './tableManager.js';
 import { setState, getState, StateKeys} from './state.js';
 
@@ -139,13 +139,13 @@ export function initializeFilters() {
     // Initialize location selectors
     const wfoSelect = initializeLocationSelect(
         '#wfo',
-        iemdata.wfos,
+        wfos,
         'wfo'
     );
 
     const stateSelect = initializeLocationSelect(
         '#state',
-        iemdata.states,
+        states,
         'state'
     );
 

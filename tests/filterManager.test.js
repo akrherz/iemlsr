@@ -13,8 +13,7 @@ const mockTomSelect = jest.fn(() => mockTomSelectInstance);
 jest.mock("tom-select", () => mockTomSelect);
 
 // Mock other dependencies
-jest.mock("../src/iemdata.js", () => ({
-  iemdata: {
+jest.mock("iemjs/iemdata", () => ({
     wfos: [
       ["LOT", "CHICAGO"],
       ["DMX", "DES_MOINES"],
@@ -23,7 +22,6 @@ jest.mock("../src/iemdata.js", () => ({
       ["IA", "Iowa"],
       ["NE", "Nebraska"],
     ],
-  },
 }));
 
 jest.mock("../src/tableManager.js", () => ({

@@ -15,7 +15,7 @@ const config = {
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   transformIgnorePatterns: [
-    'node_modules/(?!(ol|color-space|@shoelace-style|@lit|lit|lit-html|lit-element)/).*'
+    'node_modules/(?!(ol|color-space|@shoelace-style|@lit|lit|lit-html|lit-element|iemjs)/).*'
   ]
 };
 

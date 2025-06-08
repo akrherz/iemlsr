@@ -2,7 +2,7 @@ import DataTable from 'datatables.net';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
 import 'datatables.net-select-dt';
 import 'datatables.net-scroller-dt';
-import { iemdata } from './iemdata.js';
+import { vtec_phenomena, vtec_significance } from 'iemjs/iemdata';
 import { formatLSR } from "./featureManager.js";
 import { getLSRLayer, getSBWLayer } from './layerManager.js';
 import { renderDateTime } from './timeUtils.js';
@@ -133,12 +133,12 @@ export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl, olmap) {
             {
                 targets: 1,
                 render(data) {
-                    return data in iemdata.vtec_phenomena ? iemdata.vtec_phenomena[data] : data;
+                    return data in vtec_phenomena ? vtec_phenomena[data] : data;
                 }
             }, {
                 targets: 2,
                 render(data) {
-                    return data in iemdata.vtec_significance ? iemdata.vtec_significance[data] : data;
+                    return data in vtec_significance ? vtec_significance[data] : data;
                 }
             }, {
                 targets: 3,

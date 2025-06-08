@@ -1,5 +1,5 @@
 import { buildRequestOptions } from './optionsManager.js';
-import { requireElement } from './domUtils.js';
+import { requireElement } from 'iemjs/domUtils';
 import { getState, StateKeys } from './state.js';
 
 

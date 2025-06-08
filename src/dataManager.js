@@ -2,7 +2,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import { getLSRLayer, getSBWLayer } from './layerManager.js';
 import { buildRequestOptions } from './optionsManager.js';
 import { updateURL } from './urlHandler.js';
-import { requireElement } from './domUtils.js';
+import { requireElement } from 'iemjs/domUtils';
 
 /**
  * Load LSR and SBW data from the server
