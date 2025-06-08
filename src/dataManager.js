@@ -26,7 +26,7 @@ export function loadData() {
         .then(response => response.json())
         .then(data => {
             if (data.features.length === 10000) {
-                alert("App limit of 10,000 LSRs reached.");
+                alert("App limit of 10,000 LSRs reached.");  // skipcq
             }
             getLSRLayer().getSource()?.addFeatures(
                 (new GeoJSON({ featureProjection: 'EPSG:3857' }))

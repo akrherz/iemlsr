@@ -10,7 +10,12 @@ import { renderDateTime } from './timeUtils.js';
 let lsrtable = null;
 let sbwtable = null;
 
-export { lsrtable, sbwtable };
+export function getLSRTable() {
+    return lsrtable;
+}
+export function getSBWTable() {
+    return sbwtable;
+}
 
 /**
  * Initialize the LSR DataTable
