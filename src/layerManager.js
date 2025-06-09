@@ -249,7 +249,7 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
             }
         }
         
-        getLSRLayer().rows.add(data).draw();
+        getLSRTable().rows.add(data).draw();
     });
 
     lsrLayer.on('change:visible', updateURL);
