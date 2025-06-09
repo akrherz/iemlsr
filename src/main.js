@@ -54,8 +54,8 @@ function initializeApplication() {
     initializeExportHandlers(filters);
 
     // Create LSR and SBW layers
-    olmap.addLayer(createLSRLayer("tfe", olmap));
     olmap.addLayer(createSBWLayer("tfe"));
+    olmap.addLayer(createLSRLayer("tfe", olmap));
 
     initializeLayerControls(olmap);
 
