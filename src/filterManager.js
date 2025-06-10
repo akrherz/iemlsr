@@ -61,7 +61,7 @@ function initializeSBWTypeFilter(divid) {
             // Join selected values with pipe for regex matching
             val = vals.join("|");
         }
-        getSBWTable().column(3).search(val ? `^${val}$` : '', true, false).draw();
+        getSBWTable().column(1).search(val ? `^${val}$` : '', true, false).draw();
         setState(StateKeys.SBW_TYPES, vals);
     });
 

@@ -11,7 +11,9 @@ const config = {
     '\\.css$': '<rootDir>/tests/mocks/styleMock.js',
     '^ol/style$': '<rootDir>/tests/mocks/ol-style.js',
     '^ol/(.*)$': '<rootDir>/tests/mocks/olMock.js',
-    '^ol$': '<rootDir>/tests/mocks/olMock.js'
+    '^ol$': '<rootDir>/tests/mocks/olMock.js',
+    '^iemjs/iemdata$': '<rootDir>/node_modules/iemjs/src/iemdata.js',
+    '^iemjs/domUtils$': '<rootDir>/node_modules/iemjs/src/domUtils.js'
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   transformIgnorePatterns: [
