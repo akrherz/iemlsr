@@ -25,20 +25,20 @@ jest.mock("iemjs/iemdata", () => ({
 }));
 
 jest.mock("../src/tableManager.js", () => ({
-  lsrtable: {
+  getLSRTable: jest.fn(() => ({
     column: jest.fn(() => ({
       search: jest.fn(() => ({
         draw: jest.fn(),
       })),
     })),
-  },
-  sbwtable: {
+  })),
+  getSBWTable: jest.fn(() => ({
     column: jest.fn(() => ({
       search: jest.fn(() => ({
         draw: jest.fn(),
       })),
     })),
-  },
+  })),
 }));
 
 jest.mock("../src/state.js", () => ({
