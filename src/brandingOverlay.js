@@ -1,13 +1,11 @@
+import { requireElement } from 'iemjs/domUtils';
 
 /**
  * Update the branding overlay with the given title.
  * @param {string} title 
  */
 export function updateBrandingOverlay(title) {
-    const brandingOverlay = document.getElementById('branding-overlay');
-    if (!brandingOverlay) {
-        return;
-    }
+    const brandingOverlay = requireElement('branding-overlay');
     brandingOverlay.textContent = title;
 }
 
