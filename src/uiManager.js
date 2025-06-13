@@ -5,14 +5,15 @@ import { getState, setState, StateKeys, setRealtime, subscribeToState } from './
 import { toLocaleString, setupTimeEventHandlers, updateTimeInputs, formatForDateTimeLocal } from './timeUtils.js';
 import { updateBrandingOverlay } from './brandingOverlay.js';
 import { applySettings } from './settingsManager.js';
+import { requireInputElement } from 'iemjs/domUtils';
 
 /**
  * Initialize all UI components
  */
 export function initializeUI() {
     // Initialize time inputs
-    const stsInput = document.getElementById('sts');
-    const etsInput = document.getElementById('ets');
+    const stsInput = requireInputElement('sts');
+    const etsInput = requireInputElement('ets');
 
     const initialSts = getState(StateKeys.STS);
     const initialEts = getState(StateKeys.ETS);
@@ -27,7 +28,7 @@ export function initializeUI() {
         etsInput.value = formatForDateTimeLocal(newTime);
     });
 
-    const realtimeCheckbox = document.getElementById('realtime');
+    const realtimeCheckbox = requireInputElement('realtime');
     realtimeCheckbox.checked = getState(StateKeys.REALTIME);
     subscribeToState(StateKeys.REALTIME, (isRealtime) => {
         realtimeCheckbox.checked = isRealtime;
@@ -41,7 +42,7 @@ export function initializeUI() {
     });
 
     // Set up event handlers for time inputs
-    setupTimeEventHandlers(stsInput, etsInput, getState(StateKeys.REALTIME), loadData);
+    setupTimeEventHandlers(stsInput, etsInput, getState(StateKeys.REALTIME));
 
     // Initialize time slider
     initializeTimeSlider('timeslider', (dt) => {
@@ -50,8 +51,8 @@ export function initializeUI() {
     });
 
     // Handle realtime toggle
-    document.getElementById('realtime').addEventListener('change', (event) => {
-        const realtime = event.target.checked;
+    requireInputElement('realtime').addEventListener('change', (event) => {
+        const realtime = event.target?.checked;
         setRealtime(realtime);
         
         if (realtime) {
