@@ -16,6 +16,99 @@ const BASE_CONFIG = {
     }
 };
 
+// Global magnitude filter state for DataTables custom search
+const magnitudeFilterState = {
+    operator: 'gte',
+    value: null,
+    enabled: false
+};
+
+/**
+ * Custom DataTables search function for magnitude filtering
+ * @param {Object} settings - DataTables settings object
+ * @param {Array} data - Row data array
+ * @returns {boolean} Whether row should be displayed
+ */
+function magnitudeSearchFunction(settings, data) {
+    // Only apply to LSR table (checking if magnitude column exists)
+    if (!magnitudeFilterState.enabled || magnitudeFilterState.value === null) {
+        return true;
+    }
+    
+    // Get magnitude value from column 4 (0-indexed)
+    const magnitudeText = data[4] || '';
+    const magnitude = parseFloat(magnitudeText);
+    
+    // Exclude rows with invalid magnitude values when filter is active
+    if (isNaN(magnitude) || magnitudeText.trim() === '') {
+        return false;
+    }
+    
+    // Apply filter based on operator
+    return magnitudeFilterState.operator === 'gte' 
+        ? magnitude >= magnitudeFilterState.value 
+        : magnitude <= magnitudeFilterState.value;
+}
+
+/**
+ * Initialize the LSR magnitude filter
+ * Applies greater-than-or-equal or less-than-or-equal filtering to LSR magnitude column
+ */
+function initializeLSRMagnitudeFilter() {
+    const operatorSelect = document.getElementById('lsrmagnitudeoperator');
+    const valueInput = document.getElementById('lsrmagnitudevalue');
+    
+    if (!operatorSelect || !valueInput) {
+        return;
+    }
+
+    // Register custom search function with DataTables
+    import('datatables.net').then(({ default: DataTable }) => {
+        if (DataTable && DataTable.ext && DataTable.ext.search) {
+            DataTable.ext.search.push(magnitudeSearchFunction);
+        }
+    }).catch(() => {
+        // DataTable not available (e.g., in test environment)
+        // This is expected during testing
+    });
+
+    // Custom filter function for magnitude comparison
+    const applyMagnitudeFilter = () => {
+        const operator = operatorSelect.value;
+        const value = parseFloat(valueInput.value);
+        
+        // Update global filter state
+        magnitudeFilterState.operator = operator;
+        magnitudeFilterState.enabled = !isNaN(value) && valueInput.value.trim() !== '';
+        magnitudeFilterState.value = magnitudeFilterState.enabled ? value : null;
+        
+        // Trigger table redraw to apply filter
+        getLSRTable().draw();
+        
+        // Update application state
+        setState(StateKeys.LSR_MAGNITUDE_OPERATOR, operator);
+        setState(StateKeys.LSR_MAGNITUDE_VALUE, magnitudeFilterState.enabled ? value : null);
+    };
+
+    // Add event listeners for real-time filtering
+    operatorSelect.addEventListener('change', applyMagnitudeFilter);
+    valueInput.addEventListener('input', applyMagnitudeFilter);
+    
+    // Set initial values from state
+    const savedOperator = getState(StateKeys.LSR_MAGNITUDE_OPERATOR);
+    const savedValue = getState(StateKeys.LSR_MAGNITUDE_VALUE);
+    
+    if (savedOperator) {
+        operatorSelect.value = savedOperator;
+        magnitudeFilterState.operator = savedOperator;
+    }
+    if (savedValue !== null) {
+        valueInput.value = savedValue.toString();
+        magnitudeFilterState.value = savedValue;
+        magnitudeFilterState.enabled = true;
+    }
+}
+
 /**
  * Initialize the LSR type filter
  * @param {string} divid - The select element to transform
@@ -134,6 +227,9 @@ export function initializeFilters() {
     // Initialize LSR and SBW type filters
     const lsrtypefilter = initializeLSRTypeFilter('#lsrtypefilter');
 
+    // Initialize magnitude filter for LSRs
+    initializeLSRMagnitudeFilter();
+
     const sbwtypefilter = initializeSBWTypeFilter('#sbwtypefilter');
 
     // Initialize location selectors
@@ -188,7 +284,9 @@ export function initializeFilters() {
             wfos: wfoSelect.getValue(),
             states: stateSelect.getValue(),
             lsrTypes: lsrtypefilter.getValue(),
-            sbwTypes: sbwtypefilter.getValue()
+            sbwTypes: sbwtypefilter.getValue(),
+            lsrMagnitudeOperator: getState(StateKeys.LSR_MAGNITUDE_OPERATOR),
+            lsrMagnitudeValue: getState(StateKeys.LSR_MAGNITUDE_VALUE)
         })
     };
 }

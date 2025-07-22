@@ -161,6 +161,15 @@
           <div class="filter-options">
             <label for="lsrtypefilter">Filter LSRs by Type:</label>
             <select id="lsrtypefilter" class="input-field" multiple></select>
+            
+            <label for="lsrmagnitudefilter">Filter LSRs by Magnitude:</label>
+            <div class="magnitude-filter-container">
+              <select id="lsrmagnitudeoperator" class="input-field magnitude-operator">
+                <option value="gte">≥ (Greater than or equal)</option>
+                <option value="lte">≤ (Less than or equal)</option>
+              </select>
+              <input type="number" id="lsrmagnitudevalue" class="input-field magnitude-value" step="0.1" placeholder="Enter magnitude">
+            </div>
           </div>
           <div class="action-buttons">
             <p>The <a href="/request/gis/lsrs.phtml" target="_blank">LSR Request Form</a>
@@ -267,6 +276,8 @@
 
             <h3>Changelog</h3>
             <ul>
+                <li><strong>2025-07-21</strong>: Added an option to filter LSRs
+                by their magnitude.</li>
                 <li><strong>2025-06-06</strong>: Fixed a bug with sorting of
                  timestamp values in the LSR/SBW tables.</li>
                 <li><strong>2025-05-27</strong>: Fixed a bug where the LSR
