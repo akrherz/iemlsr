@@ -1,4 +1,4 @@
-import { getState, setState, StateKeys } from './state.js';
+import { getState, getStateETS, getStateSTS, setState, StateKeys } from './state.js';
 import { generateSettings } from './settingsManager.js';
 
 /**
@@ -139,9 +139,9 @@ export function parseHref() {
 
 export function updateURL() {
     // Get dates directly from state
-    const stsDate = getState(StateKeys.STS);
-    const etsDate = getState(StateKeys.ETS);
-    
+    const stsDate = getStateSTS();
+    const etsDate = getStateETS();
+
     // Format dates in YYYYmmddHH24MI format (UTC)
     const sts = stsDate.getUTCFullYear().toString().padStart(4, '0') +
                (stsDate.getUTCMonth() + 1).toString().padStart(2, '0') +

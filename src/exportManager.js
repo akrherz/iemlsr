@@ -1,6 +1,6 @@
 import { buildRequestOptions } from './optionsManager.js';
 import { requireElement } from 'iemjs/domUtils';
-import { getState, StateKeys } from './state.js';
+import { getState, getStateETS, getStateSTS, StateKeys } from './state.js';
 
 
 /**
@@ -25,8 +25,8 @@ function getShapefileLink(base, filters) {
         });
     }
 
-    const sts = /** @type{Date} */ getState(StateKeys.STS);
-    const ets = /** @type{Date} */ getState(StateKeys.ETS);
+    const sts = getStateSTS();
+    const ets = getStateETS();
 
     // Ensure we have valid Date objects and convert to UTC ISO strings for API compatibility
     if (!(sts instanceof Date) || !(ets instanceof Date)) {
