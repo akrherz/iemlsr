@@ -1,4 +1,4 @@
-import { getState, StateKeys } from './state.js';
+import { getState, getStateETS, getStateSTS, StateKeys } from './state.js';
 
 /**
  * Build options for data requests based on current filters and time range
@@ -15,9 +15,9 @@ export function buildRequestOptions() {
     const states = filters.stateSelect.getValue();
     
     // Get times directly from state
-    const stsTime = getState(StateKeys.STS);
-    const etsTime = getState(StateKeys.ETS);
-    
+    const stsTime = getStateSTS();
+    const etsTime = getStateETS();
+
     const opts = {
         sts: stsTime.toISOString(),
         ets: etsTime.toISOString()

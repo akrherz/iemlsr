@@ -1,4 +1,4 @@
-import { getState, StateKeys } from "./state.js";
+import { getStateETS, getStateSTS } from "./state.js";
 
 export function initializeTimeSlider(containerId, onChangeCallback) {
   const container = document.getElementById(containerId);
@@ -29,8 +29,8 @@ export function initializeTimeSlider(containerId, onChangeCallback) {
   };
 
   const updateTimeDisplay = (value) => {
-    const sts = getState(StateKeys.STS);
-    const ets = getState(StateKeys.ETS);
+    const sts = getStateSTS();
+    const ets = getStateETS();
     if (!(sts instanceof Date) || !(ets instanceof Date)) {
       console.error("Invalid start or end time in state:", sts, ets);
       return;

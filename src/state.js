@@ -32,12 +32,31 @@ const state = {
 
 const subscribers = {};
 
+/**
+ * Get the current state
+ * @param {string} key 
+ * @returns {*}
+ */
 export function getState(key) {
     return state[key];
 }
 
+/**
+ * Get the current state for dates
+ * @param {string} key 
+ * @returns {Date}
+ */
+export function getStateDate(key) {
+    return state[key];
+}
+
+/**
+ * Set the state
+ * @param {string} key 
+ * @param {string | number | boolean | Date | Array} value 
+ * @returns 
+ */
 export function setState(key, value) {
-    // console.error(`Setting state: ${key} = ${value}`);
     if (!key) {
         return;
     }
@@ -58,6 +77,24 @@ function notifySubscribers(key) {
     if (subscribers[key]) {
         subscribers[key].forEach((callback) => callback(state[key]));
     }
+}
+
+// ----------------- HELPERS
+
+/**
+ * Get the current STS as a Date object
+ * @returns {Date}
+ */
+export function getStateSTS() {
+    return getStateDate(StateKeys.STS);
+}
+
+/**
+ * Get the current ETS as a Date object
+ * @returns {Date}
+ */
+export function getStateETS() {
+    return getStateDate(StateKeys.ETS);
 }
 
 export function getRealtime() {

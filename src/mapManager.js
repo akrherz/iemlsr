@@ -7,7 +7,7 @@ import LayerGroup from 'ol/layer/Group';
 import { transform } from 'ol/proj';
 import { getLSRTable, getSBWTable } from './tableManager.js';
 import { handleLSRClick, handleSBWClick } from './featureManager.js';
-import { getState, StateKeys } from './state.js';
+import { getStateETS } from './state.js';
 
 let n0q = null;
 let statesLayer = null;
@@ -132,7 +132,7 @@ export function initializeMap() {
         // @ts-ignore
         title: 'NEXRAD Base Reflectivity',
         visible: true,
-        source: getRADARSource(getState(StateKeys.ETS))
+        source: getRADARSource(getStateETS())
     });
     map.addLayer(n0q);
 
