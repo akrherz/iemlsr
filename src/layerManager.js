@@ -98,7 +98,12 @@ const sbwStyle = [new Style({
 })];
 
 const lsrStyle = new Style({
-    image: new Icon({ src: lsrLookup['9'] })
+    image: new Icon({ 
+        src: lsrLookup['9'],
+        anchor: [0.5, 1],
+        anchorXUnits: 'fraction',
+        anchorYUnits: 'fraction'
+    })
 });
 
 const textStyle = new Style({
@@ -185,7 +190,10 @@ export function createLSRLayer(TABLE_FILTERED_EVENT, olmap) {
             const url = lsrLookup[typ] || lsrLookup['9'];
             if (url) {
                 const icon = new Icon({
-                    src: url
+                    src: url,
+                    anchor: [0.5, 1],
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction'
                 });
                 lsrStyle.setImage(icon);
             }
