@@ -51,8 +51,12 @@ describe('Cron Manager', () => {
             jest.setSystemTime(mockNow);
 
             getState.mockImplementation((key) => {
-                if (key === StateKeys.REALTIME) return true;
-                if (key === StateKeys.SECONDS) return 14400;
+                if (key === StateKeys.REALTIME) {
+                    return true;
+                }
+                if (key === StateKeys.SECONDS) {
+                    return 14400;
+                }
                 return null;
             });
 
@@ -70,11 +74,16 @@ describe('Cron Manager', () => {
         });
 
         test('should handle invalid seconds value (not a number)', () => {
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            // Suppress console.error output during test
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
             
             getState.mockImplementation((key) => {
-                if (key === StateKeys.REALTIME) return true;
-                if (key === StateKeys.SECONDS) return 'invalid';
+                if (key === StateKeys.REALTIME) {
+                    return true;
+                }
+                if (key === StateKeys.SECONDS) {
+                    return 'invalid';
+                }
                 return null;
             });
 
@@ -88,11 +97,16 @@ describe('Cron Manager', () => {
         });
 
         test('should handle invalid seconds value (zero)', () => {
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            // Suppress console.error output during test
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
             
             getState.mockImplementation((key) => {
-                if (key === StateKeys.REALTIME) return true;
-                if (key === StateKeys.SECONDS) return 0;
+                if (key === StateKeys.REALTIME) {
+                    return true;
+                }
+                if (key === StateKeys.SECONDS) {
+                    return 0;
+                }
                 return null;
             });
 
@@ -106,11 +120,16 @@ describe('Cron Manager', () => {
         });
 
         test('should handle invalid seconds value (negative)', () => {
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            // Suppress console.error output during test
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
             
             getState.mockImplementation((key) => {
-                if (key === StateKeys.REALTIME) return true;
-                if (key === StateKeys.SECONDS) return -100;
+                if (key === StateKeys.REALTIME) {
+                    return true;
+                }
+                if (key === StateKeys.SECONDS) {
+                    return -100;
+                }
                 return null;
             });
 

@@ -271,8 +271,12 @@ describe("Filter Manager", () => {
 
     // Mock getState to return specific values
     getState.mockImplementation((key) => {
-      if (key === "lsrMagnitudeOperator") return "lte";
-      if (key === "lsrMagnitudeValue") return 3.2;
+      if (key === "lsrMagnitudeOperator") {
+        return "lte";
+      }
+      if (key === "lsrMagnitudeValue") {
+        return 3.2;
+      }
       return false;
     });
 
