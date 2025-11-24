@@ -3,7 +3,7 @@ const globals = require("globals");
 
 module.exports = [
     {
-        ignores: ["tests/**", "dist/**"]
+        ignores: ["dist/**"]
     },
     js.configs.recommended,
     {
@@ -18,10 +18,19 @@ module.exports = [
         }
     },
     {
+        files: ["tests/**/*.js"],
+        languageOptions: {
+            globals: {
+                ...globals.jest
+            }
+        }
+    },
+    {
         rules: {
             "curly": ["error", "all"],
             "dot-notation": "error",
             "eqeqeq": "error",
+            "no-empty-function": "error",
             "no-eval": "error",
             "no-var": "error",
             "prefer-const": "error",
