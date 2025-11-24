@@ -1,8 +1,13 @@
 import { getState, StateKeys, setState } from './state.js';
 import { loadData } from './dataManager.js';
 
+let cronIntervalId = null;
+
 /**
- * Handles the cron job that runs every minute to update time inputs in realtime mode
+ * Handles the cron job that runs every minute to update time inputs in realtime mode.
+ * Updates the start and end timestamps based on the configured time window,
+ * then triggers a data reload.
+ * @returns {void}
  */
 export function cronMinute() {
     const realtime = getState(StateKeys.REALTIME);
@@ -16,19 +21,33 @@ export function cronMinute() {
         console.error('Invalid seconds value in state:', seconds);
         return;
     }
-    const fourHoursAgo = new Date(now.getTime() - seconds * 1000);
+    const windowStart = new Date(now.getTime() - seconds * 1000);
     
-    // Update state with new times
     setState(StateKeys.ETS, now);
-    setState(StateKeys.STS, fourHoursAgo);
+    setState(StateKeys.STS, windowStart);
     
-    // Load data with new time window
-    setTimeout(loadData, 0);
+    loadData();
 }
 
 /**
- * Start periodic tasks
+ * Starts periodic tasks that run on a fixed interval.
+ * Currently schedules the minute-based cron job for realtime updates.
+ * @returns {void}
  */
 export function startCronTasks() {
-    window.setInterval(() => cronMinute(), 60000);
+    if (cronIntervalId !== null) {
+        return;
+    }
+    cronIntervalId = window.setInterval(cronMinute, 60000);
+}
+
+/**
+ * Stops all periodic cron tasks.
+ * @returns {void}
+ */
+export function stopCronTasks() {
+    if (cronIntervalId !== null) {
+        window.clearInterval(cronIntervalId);
+        cronIntervalId = null;
+    }
 }
