@@ -110,7 +110,6 @@ export function make_iem_tms(title, layername, visible, type) {
 export function initializeMap() {
     const map = new Map({
         target: 'map',
-        controls: [],
         view: new View({
             enableRotation: false,
             center: transform([-94.5, 42.1], 'EPSG:4326', 'EPSG:3857'),
