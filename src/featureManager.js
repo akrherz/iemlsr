@@ -1,5 +1,6 @@
 // Handles LSR and SBW feature formatting and interactions
 import { createPopup, removeAllPopups } from './popup.js';
+import { toLonLat } from 'ol/proj';
 import { vtec_phenomena_dict, vtec_significance_dict } from 'iemjs/iemdata';
 import { toLocaleString } from './timeUtils.js';
 
@@ -67,7 +68,7 @@ export function lsrHTML(feature) {
     const dt = new Date(feature.get("valid"));
     const ldt = toLocaleString(dt);
     const zz = dt.toISOString().slice(11, 16);
-    
+
     const lines = [
         '<div class="panel panel-default">',
         '<div class="panel-heading">',
@@ -90,6 +91,10 @@ export function lsrHTML(feature) {
             lines.push(`<strong>${label}:</strong> ${value}<br>`);
         }
     });
+
+    // Add placeholder for async zone info
+    lines.push('<hr>');
+    lines.push('<div class="lsr-zone-info">Querying NWS API for zone information...</div>');
 
     lines.push('</div></div>');
     return lines.join('\n');
@@ -135,12 +140,71 @@ export function handleLSRClick(feature, map, lsrtable) {
     if (feature.get('magnitude') === undefined) {
         return;
     }
-    
+
     removeAllPopups(map);
     const content = lsrHTML(feature);
     // @ts-ignore
     const coordinates = feature.getGeometry().getCoordinates();
-    createPopup(content, coordinates, map);
+    const popup = createPopup(content, coordinates, map);
+
+        // Convert coordinates from Spherical Mercator to [lon, lat]
+        let lon = null, lat = null;
+        if (Array.isArray(coordinates)) {
+            let coord = coordinates;
+            if (coordinates.length > 0 && Array.isArray(coordinates[0])) {
+                // If geometry is a MultiPoint or similar, take first
+                coord = coordinates[0];
+            }
+            if (coord.length === 2 && typeof coord[0] === 'number') {
+                const lonLat = toLonLat(coord);
+                lon = lonLat[0];
+                lat = lonLat[1];
+            }
+        }
+
+    if (lat !== null && lon !== null) {
+        fetch(`https://api.weather.gov/zones?point=${lat},${lon}`)
+            .then(resp => resp.ok ? resp.json() : Promise.reject('NWS API error'))
+            .then(data => {
+                // Collect found zones by type
+                const zoneTypes = ['county', 'public', 'forecast', 'coastal'];
+                const zoneLabels = {
+                    county: 'County',
+                    public: 'Public Zone',
+                    forecast: 'Forecast Zone',
+                    coastal: 'Coastal Zone'
+                };
+                const found = [];
+                if (Array.isArray(data.features)) {
+                    for (const type of zoneTypes) {
+                        const feat = data.features.find(f => f.properties && f.properties.type === type);
+                        if (feat) {
+                            found.push(`<strong>${zoneLabels[type]}:</strong> ${feat.properties.id} (${feat.properties.name})<br>`);
+                        }
+                    }
+                }
+                const container = popup.getElement();
+                if (container) {
+                    const infoDiv = container.querySelector('.lsr-zone-info');
+                    if (infoDiv) {
+                        if (found.length > 0) {
+                            infoDiv.innerHTML = found.join('');
+                        } else {
+                            infoDiv.textContent = 'No zone information found.';
+                        }
+                    }
+                }
+            })
+            .catch(() => {
+                const container = popup.getElement();
+                if (container) {
+                    const infoDiv = container.querySelector('.lsr-zone-info');
+                    if (infoDiv) {
+                        infoDiv.textContent = 'Error retrieving zone information.';
+                    }
+                }
+            });
+    }
 
     // Update table selection
     if (lsrtable.rows) {
