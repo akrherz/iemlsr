@@ -14,13 +14,13 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
-    "babel-jest": "^30.2.0",
-    "jest": "^30.2.0",
-    "jest-environment-jsdom": "^30.2.0",
-    "vite": "^7.2.6"
+    "babel-jest": "^30.3.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "vite": "^8.0.3"
   },
   "dependencies": {
     "@eslint/js": "^10.0.1",
@@ -28,7 +28,7 @@
     "datatables.net-dt": "^2.3.7",
     "datatables.net-scroller-dt": "^2.4.3",
     "datatables.net-select-dt": "^3.1.3",
-    "eslint": "^10.0.2",
+    "eslint": "^10.1.0",
     "globals": "^17.4.0",
     "iemjs": "^0.0.7",
     "jquery-ui": "^1.14.2",
