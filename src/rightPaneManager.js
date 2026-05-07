@@ -4,19 +4,17 @@
  * @typedef {import('@shoelace-style/shoelace/dist/components/drawer/drawer.js').default} SlDrawer
  */
 
+import { requireElement } from 'iemjs/domUtils';
+
 /**
  * Initializes the right pane functionality
  */
 export function initializeRightPane() {
     // Type assertion to treat the element as a Shoelace drawer component
-    const rightContainer = /** @type {SlDrawer} */ (document.getElementById('right-container'));
-    const mapContainer = document.getElementById('map');
-    const toggleBtn = document.getElementById('right-pane-toggle');
+    const rightContainer = /** @type {SlDrawer} */ (requireElement('right-container'));
+    const mapContainer = requireElement('map');
+    const toggleBtn = requireElement('right-pane-toggle');
     const tabBtns = document.querySelectorAll('.tab-btn');
-    if (!rightContainer || !mapContainer || !toggleBtn) {
-        console.error('Required elements for right pane management are missing.');
-        return;
-    }
     const mobileQuery = window.matchMedia('(max-width: 768px)');
 
     // Initial state - start expanded on desktop, collapsed on mobile
