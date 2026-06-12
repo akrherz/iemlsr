@@ -79,13 +79,6 @@ function createStatsElement() {
 function makeStatsElementDraggable(statsElements) {
     let dragState = null;
 
-    const stopDragging = () => {
-        dragState = null;
-        statsElements.element.classList.remove('dragging');
-        document.removeEventListener('mousemove', handleDrag);
-        document.removeEventListener('mouseup', stopDragging);
-    };
-
     const handleDrag = (event) => {
         if (!dragState) {
             return;
@@ -96,6 +89,14 @@ function makeStatsElementDraggable(statsElements) {
         statsElements.element.style.left = `${Math.max(10, nextLeft)}px`;
         statsElements.element.style.top = `${Math.max(10, nextTop)}px`;
     };
+
+    const stopDragging = () => {
+        dragState = null;
+        statsElements.element.classList.remove('dragging');
+        document.removeEventListener('mousemove', handleDrag);
+        document.removeEventListener('mouseup', stopDragging);
+    };
+
 
     statsElements.header.addEventListener('mousedown', (event) => {
         if (event.target === statsElements.closeButton) {
