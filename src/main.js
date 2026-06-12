@@ -25,6 +25,7 @@ import { startCronTasks } from './cronManager.js';
 import { initializeRightPane } from './rightPaneManager.js';
 import { initializeTabs } from './tabs.js';
 import { applySettings } from './settingsManager.js';
+import { initializeDrawCountTool } from './drawCountManager.js';
 
 function initializeApplication() {
     // First migrate any hash parameters to URL parameters
@@ -58,6 +59,7 @@ function initializeApplication() {
     olmap.addLayer(createLSRLayer("tfe", olmap));
 
     initializeLayerControls(olmap);
+    initializeDrawCountTool(olmap);
 
     // Apply URL-based settings after all layers and controls are initialized
     // This ensures settings from URL parameters are properly applied at page load

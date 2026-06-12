@@ -75,10 +75,20 @@ class MockGeoJSON {
     this.options = options;
   }
 }
+class MockDragBox {
+  constructor(options = {}) {
+    this.options = options;
+  }
+}
 
 // Mock functions
 const mockFromLonLat = () => [0, 0];
 const mockToLonLat = () => [0, 0];
+const mockTransformExtent = (extent) => extent;
+const mockFromExtent = (extent) => ({
+  extent,
+  getExtent: () => extent
+});
 
 const olMock = {
   Map: MockMap,
@@ -120,6 +130,7 @@ export const Feature = olMock.Feature;
 export const proj = olMock.proj;
 export const style = olMock.style;
 export const format = olMock.format;
+export const transformExtent = mockTransformExtent;
 
 // Export individual style components for direct imports
 export const Style = MockStyle;
@@ -133,3 +144,6 @@ export const Icon = MockIcon;
 export const GeoJSON = MockGeoJSON;
 export const VectorLayer = MockVectorLayer;
 export const VectorSource = MockVectorSource;
+export const DragBox = MockDragBox;
+export const always = () => true;
+export const fromExtent = mockFromExtent;

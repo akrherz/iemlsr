@@ -2,6 +2,7 @@
 :root {
   --z-base: 1;
   --z-map: 10;
+  --z-map-tools: 30;
   --z-drawer: 100;
   --z-toggle: 101;
   --z-modal: 1000;
@@ -436,4 +437,124 @@ tr.shown td.details-control {
 #branding-overlay[data-mode="archive"] {
   background: rgba(255, 255, 224, 0.8);
   color: #8B8000;
+}
+
+.draw-count-toggle {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: var(--z-map-tools);
+  border: 1px solid #1f3c88;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #1f3c88;
+  font-weight: 700;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.draw-count-toggle.active {
+  background: #1f3c88;
+  color: #fff;
+}
+
+#map.draw-count-active .ol-viewport {
+  cursor: crosshair;
+}
+
+.draw-count-dragbox {
+  border: 2px dashed #0d47a1;
+  background-color: rgba(33, 150, 243, 0.15);
+}
+
+.draw-count-stats {
+  position: absolute;
+  z-index: var(--z-map-tools);
+  transform: translateY(-100%);
+  min-width: 230px;
+  max-width: 380px;
+  border: 1px solid #0d47a1;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #102a43;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  display: none;
+}
+
+.draw-count-stats.visible {
+  display: block;
+}
+
+.draw-count-stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: #0d47a1;
+  color: #fff;
+  border-radius: 5px 5px 0 0;
+  font-weight: 700;
+  cursor: move;
+}
+
+.draw-count-stats-close {
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.draw-count-stats-body {
+  padding: 6px 8px;
+}
+
+.draw-count-stats.dragging {
+  user-select: none;
+}
+
+.draw-count-stats-line {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.draw-count-stats-types {
+  gap: 4px;
+}
+
+.draw-count-stats-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.draw-count-stats-label {
+  flex: 0 0 auto;
+  background: #dbeafe;
+  color: #0d47a1;
+  font-weight: 700;
+}
+
+.draw-count-stats-value {
+  background: #f0f4f8;
+  color: #102a43;
+}
+
+.draw-count-stats-values {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
 }
