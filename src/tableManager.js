@@ -4,6 +4,7 @@ import 'datatables.net-select-dt';
 import 'datatables.net-scroller-dt';
 import { vtec_phenomena_dict, vtec_significance_dict } from 'iemjs/iemdata';
 import { formatLSR } from "./featureManager.js";
+import { announceStatus } from './accessibilityManager.js';
 import { getLSRLayer, getSBWLayer } from './layerManager.js';
 import { renderDateTime } from './timeUtils.js';
 
@@ -82,6 +83,7 @@ export function initializeLSRTable(TABLE_FILTERED_EVENT, lsrtableEl, olmap) {
                 }
                 const tr = td.closest('tr');
                 const row = lsrtable.row(tr);
+                announceStatus('Selected local storm report.');
                 // Zoom to the selected feature
                 olmap.getView().fit(row.data().geometry.getExtent(), {
                     duration: 500,
@@ -174,6 +176,7 @@ export function initializeSBWTable(TABLE_FILTERED_EVENT, sbwtableEl, olmap) {
                 }
                 const tr = td.closest('tr');
                 const row = sbwtable.row(tr);
+                announceStatus('Selected storm-based warning.');
                 // Zoom to the selected feature
                 olmap.getView().fit(row.data().geometry.getExtent(), {
                     duration: 500,
