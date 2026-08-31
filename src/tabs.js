@@ -6,25 +6,41 @@ export function initializeTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
-    // Event listeners for tab buttons
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Update button states
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            // Update content visibility
-            const tabId = `${btn.dataset.tab}-tab`;
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabId)?.classList.add('active');
+    function activateTab(tab) {
+        tabBtns.forEach(button => {
+            const isActive = button === tab;
+            button.classList.toggle('active', isActive);
+            button.setAttribute('aria-selected', String(isActive));
+            button.tabIndex = isActive ? 0 : -1;
+        });
+
+        const tabId = `${tab.dataset.tab}-tab`;
+        tabContents.forEach(content => {
+            const isActive = content.id === tabId;
+            content.classList.toggle('active', isActive);
+            content.hidden = !isActive;
+        });
+    }
+
+    tabBtns.forEach((tab, index) => {
+        tab.addEventListener('click', () => activateTab(tab));
+        tab.addEventListener('keydown', event => {
+            let targetIndex;
+            if (event.key === 'ArrowRight') {
+                targetIndex = (index + 1) % tabBtns.length;
+            } else if (event.key === 'ArrowLeft') {
+                targetIndex = (index - 1 + tabBtns.length) % tabBtns.length;
+            } else if (event.key === 'Home') {
+                targetIndex = 0;
+            } else if (event.key === 'End') {
+                targetIndex = tabBtns.length - 1;
+            } else {
+                return;
+            }
+            event.preventDefault();
+            const targetTab = tabBtns[targetIndex];
+            activateTab(targetTab);
+            targetTab.focus();
         });
     });
-
-    // Show LSR tab by default
-    const defaultTab = document.querySelector('.tab-btn[data-tab="lsr"]');
-    if (defaultTab) {
-        defaultTab.click();
-    }
 }

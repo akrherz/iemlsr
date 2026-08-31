@@ -9,7 +9,7 @@ export default {
     alias: [
         {
           find: "@",
-          replacement: path.resolve(__dirname, "src"),
+          replacement: path.resolve(import.meta.dirname, "src"),
         }
     ],
   }

@@ -17,14 +17,14 @@
       <!-- Right Side Pane -->
       <div id="right-pane" class="right-pane">
         <!-- Tab Headers -->
-        <div class="tab-headers">
-          <button class="tab-btn active" data-tab="settings">Settings</button>
-          <button class="tab-btn" data-tab="lsr">LSRs</button>
-          <button class="tab-btn" data-tab="sbw">Warnings</button>
-          <button class="tab-btn" data-tab="help">Help</button>
+        <div class="tab-headers" role="tablist" aria-label="Application panels">
+          <button class="tab-btn" id="settings-tab-button" data-tab="settings" role="tab" aria-controls="settings-tab" aria-selected="false" tabindex="-1">Settings</button>
+          <button class="tab-btn active" id="lsr-tab-button" data-tab="lsr" role="tab" aria-controls="lsr-tab" aria-selected="true" tabindex="0">LSRs</button>
+          <button class="tab-btn" id="sbw-tab-button" data-tab="sbw" role="tab" aria-controls="sbw-tab" aria-selected="false" tabindex="-1">Warnings</button>
+          <button class="tab-btn" id="help-tab-button" data-tab="help" role="tab" aria-controls="help-tab" aria-selected="false" tabindex="-1">Help</button>
         </div>
         <!-- Settings Tab Content -->
-        <div class="tab-content" id="settings-tab">
+        <div class="tab-content" id="settings-tab" role="tabpanel" aria-labelledby="settings-tab-button" hidden>
           <!-- Data Controls Section -->
           <div class="data-controls-section">
             <div class="control-group">
@@ -157,7 +157,7 @@
         </div>
         
         <!-- LSR Tab Content -->
-        <div class="tab-content" id="lsr-tab">
+        <div class="tab-content active" id="lsr-tab" role="tabpanel" aria-labelledby="lsr-tab-button">
           <div class="filter-options">
             <label for="lsrtypefilter">Filter LSRs by Type:</label>
             <select id="lsrtypefilter" class="input-field" multiple></select>
@@ -199,7 +199,7 @@
         </div>
 
         <!-- SBW Tab Content -->
-        <div class="tab-content" id="sbw-tab">
+        <div class="tab-content" id="sbw-tab" role="tabpanel" aria-labelledby="sbw-tab-button" hidden>
           <div class="filter-options">
             <label for="sbwtypefilter">Filter SBWs by Type:</label>
             <select id="sbwtypefilter" class="input-field" multiple></select>
@@ -229,7 +229,7 @@
           </div>
         </div>
         <!-- Help Tab Content -->
-        <div class="tab-content" id="help-tab">
+        <div class="tab-content" id="help-tab" role="tabpanel" aria-labelledby="help-tab-button" hidden>
             <p>Welcome to the IEM Local Storm Report (LSR) App! The
             <a href="old.phtml">old version</a> of this app is still available for
             use, but this new version is the way forward. It is built using
@@ -299,8 +299,10 @@
       </div>
     </sl-drawer>
 
+    <div id="app-status" role="status" aria-live="polite" class="visually-hidden"></div>
+
     <!-- Right drawer toggle button -->
-    <sl-button class="drawer-toggle-right" id="right-pane-toggle" size="large">▶</sl-button>
+    <sl-button class="drawer-toggle-right" id="right-pane-toggle" size="large" aria-controls="right-container" aria-expanded="true" aria-label="Hide controls panel" title="Hide controls panel">▶</sl-button>
 
     <script type="module" src="/src/main.js"></script>
   </body>

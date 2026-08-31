@@ -1,5 +1,6 @@
 // Handles LSR and SBW feature formatting and interactions
 import { createPopup, removeAllPopups } from './popup.js';
+import { announceStatus } from './accessibilityManager.js';
 import { toLonLat } from 'ol/proj';
 import { vtec_phenomena_dict, vtec_significance_dict } from 'iemjs/iemdata';
 import { toLocaleString } from './timeUtils.js';
@@ -107,6 +108,7 @@ export function lsrHTML(feature) {
  * @param {*} sbwtable SBW DataTable instance
  */
 export function handleSBWClick(feature, map, sbwtable) {
+    announceStatus('Selected storm-based warning.');
     removeAllPopups(map);
     const content = formatSBW(feature);
     const geom = feature.getGeometry();
@@ -141,6 +143,7 @@ export function handleLSRClick(feature, map, lsrtable) {
         return;
     }
 
+    announceStatus('Selected local storm report.');
     removeAllPopups(map);
     const content = lsrHTML(feature);
     // @ts-ignore

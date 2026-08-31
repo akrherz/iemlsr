@@ -14,8 +14,14 @@ export function initializeRightPane() {
     const rightContainer = /** @type {SlDrawer} */ (requireElement('right-container'));
     const mapContainer = requireElement('map');
     const toggleBtn = requireElement('right-pane-toggle');
-    const tabBtns = document.querySelectorAll('.tab-btn');
     const mobileQuery = window.matchMedia('(max-width: 768px)');
+
+    function setToggleState(isOpen) {
+        toggleBtn.setAttribute('aria-expanded', String(isOpen));
+        const label = `${isOpen ? 'Hide' : 'Show'} controls panel`;
+        toggleBtn.setAttribute('aria-label', label);
+        toggleBtn.setAttribute('title', label);
+    }
 
     // Initial state - start expanded on desktop, collapsed on mobile
     const isMobile = mobileQuery.matches;
@@ -25,10 +31,12 @@ export function initializeRightPane() {
         rightContainer.hide();
         mapContainer.classList.remove('with-right-pane');
         toggleBtn.textContent = '▲';
+        setToggleState(false);
     } else {
         rightContainer.show();
         mapContainer.classList.add('with-right-pane');
         toggleBtn.textContent = '▶';
+        setToggleState(true);
     }
 
     // Toggle pane visibility
@@ -58,6 +66,7 @@ export function initializeRightPane() {
         } else {
             mapContainer.classList.add('with-right-pane');
         }
+        setToggleState(!isCurrentlyOpen);
         
         // Trigger OpenLayers map resize after animation completes
         setTimeout(() => {
@@ -70,6 +79,7 @@ export function initializeRightPane() {
         mapContainer.classList.add('with-right-pane');
         // Set arrow direction based on viewport
         toggleBtn.textContent = mobileQuery.matches ? '▼' : '◀';
+        setToggleState(true);
         // Force redraw for mobile
         if (mobileQuery.matches) {
             rightContainer.style.display = 'none';
@@ -83,27 +93,8 @@ export function initializeRightPane() {
         mapContainer.classList.remove('with-right-pane');
         // Set arrow direction based on viewport
         toggleBtn.textContent = mobileQuery.matches ? '▲' : '▶';
+        setToggleState(false);
         window.dispatchEvent(new Event('resize'));
-    });
-    
-    // Tab switching
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Update button states
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            // Update content visibility
-            const htmlBtn = /** @type {HTMLElement} */ (btn);
-            const tabId = `${htmlBtn.dataset.tab}-tab`;
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            const tabElement = document.getElementById(tabId);
-            if (tabElement) {
-                tabElement.classList.add('active');
-            }
-        });
     });
     
     // Handle mobile responsiveness
@@ -118,11 +109,13 @@ export function initializeRightPane() {
             container.hide();
             map.classList.remove('with-right-pane');
             toggle.textContent = '▲';  // Point up when closed on mobile
+            setToggleState(false);
         } else {
             // Desktop view - start expanded
             container.show();
             map.classList.add('with-right-pane');
             toggle.textContent = '▶';  // Point right when open on desktop
+            setToggleState(true);
         }
         // Trigger OpenLayers map resize
         window.dispatchEvent(new Event('resize'));
